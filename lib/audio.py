@@ -15,7 +15,7 @@ class AudioItem():
     
     # Channel Management
     def addChannel(self):
-        self.data.append(AudioData())  # TODO add new audioDataItem
+        self.data.append(AudioData())
         self.nchannel = len(self.data)
 
     def deleteChannel(self, indexToDelete):
@@ -75,16 +75,19 @@ class AudioData():
         self.rate, self.amp, self.codec = audiofile.read(config.AUDIO_FILE_TEST)
         self.t = audiodsp.getTemporalVector(self.tamp, fs=self.rate)
     
-    def getfft(self, iscomplex=False):
-        self.setSpectralContent(audiodsp.getFft(t=self.t, tamp=self.tamp, fs=self.rate, N=config.FFT_WINDOWING))
+    def fft(self, iscomplex=False):
+        self.setSpectralContent(*audiodsp.getFft(t=self.t, tAmplitude=self.tamp, fs=self.rate))
     
     def plot(self, space="time", mode="short", show=False):
+        legendList = []
         if mode == "short":
             if space == "time":
-                audioplot.shortPlot(self.t, self.tamp, space="time")
+                audioplot.shortPlot(self.t, self.tamp, space=space)
+                legendList.append("Time Plot")
             elif space == "spectral":
-                audioplot.shortPlot(self.f, self.fampDb, space="spectral")
+                audioplot.shortPlot(self.f, self.fampDb, space=space)
+                legendList.append("Spectral Plot")
         else:
             logging.error("Plot not possible")
         if show:
-            audioplot.pshow() 
+            audioplot.pshow(legend=legendList) 

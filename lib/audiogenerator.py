@@ -11,5 +11,5 @@ def generateSine(f, A, fs=config.SAMPLING_FREQUENCY, duration=config.BASIC_DURAT
     # sine
     sine =  A * np.sin(w*t)
 
-    return t, sine
+    return t.tolist(), sine.tolist()
     

@@ -10,9 +10,11 @@ def main():
     joyca.addSinusAsNewChannel()
     joyca.makeStereo()
     joyca.setAudioItemToMono()
-    # joyca.data[0].fft(iscomplex=False)
-    # joyca.plot(show=True)
-    # joyca.plot(show=True, space="spectral")
+
+    # sub-class methods
+    joyca.data[0].fft()
+    joyca.data[0].plot(show=True)
+    joyca.data[0].plot(show=True, space="spectral")
     # filtrer la voix
 
 if __name__ == "__main__":
