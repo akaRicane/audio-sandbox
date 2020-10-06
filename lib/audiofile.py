@@ -1,4 +1,5 @@
 import logging
+import subprocess
 from pathlib import Path
 from pydub import AudioSegment
 from scipy.io import wavfile
@@ -26,4 +27,9 @@ def read(filePath):
         song = AudioSegment.from_mp3(filePath)
     else:
         logging.error("Audio codec unsupported !")
-    return rate, data
+    codec = 'WAV'
+    return rate, data, codec
+
+
+def openWithFfmepg(filePath):
+    cmd = f'ffmpeg -i {filePath}'

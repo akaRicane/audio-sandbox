@@ -1,5 +1,6 @@
 import os
 import sys
+import copy
 from pathlib import Path
 
 from lib import audiodsp, audiofile, audioplot, audiogenerator
@@ -7,63 +8,75 @@ from lib import config
 
 class AudioItem():
     def __init__(self):
-        name = None
-        temporalAvailable = False
-        spectralAvailable = False
-        rate = config.SAMPLING_FREQUENCY
-        nchannel = None
-        npts = None
-        codec = None
-        t = None
-        tamp = None
-        f = None
-        famp = None
-        ffampDb = None
-    def setToMono(self):
-        if self.temporalAvailable:
-            self.tamp = audiodsp.toMono(self.tamp)
-        elif self.spectralAvailable:
-            self.famp = audiodsp.toMono(self.famp)
-            self.fampDb = audiodsp.toMono(self.fampDb)
-
-    def setTemporalContent(self, t, tamp):
-        self.t = t
-        self.tamp = tamp
-        self.temporalAvailable =  True
+        # Common parameters of AudioItem
+        self.nchannel = 0
+        self.codec = None
+        self.data = []
     
-    def setSpectralContent(self, f, famp, fampDb):
-        self.f = f
-        self.famp = famp
-        self.fampDb = fampDb
+    # Channel Management
+    def addChannel(self):
+        self.data.append(AudioData())  # TODO add new audioDataItem
+        self.nchannel = len(self.data)
+
+    def deleteChannel(self, indexToDelete):
+        del self.data[indexToDelete]
+        self.nchannel = len(self.data)
+        
+    def cloneChannel(self, indexToClone):
+        self.addChannel()
+        self.data[-1] = copy.deepcopy(self.data[indexToClone])
+
+    def makeStereo(self):
+        self.cloneChannel(indexToClone=0)
+
+    def setAudioItemToMono(self, indexToKeep=0):
+        self.data[0] = copy.deepcopy(self.data[indexToKeep])
+        for idx, _ in enumerate(self.data):
+            if idx != 0:
+                self.deleteChannel(idx)
+    
+    def addSinusAsNewChannel(self):
+        self.addChannel()
+        self.data[-1].loadSinus()
+            
+
+class AudioData():
+    def __init__(self):
+        self.npts = None
+        self.rate = config.SAMPLING_FREQUENCY
+        self.t = None
+        self.tamp = None
+        self.f = None
+        self.famp = None
+        self.ffampDb = None
+        self.fphase = None
+        self.temporalAvailable = False
+        self.spectralAvailable = False
+    
+    # Data Management    
+    def setTemporalContent(self, timeVector: list, amplitude: list):
+        self.tamp = amplitude
+        self.t = timeVector
+        self.npts = len(self.t)
+        self.temporalAvailable = True
+    
+    def setSpectralContent(self, freq: list, amplitude: list, amplitude_db: list=None, phase: list=None):
+        self.f = freq
+        self.famp = amplitude
+        self.fampDb = amplitude_db
+        self.fphase = phase
         self.spectralAvailable = True
     
-    def loadSinus(self, f=1000, A=0.5):
-        self.t, self.tamp = audiogenerator.generateSine(f=f, A=A)
-        self.temporalAvailable = True
-        self.npts = len(self.t)
-        self.nchannel = 1
-        self.name = f"Sinus {f} Hz"
-        # TODO fix rate
+    def loadSinus(self, f=1000, A=1):
         self.rate = config.SAMPLING_FREQUENCY
+        self.setTemporalContent(*audiogenerator.generateSine(f=f, A=A))
 
     def loadAudioFile(self):
-        self.rate, self.tamp = audiofile.read(config.AUDIO_FILE_TEST)
-        self.codec = "WAV"
-        self.temporalAvailable = True
-        self.npts = len(self.tamp) * self.rate
-        self.getTemporalVectorFromAudioFile()
-
-    def getTemporalVectorFromAudioFile(self):
+        self.rate, self.amp, self.codec = audiofile.read(config.AUDIO_FILE_TEST)
         self.t = audiodsp.getTemporalVector(self.tamp, fs=self.rate)
-
-    def fft(self, iscomplex=False):
-        f, famp, fampDb = audiodsp.getFft(
-            t=self.t, tamp=self.tamp, fs=self.rate, N=self.npts)
-        # get rid of imaginary part 
-        if not iscomplex:
-            self.famp = abs(famp)
-            self.fampDb = abs(fampDb)
-        self.setSpectralContent(f=f, famp=famp, fampDb=fampDb)
+    
+    def getfft(self, iscomplex=False):
+        self.setSpectralContent(audiodsp.getFft(t=self.t, tamp=self.tamp, fs=self.rate, N=config.FFT_WINDOWING))
     
     def plot(self, space="time", mode="short", show=False):
         if mode == "short":
@@ -73,7 +86,5 @@ class AudioItem():
                 audioplot.shortPlot(self.f, self.fampDb, space="spectral")
         else:
             logging.error("Plot not possible")
-        
-        if show == True:
-            audioplot.pshow()
-
+        if show:
+            audioplot.pshow() 

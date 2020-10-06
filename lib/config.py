@@ -5,6 +5,7 @@ from pathlib import Path
 AUDIO_REPOSITORY = "D:/OneDrive/Documents/_PROJETS_PERSO/PROGRA/audio"
 # audio general
 SAMPLING_FREQUENCY = 44100  # Hz
+FFT_WINDOWING = 1024  # points
 
 # audiofile
 AUDIO_SOURCES = Path(AUDIO_REPOSITORY, "sources")
