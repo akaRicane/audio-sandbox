@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-from lib import audiogenerator
 
-def shortPlot(vect, data, space='time'):
+def shortPlot(vect, data, space='time', legendList: list=None):
     """Allows to plot multiple plots in one fig with some specific treatment
 
     Args:
@@ -10,8 +9,14 @@ def shortPlot(vect, data, space='time'):
         space (str, optional): [time/spectral plot]. Defaults to 'time'.
     """
     plt.gcf()
-    if space == "time": plt.plot(vect, data) 
-    elif space == "spectral": plt.semilogx(vect, data[:len(vect)])
+    plt.ylabel("Amplitude")
+    for channel in range(len(data)):
+        if space == "time": 
+            plt.plot(vect, data[channel]) 
+            plt.xlabel("Time [s]")
+        elif space == "spectral": 
+            plt.semilogx(vect, data[channel][:len(vect)])
+            plt.xlabel("Frequency [Hz]")
         
 
 def pshow(legend: list=None):
@@ -22,4 +27,19 @@ def pshow(legend: list=None):
     fig = plt.gcf()
     plt.grid()
     if legend is not None: plt.legend(legend)
+    plt.show()
+
+
+def boardControl(vect: list, data:list, additionalData: list, legendList: list):
+    plt.figure()
+    plt.title("Board Control")
+    plt.subplot(1,2,1)
+    shortPlot(vect[1], data[1], "spectral")
+    plt.legend(legendList[1])
+    plt.grid()
+    plt.subplot(2, 2, 2)
+    shortPlot(vect[0], data[0], "time")
+    plt.legend(legendList[0])
+    plt.subplot(2, 2, 4)
+    plt.text(x=0, y=0, s=additionalData.__str__())
     plt.show()

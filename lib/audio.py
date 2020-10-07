@@ -48,10 +48,13 @@ class AudioData():
         self.tamp = None
         self.f = None
         self.famp = None
-        self.ffampDb = None
         self.fphase = None
         self.temporalAvailable = False
         self.spectralAvailable = False
+        self.info = {
+            "SNR": '96 dB',
+            'THD': '0.001%'
+        }
     
     # Data Management    
     def setTemporalContent(self, timeVector: list, amplitude: list):
@@ -90,4 +93,9 @@ class AudioData():
         else:
             logging.error("Plot not possible")
         if show:
-            audioplot.pshow(legend=legendList) 
+            audioplot.pshow(legend=legendList)
+
+    def callBoardControl(self):
+        vect = [self.t, self.f]
+        data = [[self.tamp], [self.fampDb]]
+        audioplot.boardControl(vect=vect, data=data, additionalData=self.info, legendList=["temporal", "spectral", "spectral2"])

@@ -13,8 +13,7 @@ def main():
 
     # sub-class methods
     joyca.data[0].fft()
-    joyca.data[0].plot(show=True)
-    joyca.data[0].plot(show=True, space="spectral")
+    joyca.data[0].callBoardControl()
     # filtrer la voix
 
 if __name__ == "__main__":
