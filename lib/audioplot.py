@@ -10,13 +10,22 @@ def shortPlot(vect, data, space='time', legendList: list=None):
     """
     plt.gcf()
     plt.ylabel("Amplitude")
-    for channel in range(len(data)):
+    if len(vect) <= len(data):
         if space == "time": 
-            plt.plot(vect, data[channel]) 
+            plt.plot(vect, data) 
             plt.xlabel("Time [s]")
-        elif space == "spectral": 
-            plt.semilogx(vect, data[channel][:len(vect)])
+        elif space == "spectral":
+            amp = data[1:int(len(data)/2)]
+            plt.semilogx(vect, amp[:len(vect)])
             plt.xlabel("Frequency [Hz]")
+    else:
+        for channel in range(len(data)):
+            if space == "time":
+                plt.plot(vect, data[channel]) 
+                plt.xlabel("Time [s]")
+            elif space == "spectral":
+                plt.semilogx(vect, data[channel][:len(vect)])
+                plt.xlabel("Frequency [Hz]")
         
 
 def pshow(legend: list=None):

@@ -48,6 +48,7 @@ class AudioData():
         self.tamp = None
         self.f = None
         self.famp = None
+        self.fampDb = None
         self.fphase = None
         self.temporalAvailable = False
         self.spectralAvailable = False
@@ -81,6 +82,9 @@ class AudioData():
     def fft(self, iscomplex=False):
         self.setSpectralContent(*audiodsp.getFft(t=self.t, tAmplitude=self.tamp, fs=self.rate))
     
+    def ifft(self):
+        self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(amplitude=self.famp, phase=self.fphase))
+
     def plot(self, space="time", mode="short", show=False):
         legendList = []
         if mode == "short":
@@ -95,6 +99,12 @@ class AudioData():
         if show:
             audioplot.pshow(legend=legendList)
 
+    def tplot(self):
+        self.plot(space="time")
+    
+    def fplot(self):
+        self.plot(space="spectral")
+    
     def callBoardControl(self):
         vect = [self.t, self.f]
         data = [[self.tamp], [self.fampDb]]
