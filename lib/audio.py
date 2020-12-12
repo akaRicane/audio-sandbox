@@ -71,7 +71,7 @@ class AudioData():
         self.fphase = phase
         self.spectralAvailable = True
     
-    def loadSinus(self, f=1000, A=1):
+    def loadSinus(self, f=440, A=0.7):
         self.rate = config.SAMPLING_FREQUENCY
         self.setTemporalContent(*audiogenerator.generateSine(f=f, A=A))
 

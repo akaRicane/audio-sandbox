@@ -6,19 +6,13 @@ from lib import audio, audioplot
 
 def main():
     # class items
-    joyca = audio.AudioItem()
-    joyca.addSinusAsNewChannel()
-    joyca.makeStereo()
-    joyca.setAudioItemToMono()
-
-    # sub-class methods
-    joyca.data[0].fft()
-    joyca.data[0].ifft()
+    signal = audio.AudioItem()
+    signal.addSinusAsNewChannel()
     
-    joyca.data[0].fplot()
-    joyca.data[0].tplot()
-    # joyca.data[0].callBoardControl()
-    # filtrer la voix
+    signal.data[0].fft()
+    signal.data[0].fplot()
     audioplot.pshow()
+
+
 if __name__ == "__main__":
     main()
