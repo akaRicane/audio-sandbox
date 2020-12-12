@@ -26,16 +26,21 @@ class AudioFilter():
         impulse = signal.unit_impulse(512)
         if self.type == "sos":
             response = signal.sosfilt(sos=self.coefs, x=impulse) 
-            w, h = signal.sosfreqz(sos=self.coefs)
+            w, h = signal.sosfreqz(sos=self.coefs, worN=512)
+            sos = signal.butter(4, 1000, 'high', output="sos", analog=True)
+            w, h = signal.sosfreqz(sos)
         else:
             response = signal.lfilter(b=self.coefs[0], a=self.coefs[1], x=impulse)
             w, h = signal.freqs(b=self.coefs[0], a=self.coefs[1])
         
-        plt.semilogx(w, 20 * np.log10(abs(response)))
+        plt.semilogx(w, 20 * np.log10(abs(h)))
+
         plt.title('Butterworth filter frequency response')
         plt.xlabel('Frequency [radians / second]')
         plt.ylabel('Amplitude [dB]')
-        # plt.margins(0, 0.1)
+
+        plt.grid(True)
+        plt.margins(0, 0.1)
         plt.grid(which='both', axis='both')
         plt.axvline(1000, color='green') # cutoff frequency
         plt.show()
