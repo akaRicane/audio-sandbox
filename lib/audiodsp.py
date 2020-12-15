@@ -23,6 +23,7 @@ def retCleanFft(x) -> list:
     return x[1:int(len(x)/2)].tolist()
 
 def getiFft(array: list) -> list:
+    #TODO fix ifft -> 2 times faster sine vect 4043 -> 2021
     return np.fft.ifft(array)
 
 def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
