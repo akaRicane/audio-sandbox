@@ -12,13 +12,18 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
         N (int, optional): [description]. Defaults to config.FFT_WINDOWING.
         fs (float, optional): [description]. Defaults to config.SAMPLING_FREQUENCY.
     """    
-    freq = fs * np.arange(N) / N
+    # freq = fs * np.arange(N) / N
+    freq = np.fft.fftfreq(len(t)) * fs
     output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
     amplitude, phase = splitFftVector(output)  
     amplitude_db = 20 * np.log10(amplitude)
-    return freq.tolist(), amplitude.tolist(), amplitude_db.tolist(), phase.tolist()
+    return retCleanFft(freq), retCleanFft(amplitude), retCleanFft(amplitude_db), retCleanFft(phase)
+
+def retCleanFft(x) -> list:
+    return x[1:int(len(x)/2)].tolist()
 
 def getiFft(array: list) -> list:
+    #TODO fix ifft -> 2 times faster sine vect 4043 -> 2021
     return np.fft.ifft(array)
 
 def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
