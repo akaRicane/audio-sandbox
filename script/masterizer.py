@@ -1,18 +1,51 @@
+import sys
+import os
+import logging
+import argparse
+from pathlib import Path
 
+import matplotlib.pyplot as plt
 
-def main():
-    logging.info("----- Masterizer script by akaRicane -----")
+sys.path.append(os.getcwd())
+from lib import audio, audioplot, audiofile
 
-    fs, data = read(filePath=filePath)
+# ######################
+# #### ARCHITECTURE ####
+# ######################
+# import audio
+# import template
+# fourier
+# frequency band slicer
+# MIR ??
+# parametrizer / fit
+# filter generation
+# other dsp operations
+# output audio
+# ######################
 
-    fft = scipy.fft.fft(data)
-
-    plt.plot(fft)
-    plt.show()
-
-
-    logging.info("---- End of the program ----")
+def getArguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", default=False, help="Audio to be processed regarding template files")
+    parser.add_argument("--template", default=False ,help="Audio template file for source processing")
+    return parser.parse_args()
 
 if __name__ == "__main__":
-    a = numpy.ones(10)
-    print(a)
+    logging.info("--- Begining Masterizer module ---")
+    args = getArguments()
+
+    # Would have been nicer way
+    # source = audio.AudioItem()
+    # source.addChannel()
+    # source.data[0] = audio.AudioData()
+    # but we simplify
+    source = audio.AudioData()
+    source.loadAudioFile()
+    template = audio.AudioData()
+    filePath = Path(os.getcwd(), "sources", "audioFileTest.wav")
+    template.loadAudioFile(filePath=filePath)
+    source.fft()
+    template.fft()
+    source.fplot()
+    template.fplot()
+    audioplot.pshow()
+    ...
