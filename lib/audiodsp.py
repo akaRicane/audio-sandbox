@@ -27,7 +27,7 @@ def getiFft(array: list) -> list:
     return np.fft.ifft(array)
 
 def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
-    return np.arange(fs * len(data)) / fs
+    return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 def splitFftVector(array: list) -> (list, list):
     # amplitude = sqrt( real² + imag²)

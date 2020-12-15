@@ -16,7 +16,9 @@ def shortPlot(vect, data, space='time', legendList: list=None):
             plt.xlabel("Time [s]")
         elif space == "spectral":
             plt.semilogx(vect, data) if len(data) < len(vect) else plt.semilogx(vect[:len(data)], data)
+            plt.xlim([10, 2e5])
             plt.xlabel("Frequency [Hz]")
+            plt.grid(which="major", axis="both")
     else:
         for channel in range(len(data)):
             if space == "time":
@@ -24,8 +26,9 @@ def shortPlot(vect, data, space='time', legendList: list=None):
                 plt.xlabel("Time [s]")
             elif space == "spectral":
                 plt.semilogx(vect[:len(data[channel])], data[channel])
+                plt.xlim([10, 2e5])
                 plt.xlabel("Frequency [Hz]")
-        
+                plt.grid(which="major", axis="both")
 
 def pshow(legend: list=None):
     """Plot Show

@@ -11,11 +11,18 @@ def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
     logging.warning(f"---- Audio file opened successfully ----\n"
                     f"Codec: {codec} | Rate: {rate} Hz| Length: {audioLength} ms")
 
+def makeArrayMono(data):
+    mono = []
+    for idx, sample in enumerate(data):
+        mono.append(sample[0])
+    return mono
+    
 
-def read(filePath):
+def read(filePath, makeMono=False):
     """ Read audio file from filepath
     Args:
         filePath (WindowsPath): [description]
+        makeMono: if True, return only data monodimensional
     Returns:
         [int]: rate
         [numpy.array]: data
@@ -28,7 +35,15 @@ def read(filePath):
     else:
         logging.error("Audio codec unsupported !")
     codec = 'WAV'
-    return rate, data, codec
+    infos = {
+        "codec": codec,
+        "length": len(data) / rate,
+        "nChannels": 2
+    }
+    if makeMono:
+        data = makeArrayMono(data)
+        infos["nChannels"] = 1
+    return rate, data, infos
 
 
 def openWithFfmepg(filePath):

@@ -52,7 +52,7 @@ class AudioData():
         self.fphase = None
         self.temporalAvailable = False
         self.spectralAvailable = False
-        self.info = {
+        self.infos = {
             "SNR": '96 dB',
             'THD': '0.001%'
         }
@@ -75,17 +75,21 @@ class AudioData():
         self.rate = config.SAMPLING_FREQUENCY
         self.setTemporalContent(*audiogenerator.generateSine(f=f, A=A))
 
-    def loadAudioFile(self):
-        self.rate, self.amp, self.codec = audiofile.read(config.AUDIO_FILE_TEST)
+    def loadAudioFile(self, filePath: str=None):
+        if filePath is not None:
+            filepath = filePath
+        else:
+            filepath = config.AUDIO_FILE_TEST
+        self.rate, self.tamp, self.infos = audiofile.read(filepath, makeMono=True)
         self.t = audiodsp.getTemporalVector(self.tamp, fs=self.rate)
     
-    def fft(self, iscomplex=False):
+    def fft(self, iscomplex: bool=False):
         self.setSpectralContent(*audiodsp.getFft(t=self.t, tAmplitude=self.tamp, fs=self.rate))
     
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(amplitude=self.famp, phase=self.fphase))
 
-    def plot(self, space="time", mode="short", show=False):
+    def plot(self, space="time", mode="short", show: bool=False):
         legendList = []
         if mode == "short":
             if space == "time":
@@ -108,4 +112,4 @@ class AudioData():
     def callBoardControl(self):
         vect = [self.t, self.f]
         data = [[self.tamp], [self.fampDb]]
-        audioplot.boardControl(vect=vect, data=data, additionalData=self.info, legendList=["temporal", "spectral", "spectral2"])
+        audioplot.boardControl(vect=vect, data=data, additionalData=self.infos, legendList=["temporal", "spectral", "spectral2"])
