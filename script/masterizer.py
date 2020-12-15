@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 
 sys.path.append(os.getcwd())
 from lib import audio, audioplot, audiofile
+from lib import config
 
 # ######################
 # #### ARCHITECTURE ####
@@ -45,6 +46,11 @@ if __name__ == "__main__":
     template.loadAudioFile(filePath=filePath)
     source.fft()
     template.fft()
+
+    # band slicer
+    bands_size = config.BANDS_SLICER_SIZE
+    
+
     source.fplot()
     template.fplot()
     audioplot.pshow()
