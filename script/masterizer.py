@@ -1,5 +1,6 @@
 import sys
 import os
+import copy
 import logging
 import argparse
 from pathlib import Path
@@ -30,6 +31,39 @@ def getArguments():
     parser.add_argument("--template", default=False ,help="Audio template file for source processing")
     return parser.parse_args()
 
+def getBandFrequencies(size:int) -> list:
+    f0 = config.REF_KEYS_DICT['A0']
+    freqList = []
+    for idx in range(size):
+        freqList.append(f0 * 2 ** (idx + 1))
+    return freqList
+
+class Slicer():
+    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreqs: list=None):
+        self.size = size
+        self.bands = {}
+        self.freqs = None
+        if newFreqs is not None: self.importNewFreqsArray(newFreqs)
+    
+    def importNewFreqsArray(self, newFreqs: list):
+        self.freqs = copy.deepcopy(newFreqs)
+        self.freqsLenght = len(self.freqs)
+        self.updateSlicer()
+
+    def updateSlicer(self):
+        _freqs = copy.deepcopy(self.freqs)
+        _bands = {}
+        refFreqList = getBandFrequencies(self.size)
+        for idx in range(len(refFreqList)):
+            _bands[f"{idx}"] = {
+                "_id": idx,
+                "_f0": refFreqList[idx],
+                "_f": []
+            }
+        
+        ...
+
+
 if __name__ == "__main__":
     logging.info("--- Begining Masterizer module ---")
     args = getArguments()
@@ -48,8 +82,11 @@ if __name__ == "__main__":
     template.fft()
 
     # band slicer
-    bands_size = config.BANDS_SLICER_SIZE
-    
+    slicer = Slicer(newFreqs=source.f)
+    slicer.updateSlicer()
+
+
+
 
     source.fplot()
     template.fplot()
