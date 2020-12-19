@@ -17,8 +17,14 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     freq = np.fft.fftfreq(len(t)) * fs
     output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
     amplitude, phase = splitFftVector(output)  
-    amplitude_db = 20 * np.log10(amplitude)
+    amplitude_db = convertAmpToAmpDb(amplitude)
     return retCleanFft(freq), retCleanFft(amplitude), retCleanFft(amplitude_db), retCleanFft(phase)
+
+def convertAmpToAmpDb(amp: list) -> list:
+    return 20 * np.log10(amp)
+
+def convertAmpDbToAmp(ampDb: list) -> list:
+    return 10 ** (ampDb / 20)
 
 def retCleanFft(x) -> list:
     return x[1:int(len(x)/2)].tolist()
@@ -33,7 +39,7 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
 def splitFftVector(array: list) -> (list, list):
     # amplitude = sqrt( real² + imag²)
     # phase = arctan(imag/real)
-    return abs(array), np.arctan(np.imag(array) / np.real(array))
+    return np.abs(array), np.arctan(np.imag(array) / np.real(array))
 
 def mergeFftVector(amplitude: list, phase: list) -> list:
     _ = []

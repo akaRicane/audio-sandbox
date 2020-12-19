@@ -52,10 +52,7 @@ if __name__ == "__main__":
     template.fft()
     template.addSlicer(addAmps=True)
     
-    for index, band in source.slicer.bands.items():
-        audioplot.shortPlot(band["_f"], band["_amps"], space='spectral')
-    for index, band in template.slicer.bands.items():
-        audioplot.shortPlot(band["_f"], band["_amps"], space='spectral')
+    source.slicer.plotSpectrumByAreas(ids=[0, 2, 4, 6, 7, 8, 9])
     audioplot.pshow()
 
     source.fplot()

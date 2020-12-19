@@ -126,12 +126,17 @@ class Slicer():
         self.bands = {}
         self.freqs = None
         self.amps = None
+        self.ampsDb = None
         if newFreqs is not None: self.importNewFreqsArray(newFreqs)
-        if newAmps is not None: self.importNewAmpsArray(newAmps)
+        if newAmps is not None:self.importNewAmpsArray(newAmps)
         self.updateSlicer()
     
     def importNewAmpsArray(self, newAmps: list):
         self.amps = copy.deepcopy(newAmps)
+        _amp, _phase = audiodsp.splitFftVector(newAmps)
+        _ampDb = audiodsp.convertAmpToAmpDb(_amp)
+        self.ampsDb = copy.deepcopy(audiodsp.mergeFftVector(_ampDb, _phase))
+        del _amp, _ampDb, _phase
 
     def importNewFreqsArray(self, newFreqs: list):
         self.freqs = copy.deepcopy(newFreqs)
@@ -144,6 +149,7 @@ class Slicer():
     def updateSlicer(self):
         _freqs = copy.deepcopy(self.freqs)
         _amps = copy.deepcopy(self.amps)
+        _ampsDb = copy.deepcopy(self.ampsDb)
         _bands = {}
         refFreqList = tool.getBandFrequencies(self.size)
         for idx in range(len(refFreqList)):
@@ -159,10 +165,26 @@ class Slicer():
                 "_freqIdx": _freqIdx,
                 "_f0": refFreqList[idx],
                 "_f": _freqs[boundMin:boundMax],
-                "_amps": _amps[boundMin:boundMax]
+                "_amps": _amps[boundMin:boundMax],
+                "_ampsDb": _ampsDb[boundMin:boundMax]
             }
         self.bands = copy.deepcopy(_bands)
+        del _bands, _freqs, _amps, _ampsDb, refFreqList, boundMax, boundMin
     
     def getEnergyOfAllBands(self):
         # Parseval theorem
         pass
+
+    def plotSpectrumByAreas(self, ids: list=None):
+        areas = []
+        freqAxis = self.freqs
+        if ids is None:
+            for i, v in self.bands.items():
+                areas.append(self.bands[f"{i}"]["_id"])
+        else:
+            areas = copy.deepcopy(ids)
+        for index, v in enumerate(areas):
+            audioplot.shortPlot(
+                self.bands[f"{index}"]["_f"], self.bands[f"{index}"]["_ampsDb"],
+                space='spectral')
+        del areas
