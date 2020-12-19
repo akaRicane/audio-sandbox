@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.getcwd())
-from lib import audio, audioplot, audiofile
+from lib import audio, audioplot, audiofile, audiodsp
 from lib import config
 
 # ######################
@@ -44,16 +44,19 @@ if __name__ == "__main__":
     # but we simplify
     source = audio.AudioData()
     source.loadAudioFile()
-    template = audio.AudioData()
-    filePath = config.AUDIO_FILE_TEST
-    template.loadAudioFile(filePath=filePath)
     source.fft()
-    source.addSlicer()
+    source.addSlicer(addAmps=True)
 
-    ...
-    minIdx, maxIdx = slicer.getfAmpBandBoudaries(5)
-    plt.plot(slicer.bands['5']["_f"], source.fampDb[minIdx:maxIdx])
-    plt.show()
+    template = audio.AudioData()
+    template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
+    template.fft()
+    template.addSlicer(addAmps=True)
+    
+    for index, band in source.slicer.bands.items():
+        audioplot.shortPlot(band["_f"], band["_amps"], space='spectral')
+    for index, band in template.slicer.bands.items():
+        audioplot.shortPlot(band["_f"], band["_amps"], space='spectral')
+    audioplot.pshow()
 
     source.fplot()
     template.fplot()

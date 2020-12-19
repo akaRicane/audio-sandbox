@@ -90,8 +90,9 @@ class AudioData():
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(amplitude=self.famp, phase=self.fphase))
 
-    def addSlicer(self):
-        self.slicer = Slicer(newFreqs=self.f)
+    def addSlicer(self, addAmps: bool=False):
+        if not addAmps: self.slicer = Slicer(newFreqs=self.f)
+        elif addAmps: self.slicer = Slicer(newFreqs=self.f, newAmps=audiodsp.mergeFftVector(self.famp, self.fphase))
 
     def plot(self, space="time", mode="short", show: bool=False):
         legendList = []
@@ -120,16 +121,21 @@ class AudioData():
 
 
 class Slicer():
-    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreqs: list=None):
+    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreqs: list=None, newAmps: list=None):
         self.size = 10  #TODO to update
         self.bands = {}
         self.freqs = None
+        self.amps = None
         if newFreqs is not None: self.importNewFreqsArray(newFreqs)
+        if newAmps is not None: self.importNewAmpsArray(newAmps)
+        self.updateSlicer()
     
+    def importNewAmpsArray(self, newAmps: list):
+        self.amps = copy.deepcopy(newAmps)
+
     def importNewFreqsArray(self, newFreqs: list):
         self.freqs = copy.deepcopy(newFreqs)
-        self.freqsLenght = len(self.freqs)
-        self.updateSlicer()      
+        self.freqsLenght = len(self.freqs)     
 
     def getfAmpBandBoudaries(self, bandId: int) -> (int, int):
         return self.bands[f'{bandId}']["_freqIdx"][0], \
@@ -137,6 +143,7 @@ class Slicer():
 
     def updateSlicer(self):
         _freqs = copy.deepcopy(self.freqs)
+        _amps = copy.deepcopy(self.amps)
         _bands = {}
         refFreqList = tool.getBandFrequencies(self.size)
         for idx in range(len(refFreqList)):
@@ -151,6 +158,11 @@ class Slicer():
                 "_id": idx,
                 "_freqIdx": _freqIdx,
                 "_f0": refFreqList[idx],
-                "_f": _freqs[boundMin:boundMax]
+                "_f": _freqs[boundMin:boundMax],
+                "_amps": _amps[boundMin:boundMax]
             }
         self.bands = copy.deepcopy(_bands)
+    
+    def getEnergyOfAllBands(self):
+        # Parseval theorem
+        pass

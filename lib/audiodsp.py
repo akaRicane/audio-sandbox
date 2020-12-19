@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 import scipy as sp
 from lib import config
@@ -39,3 +40,12 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     for index in range(len(amplitude)):
         _.append(np.complex(real=amplitude[index], imag=phase[index])) 
     return _
+
+def getBandEnergy(realPart: list, imagPart: list):
+    if len(realPart) != len(imagPart):
+        logging.info(f"Dimensions are not the same: {len(realPart)} and {len(imagPart)}")
+    else:
+        _ = 0
+        for i, val in enumerate(realPart):
+            _ += realPart[i] ** 2 + imagPart[i] ** 2
+        ...

@@ -1,6 +1,7 @@
 import numpy as np
 from lib import config
 
+
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
     closestIndexes = []
     minGap = None
