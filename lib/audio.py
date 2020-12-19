@@ -4,7 +4,7 @@ import copy
 from pathlib import Path
 
 from lib import audiodsp, audiofile, audioplot, audiogenerator
-from lib import config
+from lib import config, tool
 
 class AudioItem():
     def __init__(self):
@@ -50,6 +50,7 @@ class AudioData():
         self.famp = None
         self.fampDb = None
         self.fphase = None
+        self.slicer = None
         self.temporalAvailable = False
         self.spectralAvailable = False
         self.infos = {
@@ -89,6 +90,9 @@ class AudioData():
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(amplitude=self.famp, phase=self.fphase))
 
+    def addSlicer(self):
+        self.slicer = Slicer(newFreqs=self.f)
+
     def plot(self, space="time", mode="short", show: bool=False):
         legendList = []
         if mode == "short":
@@ -113,3 +117,40 @@ class AudioData():
         vect = [self.t, self.f]
         data = [[self.tamp], [self.fampDb]]
         audioplot.boardControl(vect=vect, data=data, additionalData=self.infos, legendList=["temporal", "spectral", "spectral2"])
+
+
+class Slicer():
+    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreqs: list=None):
+        self.size = 10  #TODO to update
+        self.bands = {}
+        self.freqs = None
+        if newFreqs is not None: self.importNewFreqsArray(newFreqs)
+    
+    def importNewFreqsArray(self, newFreqs: list):
+        self.freqs = copy.deepcopy(newFreqs)
+        self.freqsLenght = len(self.freqs)
+        self.updateSlicer()      
+
+    def getfAmpBandBoudaries(self, bandId: int) -> (int, int):
+        return self.bands[f'{bandId}']["_freqIdx"][0], \
+               self.bands[f'{bandId + 1}']["_freqIdx"][0] - 1
+
+    def updateSlicer(self):
+        _freqs = copy.deepcopy(self.freqs)
+        _bands = {}
+        refFreqList = tool.getBandFrequencies(self.size)
+        for idx in range(len(refFreqList)):
+            _freqIdx = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx])
+            if len(_freqIdx) == 1:
+                boundMin = _freqIdx[0]
+            if idx + 1 < len(refFreqList):
+                boundMax = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx + 1])[0] - 1
+            else:
+                boundMax = len(_freqs) 
+            _bands[f"{idx}"] = {
+                "_id": idx,
+                "_freqIdx": _freqIdx,
+                "_f0": refFreqList[idx],
+                "_f": _freqs[boundMin:boundMax]
+            }
+        self.bands = copy.deepcopy(_bands)
