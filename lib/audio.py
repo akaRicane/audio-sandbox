@@ -134,7 +134,7 @@ class Slicer():
     def importNewAmpsArray(self, newAmps: list):
         self.amps = copy.deepcopy(newAmps)
         _amp, _phase = audiodsp.splitFftVector(newAmps)
-        _ampDb = audiodsp.convertAmpToAmpDb(_amp)
+        _ampDb = tool.convertAmpToAmpDb(_amp)
         self.ampsDb = copy.deepcopy(audiodsp.mergeFftVector(_ampDb, _phase))
         del _amp, _ampDb, _phase
 
@@ -171,16 +171,18 @@ class Slicer():
         self.bands = copy.deepcopy(_bands)
         del _bands, _freqs, _amps, _ampsDb, refFreqList, boundMax, boundMin
     
-    def getEnergyOfAllBands(self):
-        # Parseval theorem
-        pass
+    def computeEnergyOfAreas(self, ids: list=None):
+        energy = 0
+        if ids is None:
+            areas = self.getAllBandsIdAvailable()
+        else:
+            areas = copy.deepcopy(ids)
+        for index, v in enumerate(areas):
+            energy += audiodsp.getBandEnergy(self.bands[f"{index}"]["_amps"])
 
     def plotSpectrumByAreas(self, ids: list=None):
-        areas = []
-        freqAxis = self.freqs
         if ids is None:
-            for i, v in self.bands.items():
-                areas.append(self.bands[f"{i}"]["_id"])
+            areas = self.getAllBandsIdAvailable()
         else:
             areas = copy.deepcopy(ids)
         for index, v in enumerate(areas):
@@ -188,3 +190,9 @@ class Slicer():
                 self.bands[f"{index}"]["_f"], self.bands[f"{index}"]["_ampsDb"],
                 space='spectral')
         del areas
+    
+    def getAllBandsIdAvailable(self) -> list:
+        areas = []
+        for i, v in self.bands.items():
+            areas.append(self.bands[f"{i}"]["_id"])
+        return areas

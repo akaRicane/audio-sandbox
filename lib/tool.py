@@ -24,3 +24,15 @@ def getBandFrequencies(size:int) -> list:
     for idx in range(size):
         freqList.append(f0 * 2 ** (idx + 1))
     return freqList
+
+
+def convertAmpToAmpDb(amp: list) -> list:
+    return 20 * np.log10(amp)
+
+
+def convertAmpDbToAmp(ampDb: list) -> list:
+    return 10 ** (ampDb / 20)
+
+
+def addToDict(destination: dict, key, data):
+    ...

@@ -1,7 +1,7 @@
 import logging
 import numpy as np
 import scipy as sp
-from lib import config
+from lib import config, tool
 
 def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     """ Return full FFT transform of the given temporal content
@@ -17,14 +17,8 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     freq = np.fft.fftfreq(len(t)) * fs
     output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
     amplitude, phase = splitFftVector(output)  
-    amplitude_db = convertAmpToAmpDb(amplitude)
+    amplitude_db = tool.convertAmpToAmpDb(amplitude)
     return retCleanFft(freq), retCleanFft(amplitude), retCleanFft(amplitude_db), retCleanFft(phase)
-
-def convertAmpToAmpDb(amp: list) -> list:
-    return 20 * np.log10(amp)
-
-def convertAmpDbToAmp(ampDb: list) -> list:
-    return 10 ** (ampDb / 20)
 
 def retCleanFft(x) -> list:
     return x[1:int(len(x)/2)].tolist()
@@ -45,13 +39,15 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     _ = []
     for index in range(len(amplitude)):
         _.append(np.complex(real=amplitude[index], imag=phase[index])) 
-    return _
+    return _ 
 
-def getBandEnergy(realPart: list, imagPart: list):
-    if len(realPart) != len(imagPart):
+def getBandEnergy(realPart: list, imagPart: list=None, isComplex: bool=False):
+    # Parseval theorem https://www.wikiwand.com/en/Spectral_density
+    if len(realPart) != len(imagPart) and isComplex is True:
         logging.info(f"Dimensions are not the same: {len(realPart)} and {len(imagPart)}")
     else:
-        _ = 0
+        energy = 0
         for i, val in enumerate(realPart):
-            _ += realPart[i] ** 2 + imagPart[i] ** 2
-        ...
+          energy += realPart[i] ** 2 + imagPart[i] ** 2
+    return energy
+    del energy   

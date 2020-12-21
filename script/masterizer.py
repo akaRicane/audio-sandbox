@@ -51,8 +51,8 @@ if __name__ == "__main__":
     template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
     template.fft()
     template.addSlicer(addAmps=True)
-    
-    source.slicer.plotSpectrumByAreas(ids=[0, 2, 4, 6, 7, 8, 9])
+    print(source.slicer.computeEnergyOfAreas(ids=[3, 4, 5, 6]))
+    source.slicer.plotSpectrumByAreas(ids=[3, 4, 5, 6])
     audioplot.pshow()
 
     source.fplot()
