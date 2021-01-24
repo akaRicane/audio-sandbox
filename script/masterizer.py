@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 sys.path.append(os.getcwd())
-from lib import audio, audioplot, audiofile, audiodsp
+from lib import audio, audioplot, audiofile
 from lib import config
 
 # ######################
@@ -42,20 +42,22 @@ if __name__ == "__main__":
     # source.addChannel()
     # source.data[0] = audio.AudioData()
     # but we simplify
+    
+    # first: audio we want to masterize
     source = audio.AudioData()
     source.loadAudioFile()
     source.fft()
-    source.addSlicer(addAmps=True)
+    source.addSlicer()
 
+    # then: audio target e.g. template
     template = audio.AudioData()
     template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
     template.fft()
-    template.addSlicer(addAmps=True)
-    print(source.slicer.computeEnergyOfAreas(ids=[3, 4, 5, 6]))
-    source.slicer.plotSpectrumByAreas(ids=[3, 4, 5, 6])
-    audioplot.pshow()
+    template.addSlicer()
 
     source.fplot()
-    template.fplot()
+    # template.fplot()
+    # source.slicer.plotSpectrumByAreas(ids=[3, 4, 5, 6, 9, 10])
+    source.slicer.plotSpectrumByAreas()
     audioplot.pshow()
     ...

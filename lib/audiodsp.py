@@ -19,6 +19,7 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     amplitude, phase = splitFftVector(output)  
     amplitude_db = tool.convertAmpToAmpDb(amplitude)
     return retCleanFft(freq), retCleanFft(amplitude), retCleanFft(amplitude_db), retCleanFft(phase)
+    del freq, amplitude, amplitude_db, phase
 
 def retCleanFft(x) -> list:
     return x[1:int(len(x)/2)].tolist()
@@ -39,15 +40,14 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     _ = []
     for index in range(len(amplitude)):
         _.append(np.complex(real=amplitude[index], imag=phase[index])) 
-    return _ 
+    return _
+    del _
 
-def getBandEnergy(realPart: list, imagPart: list=None, isComplex: bool=False):
+def getBandEnergy(realPart: list, imagPart: list):
     # Parseval theorem https://www.wikiwand.com/en/Spectral_density
-    if len(realPart) != len(imagPart) and isComplex is True:
-        logging.info(f"Dimensions are not the same: {len(realPart)} and {len(imagPart)}")
-    else:
-        energy = 0
-        for i, val in enumerate(realPart):
-          energy += realPart[i] ** 2 + imagPart[i] ** 2
-    return energy
-    del energy   
+    # e * N = sum( abs(real + j*imag) ** 2 ) =  sum(real ** 2 + img ** 2)
+    bandEnergy = 0
+    for i in range(len(realPart)):
+        bandEnergy += realPart[i] ** 2 + imagPart[i] ** 2
+    return bandEnergy / len(realPart)
+    del bandEnergy , i

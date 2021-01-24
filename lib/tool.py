@@ -18,13 +18,14 @@ def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
 
 
 def getBandFrequencies(size:int) -> list:
-    #TODO creates musical splitting / 10 bands needed
+    #TODO creates musical splitting / 10 bands needed (10 octave is enough)
+    # in [A1, ..., G#10] == [A1, A11[
     f0 = config.REF_KEYS_DICT['A0']
     freqList = []
     for idx in range(size):
         freqList.append(f0 * 2 ** (idx + 1))
     return freqList
-
+    del freqList
 
 def convertAmpToAmpDb(amp: list) -> list:
     return 20 * np.log10(amp)

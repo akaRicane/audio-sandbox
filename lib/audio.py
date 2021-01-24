@@ -90,9 +90,9 @@ class AudioData():
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(amplitude=self.famp, phase=self.fphase))
 
-    def addSlicer(self, addAmps: bool=False):
-        if not addAmps: self.slicer = Slicer(newFreqs=self.f)
-        elif addAmps: self.slicer = Slicer(newFreqs=self.f, newAmps=audiodsp.mergeFftVector(self.famp, self.fphase))
+    def addSlicer(self, addAmp: bool=True):
+        if not addAmp: self.slicer = Slicer(newFreq=self.f)
+        else: self.slicer = Slicer(newFreq=self.f, newAmp=audiodsp.mergeFftVector(self.famp, self.fphase))
 
     def plot(self, space="time", mode="short", show: bool=False):
         legendList = []
@@ -121,43 +121,57 @@ class AudioData():
 
 
 class Slicer():
-    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreqs: list=None, newAmps: list=None):
+    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreq: list=None, newAmp: list=None, newPhase: list=None):
+        # newPhase is none means newAmp is complex
         self.size = 10  #TODO to update
         self.bands = {}
         self.freqs = None
-        self.amps = None
-        self.ampsDb = None
-        if newFreqs is not None: self.importNewFreqsArray(newFreqs)
-        if newAmps is not None:self.importNewAmpsArray(newAmps)
+        self.amp = None
+        self.ampDb = None
+        self.phase = None
+        if newFreq is not None: self.importNewFreqArray(newFreq)
+        if newAmp is not None: self.importNewAmpArray(newAmp, newPhase)
         self.updateSlicer()
     
-    def importNewAmpsArray(self, newAmps: list):
-        self.amps = copy.deepcopy(newAmps)
-        _amp, _phase = audiodsp.splitFftVector(newAmps)
+    def importNewAmpArray(self, newAmp: list, newPhase: list=None):
+        # newPhase is none means newAmp is complex
+        if newPhase is None:
+            _amp, _phase = copy.deepcopy(audiodsp.splitFftVector(newAmp))
+        else:
+            _amp = copy.deepcopy(newAmp)
+            _phase = copy.deepcopy(newPhase)
         _ampDb = tool.convertAmpToAmpDb(_amp)
-        self.ampsDb = copy.deepcopy(audiodsp.mergeFftVector(_ampDb, _phase))
+        self.amp = copy.deepcopy(_amp)
+        self.ampDb = copy.deepcopy(_ampDb)
+        self.phase = copy.deepcopy(_phase)
         del _amp, _ampDb, _phase
 
-    def importNewFreqsArray(self, newFreqs: list):
-        self.freqs = copy.deepcopy(newFreqs)
+    def importNewFreqArray(self, newFreq: list):
+        self.freqs = copy.deepcopy(newFreq)
         self.freqsLenght = len(self.freqs)     
 
     def getfAmpBandBoudaries(self, bandId: int) -> (int, int):
+        # wtf ?
         return self.bands[f'{bandId}']["_freqIdx"][0], \
                self.bands[f'{bandId + 1}']["_freqIdx"][0] - 1
 
     def updateSlicer(self):
         _freqs = copy.deepcopy(self.freqs)
-        _amps = copy.deepcopy(self.amps)
-        _ampsDb = copy.deepcopy(self.ampsDb)
+        _amp = copy.deepcopy(self.amp)
+        _ampDb = copy.deepcopy(self.ampDb)
+        _phase = copy.deepcopy(self.phase)
         _bands = {}
+        # get "slicing method" frequency list
+        # can be updated with other slicing methods
+        # this is where number of bands is defined
         refFreqList = tool.getBandFrequencies(self.size)
+        # creates and fills n bands
         for idx in range(len(refFreqList)):
             _freqIdx = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx])
             if len(_freqIdx) == 1:
                 boundMin = _freqIdx[0]
             if idx + 1 < len(refFreqList):
-                boundMax = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx + 1])[0] - 1
+                boundMax = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx + 1])[0] + 1
             else:
                 boundMax = len(_freqs) 
             _bands[f"{idx}"] = {
@@ -165,20 +179,25 @@ class Slicer():
                 "_freqIdx": _freqIdx,
                 "_f0": refFreqList[idx],
                 "_f": _freqs[boundMin:boundMax],
-                "_amps": _amps[boundMin:boundMax],
-                "_ampsDb": _ampsDb[boundMin:boundMax]
+                "_amp": _amp[boundMin:boundMax],
+                "_ampDb": _ampDb[boundMin:boundMax],
+                "_phase": _phase[boundMin:boundMax],
+                "_energy": audiodsp.getBandEnergy(_amp[boundMin:boundMax], _phase[boundMin:boundMax])
             }
         self.bands = copy.deepcopy(_bands)
-        del _bands, _freqs, _amps, _ampsDb, refFreqList, boundMax, boundMin
+        del _bands, _freqs, _amp, _ampDb, _phase, refFreqList, boundMax, boundMin
     
-    def computeEnergyOfAreas(self, ids: list=None):
-        energy = 0
+    def computeEnergyOfAreas(self, ids: list=None) -> list:
+        # list allows to precise which bands to be computed
+        # if ids is None ==> compute all bands
+        energy = []
         if ids is None:
             areas = self.getAllBandsIdAvailable()
         else:
             areas = copy.deepcopy(ids)
-        for index, v in enumerate(areas):
-            energy += audiodsp.getBandEnergy(self.bands[f"{index}"]["_amps"])
+        for index in areas:
+            energy.append(audiodsp.getBandEnergy(self.bands[f"{index}"]["_amp"], self.bands[f"{index}"]["_phase"]))
+        return energy
 
     def plotSpectrumByAreas(self, ids: list=None):
         if ids is None:
@@ -187,7 +206,7 @@ class Slicer():
             areas = copy.deepcopy(ids)
         for index, v in enumerate(areas):
             audioplot.shortPlot(
-                self.bands[f"{index}"]["_f"], self.bands[f"{index}"]["_ampsDb"],
+                self.bands[f"{index}"]["_f"], self.bands[f"{index}"]["_ampDb"],
                 space='spectral')
         del areas
     

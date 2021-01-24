@@ -2,7 +2,7 @@ import os, sys
 from pathlib import Path
 
 # general settings  
-AUDIO_REPOSITORY = "D:/OneDrive/Documents/_PROJETS_PERSO/PROGRA/audio"
+AUDIO_REPOSITORY = os.getcwd()
 # audio general
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_WINDOWING = 1024  # points
