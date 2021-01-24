@@ -24,9 +24,11 @@ pyflakes==2.2.0
 pylint==2.6.0
 pyparsing==2.4.7
 python-dateutil==2.8.1
+python-dotenv==0.15.0
 scipy==1.6.0
 six==1.15.0
 toml==0.10.1
 virtualenv==20.4.0
+-e git+https://github.com/akaRicane/audio.git@55082b862c65fe71896e9f880cb0bbc07f1c80ac#egg=lib
 Werkzeug==1.0.1
 wrapt==1.12.1

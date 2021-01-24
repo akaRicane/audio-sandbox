@@ -1,10 +1,5 @@
-import sys
-import os
-
-import matplotlib.pyplot as plt
-
-sys.path.append(os.getcwd())
 from lib import audio, audioplot
+
 
 def main():
     # class items
@@ -24,6 +19,17 @@ def main():
     # signal.data[1].fplot()
     audioplot.pshow(["original", "ifft"])
     # to fix: ifft <<<-----
+
+
+    # # sub-class methods
+    # joyca.data[0].fft()
+    # joyca.data[0].ifft()
+
+    # joyca.data[0].fplot()
+    # joyca.data[0].tplot()
+    # # joyca.data[0].callBoardControl()
+    # # filtrer la voix
+    # audioplot.pshow()
 
 
 if __name__ == "__main__":
