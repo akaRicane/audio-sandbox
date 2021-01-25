@@ -1,4 +1,0 @@
-include flaskaudio/schema.sql
-graft flaskaudio/static
-graft flaskaudio/templates
-global-exclude *.pyc

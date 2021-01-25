@@ -5,3 +5,4 @@
 /audiogui/project/static/bower_components/
 *.egg-info
 *.sqlite
+audiogui/node_modules/
