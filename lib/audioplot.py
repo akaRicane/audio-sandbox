@@ -16,7 +16,7 @@ def shortPlot(vect, data, space='time', legendList: list=None):
             plt.xlabel("Time [s]")
         elif space == "spectral":
             plt.semilogx(vect, data) if len(data) < len(vect) else plt.semilogx(vect[:len(data)], data)
-            plt.xlim([10, 2e5])
+            plt.xlim([10, 3e5])
             plt.xlabel("Frequency [Hz]")
     else:
         for channel in range(len(data)):
@@ -25,7 +25,7 @@ def shortPlot(vect, data, space='time', legendList: list=None):
                 plt.xlabel("Time [s]")
             elif space == "spectral":
                 plt.semilogx(vect[:len(data[channel])], data[channel])
-                plt.xlim([10, 2e5])
+                plt.xlim([10, 3e5])
                 plt.xlabel("Frequency [Hz]")
 
 def pshow(legend: list=None):
@@ -40,6 +40,14 @@ def pshow(legend: list=None):
 
 
 def boardControl(vect: list, data:list, additionalData: list, legendList: list):
+    """Displays nice plotting areas with fixed layout and informations about item
+
+    Args:
+        vect (list): [axis vector]
+        data (list): [data vector]
+        additionalData (list): [informations to display]
+        legendList (list): [list of curves legends]
+    """
     plt.figure()
     plt.title("Board Control")
     plt.subplot(1,2,1)

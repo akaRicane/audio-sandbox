@@ -2,7 +2,7 @@ import os, sys
 from pathlib import Path
 
 # general settings  
-AUDIO_REPOSITORY = os.getcwd()
+AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
 # audio general
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_WINDOWING = 1024  # points

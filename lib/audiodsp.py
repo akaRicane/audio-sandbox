@@ -8,20 +8,36 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     -> output[0] is the zero-frequency sum (sum of the signal) 
     -> [1:int(len(output)/2)] contains the positive frequency terms
     Args:
-        t (array of int): [description]
-        tAmplitude (array of float): [description]
-        N (int, optional): [description]. Defaults to config.FFT_WINDOWING.
-        fs (float, optional): [description]. Defaults to config.SAMPLING_FREQUENCY.
+        t (array of int): [time signal axis]
+        tAmplitude (array of float): [time signal amplitudes]
+        N (int, optional): [FFT size]. Defaults to config.FFT_WINDOWING.
+        fs (float, optional): [sampling frequency]. Defaults to config.SAMPLING_FREQUENCY.
+    
+    Returns:
+        freq ([list]): [cleaned frequency axis]
+        amplitude_lin ([list]): [cleaned fft amplitudes vector, linear]
+        amplitude_db ([list]): [cleaned fft amplitudes vector, converted in dB]
+        phase ([list]): [cleaned phase of signal]
     """    
     # freq = fs * np.arange(N) / N
     freq = np.fft.fftfreq(len(t)) * fs
     output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
-    amplitude, phase = splitFftVector(output)  
-    amplitude_db = tool.convertAmpToAmpDb(amplitude)
-    return retCleanFft(freq), retCleanFft(amplitude), retCleanFft(amplitude_db), retCleanFft(phase)
-    del freq, amplitude, amplitude_db, phase
+    amplitude_lin, phase = splitFftVector(output)  
+    amplitude_db = tool.convertAmpToAmpDb(amplitude_lin)
+    return retCleanFft(freq), retCleanFft(amplitude_lin), retCleanFft(amplitude_db), retCleanFft(phase)
+    del freq, amplitude_lin, amplitude_db, phase
 
-def retCleanFft(x) -> list:
+def retCleanFft(x: list) -> list:
+    """Returns a cleaned fft vect, e.g. [1:int(len(x)/2)]
+    containing the positive frequency terms. Works for freqs', amps' and phases'.
+    In addition, returns as unique list like [a1, a2, .., an].
+
+    Args:
+        x ([list]): [vector returned by FFT]
+
+    Returns:
+        list: [1:int(len(x)/2)]
+    """
     return x[1:int(len(x)/2)].tolist()
 
 def getiFft(array: list) -> list:
@@ -29,21 +45,65 @@ def getiFft(array: list) -> list:
     return np.fft.ifft(array)
 
 def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
+    """Generate temporal vector of given time signal.
+    Format is like [0:1/fs:len(data)/fs].
+
+    Args:
+        data ([list]): [time signal]
+        fs ([int], optional): [sampling frequency]. Defaults to config.SAMPLING_FREQUENCY.
+
+    Returns:
+        list: [0:1/fs:len(data)/fs]
+    """
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 def splitFftVector(array: list) -> (list, list):
+    """Splits complex fft vector in twice.
+    Format is like: [Z = a + i*b] is returned as [amp, phase],
+    where:
+        amp = abs(Z)
+        tan(phase) = imag(Z) / real(Z)
+    Opposite function of audiodsp.mergeFftVector().
+
+    Args:
+        array (list): [fft in complex form]
+
+    Returns:
+        [amplitudes, phase]: [splitted parts returned]
+    """
     # amplitude = sqrt( real² + imag²)
     # phase = arctan(imag/real)
     return np.abs(array), np.arctan(np.imag(array) / np.real(array))
 
 def mergeFftVector(amplitude: list, phase: list) -> list:
-    _ = []
+    """Splits complex fft vector in twice.
+    Format is returned like: [Z = amp + i*phase].
+    Opposite function of audiodsp.splitFftVector().
+
+    Args:
+        amplitude (list): [amplitudes vector]
+        phase (list): [phase vector]
+
+    Returns:
+        list: [amplitudes + i * phase]
+    """
+    array = []
     for index in range(len(amplitude)):
-        _.append(np.complex(real=amplitude[index], imag=phase[index])) 
-    return _
-    del _
+        array.append(np.complex(real=amplitude[index], imag=phase[index])) 
+    return array
+    del array
 
 def getBandEnergy(realPart: list, imagPart: list):
+    """Computes and returns energy of given frequency band defined
+    by its real and imaginary parts.
+
+    Args:
+        realPart (list): [real part of fft vector, merged form]
+        imagPart (list): [imaginary part of fft vector, merged form]
+
+    Returns:
+        [float]: [enregy of frequency band]
+    """
     # Parseval theorem https://www.wikiwand.com/en/Spectral_density
     # e * N = sum( abs(real + j*imag) ** 2 ) =  sum(real ** 2 + img ** 2)
     bandEnergy = 0
