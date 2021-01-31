@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 
-def shortPlot(vect, data, space='time', legendList: list=None):
+
+def shortPlot(vect, data, space='time', legendList: list = None):
     """Allows to plot multiple plots in one fig with some specific treatment
 
     Args:
@@ -11,8 +12,8 @@ def shortPlot(vect, data, space='time', legendList: list=None):
     plt.gcf()
     plt.ylabel("Amplitude")
     if not isinstance(data[0], list):
-        if space == "time": 
-            plt.plot(vect, data) if len(data) < len(vect) else plt.plot(vect[:len(data)], data)
+        if space == "time":
+            plt.plot(vect, data) if len(data) > len(vect) else plt.plot(vect[:len(data)], data)
             plt.xlabel("Time [s]")
         elif space == "spectral":
             plt.semilogx(vect, data) if len(data) < len(vect) else plt.semilogx(vect[:len(data)], data)
@@ -28,15 +29,18 @@ def shortPlot(vect, data, space='time', legendList: list=None):
                 plt.xlim([10, 3e5])
                 plt.xlabel("Frequency [Hz]")
 
-def pshow(legend: list=None):
+
+def pshow(legend: list = None):
     """Plot Show
     Args:
         legend (list, optional): [legend list to plot]. Defaults to None.
     """
     fig = plt.gcf()
     plt.grid()
-    if legend is not None: plt.legend(legend)
+    if legend is not None:
+        plt.legend(legend)
     plt.show()
+    return fig
 
 
 def boardControl(vect: list, data:list, additionalData: list, legendList: list):
@@ -50,7 +54,7 @@ def boardControl(vect: list, data:list, additionalData: list, legendList: list):
     """
     plt.figure()
     plt.title("Board Control")
-    plt.subplot(1,2,1)
+    plt.subplot(1, 2, 1)
     shortPlot(vect[1], data[1], "spectral")
     plt.legend(legendList[1])
     plt.grid()

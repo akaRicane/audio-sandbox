@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python audiogui/project/app.py
+python project/app.py

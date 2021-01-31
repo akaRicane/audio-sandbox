@@ -1,4 +1,5 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
+from lib import audio
 
 app = Flask(__name__)
 
@@ -11,6 +12,21 @@ def index():
 @app.route('/hello')
 def hello():
     return render_template('hello.html')
+
+
+@app.route('/data', methods=['GET'])
+def getData():
+    signal = audio.AudioItem()
+    signal.addSinusAsNewChannel()
+
+    data = []
+    for index in range(len(signal.data[0].t)):
+        data.append({
+            "time": signal.data[0].t[index],
+            "amplitude": signal.data[0].tamp[index]
+        })
+
+    return jsonify(data)
 
 
 if __name__ == '__main__':
