@@ -23,7 +23,7 @@ def getData():
     for index in range(len(signal.data[0].t)):
         data.append({
             "time": signal.data[0].t[index],
-            "amplitude": signal.data[0].tamp[index]
+            "value": signal.data[0].tamp[index]
         })
 
     return jsonify(data)
