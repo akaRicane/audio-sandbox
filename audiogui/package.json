@@ -1,22 +1,12 @@
 {
-  "name": "ultimate-flask-front-end",
+  "name": "audiogui",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./project/static/scripts/js/main.js",
   "scripts": {
     "dev": "webpack --mode development --watch & ./venv/bin/python3.9 ./project/app.py",
     "start": "webpack serve"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/realpython/ultimate-flask-front-end.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/realpython/ultimate-flask-front-end/issues"
-  },
-  "homepage": "https://github.com/realpython/ultimate-flask-front-end#readme",
   "devDependencies": {
     "@babel/core": "^7.12.10",
     "@babel/preset-env": "^7.12.11",
@@ -24,13 +14,17 @@
     "axios": "^0.21.1",
     "babel-loader": "^8.2.2",
     "babelify": "^10.0.0",
+    "bootstrap": "^4.6.0",
     "browserify": "^17.0.0",
     "chart.js": "^2.9.4",
+    "css-loader": "^5.0.1",
     "html-webpack-plugin": "^4.5.1",
     "install": "^0.13.0",
     "npm": "^6.14.11",
     "react": "^17.0.1",
+    "react-bootstrap": "^1.4.3",
     "react-dom": "^17.0.1",
+    "style-loader": "^2.0.0",
     "vinyl-source-stream": "^2.0.0",
     "webpack": "^5.19.0",
     "webpack-cli": "^4.4.0",

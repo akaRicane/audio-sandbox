@@ -1,6 +1,11 @@
 import React from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
+import ReactDOM from 'react-dom';
+import Button from 'react-bootstrap/Button';
+
+// Importing the Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 class LineGraph extends React.Component {
@@ -36,18 +41,18 @@ class LineGraph extends React.Component {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero:true
-                }
-            }]
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
         }
-    }
+      }
     });
   }
 
   render() {
-    return <canvas id="myChart" />;
+    return <canvas id="myChart" width={8000} />;
   }
 }
 
@@ -73,9 +78,9 @@ class GenerateButton extends React.Component {
   render() {
     return (
       <div>
-        <button onClick={() => this.handleClick()}>
+        <Button onClick={() => this.handleClick()}>
           Generate Graph
-        </button>
+        </Button>
         <LineGraph
           data={this.state.data}
           title="label"

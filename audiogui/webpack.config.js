@@ -9,17 +9,17 @@ module.exports = {
   },
   module: {
     rules: [
-    {
-      test: /\.js$/,
-      use: "babel-loader",
-    },
-    {
-      test: /\.(svg|png|jpg|jpeg|gif)$/,
-      loader: "file-loader",
+      {
+        test: /\.js$/,
+        use: "babel-loader",
+      },
+      {
+        test: /\.(svg|png|jpg|jpeg|gif)$/,
+        loader: "file-loader",
 
-      options: {
-        name: "[name].[ext]",
-        outputPath: "../../static/dist",
+        options: {
+          name: "[name].[ext]",
+          outputPath: "../../static/dist",
         },
       },
       {
