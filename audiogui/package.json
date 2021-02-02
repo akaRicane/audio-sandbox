@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack --mode development --watch",
+    "dev": "webpack --mode development --watch & ./venv/bin/python3.9 ./project/app.py",
     "start": "webpack serve"
   },
   "repository": {

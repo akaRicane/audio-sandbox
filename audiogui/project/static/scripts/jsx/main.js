@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import Chart from "chart.js";
+import Chart from 'chart.js';
 
 
 class LineGraph extends React.Component {
@@ -8,24 +8,41 @@ class LineGraph extends React.Component {
     super(props);
   }
 
+  componentDidUpdate() {
+    console.log(this.props.data);
+    this.lineChart.data.labels = this.props.data.map(d => d.label);
+    this.lineChart.data.datasets[0].data = this.props.data.map(d => d.value);
+    this.lineChart.update();
+  }
+
   componentDidMount() {
     const ctx = document.getElementById("myChart");
+    ctx.height = 500;
+    ctx.width = 2500;
 
-    new Chart(ctx, {
+    this.lineChart = new Chart(ctx, {
       type: "line",
       data: {
         //Bring in data
-        labels: ["Jan", "Feb", "March"],
+        labels: this.props.data.map(d => d.label),
         datasets: [
           {
-            label: "Sales",
-            data: [86, 67, 91],
+            label: this.props.title,
+            data: this.props.data.map(d => d.value),
           }
         ]
       },
       options: {
-        //Customize chart options
-      }
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero:true
+                }
+            }]
+        }
+    }
     });
   }
 
@@ -38,14 +55,15 @@ class LineGraph extends React.Component {
 class GenerateButton extends React.Component {
   constructor(props) {
     super(props);
-    this.data = [];
+    this.state = {
+      data: []
+    };
   }
 
   handleClick() {
     axios.get('/data')
       .then(response => {
         this.setState({ data: response.data });
-        console.log(response.data);
       })
       .catch(error => {
         console.log(error)
@@ -58,7 +76,10 @@ class GenerateButton extends React.Component {
         <button onClick={() => this.handleClick()}>
           Generate Graph
         </button>
-        <LineGraph />
+        <LineGraph
+          data={this.state.data}
+          title="label"
+        />
       </div>
     )
   }
