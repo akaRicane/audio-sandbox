@@ -2,7 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
 import ReactDOM from 'react-dom';
-import Button from 'react-bootstrap/Button';
+import Sidebar from './sidebar.js';
+import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
 
 // Importing the Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -92,8 +94,17 @@ class GenerateButton extends React.Component {
 
 
 ReactDOM.render(
-  <div>
-    <GenerateButton />
-  </div>,
+  <Router>
+    <Container fluid>
+      <Row>
+        <Col xs={2} id="sidebar-wrapper">
+          <Sidebar />
+        </Col>
+        <Col id="page-content-wrapper">
+          <GenerateButton />
+        </Col>
+      </Row>
+    </Container>
+  </Router>,
   document.getElementById('main')
 );
