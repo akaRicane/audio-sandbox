@@ -2,10 +2,11 @@ import os, sys
 from pathlib import Path
 
 # general settings  
-AUDIO_REPOSITORY = "D:/OneDrive/Documents/_PROJETS_PERSO/PROGRA/audio"
+AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
 # audio general
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_WINDOWING = 1024  # points
+BANDS_SLICER_SIZE = 10  # bands
 
 # audiofile
 AUDIO_SOURCES = Path(AUDIO_REPOSITORY, "sources")
@@ -13,3 +14,23 @@ AUDIO_FILE_TEST = Path(AUDIO_SOURCES, "joyca.wav")
 
 # audiogenerator
 BASIC_DURATION = 0.1  # sec
+
+# musical keys dict ref
+REF_KEYS_DICT = {
+    "Unit": "Hz",
+    "A0": 27.50000,
+    "A#0": 29.13524,
+    "B0": 30.86771,
+    "C1": 32.70320,
+    "C#1": 36.70810,
+    "D1": 36.70810,
+    "D#1": 38.89087,
+    "E1": 41.20344,
+    "F1": 43.65353,
+    "F#1": 46.24930,
+    "G1": 48.99943,
+    "G#1": 51.91309,
+    "A1": 55.00000,
+    "A#1": 58.27047,
+    "B1": 61.73541
+}

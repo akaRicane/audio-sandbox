@@ -1,18 +1,64 @@
+import sys
+import os
+import copy
+import logging
+import argparse
+from pathlib import Path
+import numpy as np
 
+import matplotlib.pyplot as plt
 
-def main():
-    logging.info("----- Masterizer script by akaRicane -----")
+sys.path.append(os.getcwd())
+from lib import audio, audiodata, slicer 
+from lib import audioplot, audiofile
+from lib import config
 
-    fs, data = read(filePath=filePath)
+# ######################
+# #### ARCHITECTURE ####
+# ######################
+# import audio
+# import template
+# fourier
+# frequency band slicer
+# MIR ??
+# parametrizer / fit
+# filter generation
+# other dsp operations
+# output audio
+# ######################
 
-    fft = scipy.fft.fft(data)
+def getArguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--source", default=False, help="Audio to be processed regarding template files")
+    parser.add_argument("--template", default=False ,help="Audio template file for source processing")
+    return parser.parse_args()
 
-    plt.plot(fft)
-    plt.show()
-
-
-    logging.info("---- End of the program ----")
 
 if __name__ == "__main__":
-    a = numpy.ones(10)
-    print(a)
+    logging.info("--- Begining Masterizer module ---")
+    args = getArguments()
+
+    # Would have been nicer way
+    # source = audio.AudioItem()
+    # source.addChannel()
+    # source.data[0] = audio.AudioData()
+    # but we simplify
+    
+    # first: audio we want to masterize
+    source = audiodata.AudioData()
+    source.loadAudioFile()
+    source.fft()
+    source.addSlicer()
+
+    # then: audio target e.g. template
+    template = audiodata.AudioData()
+    template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
+    template.fft()
+    template.addSlicer()
+ 
+    source.fplot()
+    # template.fplot()
+    source.slicer.plotSpectrumByAreas(ids=[7,8,9])
+    # source.slicer.plotSpectrumByAreas()
+    audioplot.pshow()
+    ...
