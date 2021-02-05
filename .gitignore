@@ -2,6 +2,5 @@
 /env/
 *.pyc
 *.egg-info
-*.sqlite
-audiogui/node_modules/
 node_modules/
+/venv/
