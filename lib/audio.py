@@ -1,5 +1,4 @@
 import copy
-
 from lib import audiodata
 
 
@@ -32,7 +31,8 @@ class AudioItem():
             if idx != 0:
                 self.deleteChannel(idx)
         del idx, _
-    
+
     def addSinusAsNewChannel(self):
         self.addChannel()
-        self.data[-1] = slicer.loadSinus()
+        self.data[-1] = audiodata.AudioData()
+        self.data[-1].loadSinus()

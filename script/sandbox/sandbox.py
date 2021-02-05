@@ -20,7 +20,6 @@ def main():
     audioplot.pshow(["original", "ifft"])
     # to fix: ifft <<<-----
 
-
     # # sub-class methods
     # joyca.data[0].fft()
     # joyca.data[0].ifft()
