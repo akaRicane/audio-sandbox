@@ -1,8 +1,6 @@
 /.vscode/
 /env/
 *.pyc
-/audiogui/node_modules/
-/audiogui/project/static/bower_components/
 *.egg-info
 *.sqlite
 audiogui/node_modules/

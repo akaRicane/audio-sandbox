@@ -2,9 +2,9 @@
   "name": "audiogui",
   "version": "1.0.0",
   "description": "",
-  "main": "./project/static/scripts/js/main.js",
+  "main": "./audiogui/project/static/scripts/js/main.js",
   "scripts": {
-    "dev": "webpack --mode development --watch & ./venv/bin/python3.9 ./project/app.py",
+    "dev": "webpack --mode development --watch & ./venv/bin/python3.9 ./audiogui/project/app.py",
     "start": "webpack serve"
   },
   "devDependencies": {
