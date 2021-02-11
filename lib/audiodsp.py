@@ -72,6 +72,7 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     Returns:
         list: [0:1/fs:len(data)/fs]
     """
+    # TODO check with tool.createTemporalLinspace
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 
