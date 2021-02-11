@@ -2,16 +2,19 @@ import numpy as np
 from lib import config
 
 
-def generateSine(f, a, fs=config.SAMPLING_FREQUENCY, duration=config.BASIC_DURATION):  # noqa E501
+def generateSine(f0: float,
+                 gain: float = 1.0,
+                 t: list = None,
+                 fs=config.SAMPLING_FREQUENCY,
+                 duration=config.BASIC_DURATION):
     # init
-    w = 2 * np.pi * f  # angular frequency
-    N = fs * duration  # nb of points
+    w = 2 * np.pi * f0  # angular frequency
     # linspace
-    t = np.arange(N) / fs
-
+    nsamples = int(duration * fs)
+    if t is None:
+        t = np.linspace(0, duration, nsamples, endpoint=False)
     # sine
-    sine = a * np.sin(w*t)
-
+    sine = gain * np.sin(w*t)
     return t.tolist(), sine.tolist()
 
 
@@ -28,3 +31,4 @@ def generateNoisySignal(fs: int = config.SAMPLING_FREQUENCY,
     x += 0.02 * np.cos(2 * np.pi * f0 * t + .11)
     x += 0.03 * np.cos(2 * np.pi * 2000 * t)
     return t, x
+
