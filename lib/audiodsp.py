@@ -137,7 +137,6 @@ def applyWindowOnSignal(window: str, dataToFilter: list) -> list:
     del window
 
 
-
 def getBandEnergy(realPart: list, imagPart: list):
     """Computes and returns energy of given frequency band defined
     by its real and imaginary parts.
