@@ -67,6 +67,7 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     Returns:
         list: [0:1/fs:len(data)/fs]
     """
+    # TODO check with tool.createTemporalLinspace
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 
@@ -105,7 +106,13 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     for index in range(len(amplitude)):
         array.append(np.complex(real=amplitude[index], imag=phase[index]))
     return array
-    del array
+    del array, index
+
+
+def applyWindowOnSignal(window: str, dataToFilter: list) -> list:
+    window = get_window(window=window, Nx=len(dataToFilter), fftbins=False)
+    return dataToFilter * window
+    del window
 
 
 def getBandEnergy(realPart: list, imagPart: list):
