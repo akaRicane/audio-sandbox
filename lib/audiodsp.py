@@ -1,4 +1,9 @@
+import os, sys, logging
 import numpy as np
+import scipy as sp
+from scipy.signal import get_window
+
+sys.path.append(os.getcwd())
 from lib import config, tool
 
 
@@ -131,7 +136,6 @@ def applyWindowOnSignal(window: str, dataToFilter: list) -> list:
     window = get_window(window=window, Nx=len(dataToFilter), fftbins=False)
     return dataToFilter * window
     del window
-
 
 
 def getBandEnergy(realPart: list, imagPart: list):
