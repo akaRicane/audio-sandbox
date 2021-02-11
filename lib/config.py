@@ -3,6 +3,7 @@ from pathlib import Path
 
 # general settings
 AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
+
 # audio general
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_SIZE = 1024  # points
@@ -14,6 +15,9 @@ AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "joyca.wav")
 
 # audiogenerator
 BASIC_DURATION = 0.1  # sec
+
+# audiofiltering
+BANDPASS_DEFAULT_ORDER = 5
 
 # musical keys dict ref
 REF_KEYS_DICT = {

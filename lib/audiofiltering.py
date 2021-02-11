@@ -1,62 +1,70 @@
 import numpy as np
-import scipy as sp
+import logging
 import scipy.signal as signal
+from scipy.signal import butter, sosfilt, sosfreqz
 import matplotlib.pyplot as plt
 import os
 import sys
 sys.path.append(os.getcwd())
-from lib import audioplot
+from lib import audioplot, config
+
 
 class AudioFilter():
     # designed to be one item with one filter
-    # usage would be y_filtered = audiofiltering.applyFilter(y, **args)
-    def __init__(self):
-        self.coefs = (None, None)
-        self.type = "empty"
+    # usage would be:
+    # myFilter = audiofiltering.AudioFilter()
+    # myFilter.getBandPassSosCoefs(lowcut, highcut, order=6)
+    # my_y = myFilter.returnFilteredData(x)
 
-    def getHighPassFiltSosCoefs(self, order: int=4, fcut: float=1000):
+    def __init__(self, fs: int = config.SAMPLING_FREQUENCY):
+        self.coefs = None
+        self.type = "empty"
+        self.order = None
+        self.fs = fs
+        self.freqs = None
+        self.fresponse = None
+
+    def getBandPassSosCoefs(self, lowcut, highcut, order=config.BANDPASS_DEFAULT_ORDER):
+        nyq = 0.5 * self.fs
+        low = lowcut / nyq
+        high = highcut / nyq
+        self.coefs = butter(order, [low, high], btype='band', output='sos')
+        self.type = "sos"
+        self.order = order
+        del nyq, low, high
+
+    def getHighPassFiltSosCoefs(self, order: int = 4, fcut: float = 1000):
         # wn = 2 * np.pi * fcut / 20000
         self.coefs = signal.butter(order, fcut, btype="high", output="sos", analog="True")
         self.type = "sos"
 
     def filtBroadcast(self, dataToFilter: list) -> list:
-        # get HP and LP sos coefs
-        # filter data 
         pass
 
-    def addBandPassFilt(self):
-        ...
+    def returnFilteredData(self, data: list):
+        if self.type == "sos":
+            return sosfilt(self.coefs, data)
+        # add elif for other methods
+        else:
+            logging.error("Asked filtering data with unexpected filter type coefs")
+
+    def computeFilterFreqResp(self):
+        if self.type == "sos":
+            self.freqs, self.fresponse = signal.sosfreqz(sos=self.coefs, worN=2000)
+        else:
+            logging.error("Asked computing filter frequency response with unexpected filter type coefs")
 
     def impulseRespOfFilter(self):
-        impulse = signal.unit_impulse(512)
-        if self.type == "sos":
-            response = signal.sosfilt(sos=self.coefs, x=impulse) 
-            w, h = signal.sosfreqz(sos=self.coefs, worN=512)
-            sos = signal.butter(4, 1000, 'high', output="sos", analog=True)
-            w, h = signal.sosfreqz(sos)
-        else:
-            response = signal.lfilter(b=self.coefs[0], a=self.coefs[1], x=impulse)
-            w, h = signal.freqs(b=self.coefs[0], a=self.coefs[1])
-        
-        plt.semilogx(w, 20 * np.log10(abs(h)))
+        t = np.arange(1024.0) / self.fs
+        impulse = signal.unit_impulse(1024)
+        response = self.returnFilteredData(impulse)
+        audioplot.shortPlot(vect=t, data=impulse)
+        audioplot.shortPlot(vect=t, data=response)
+        audioplot.pshow(legend=["impulse", "response"])
 
-        plt.title('Butterworth filter frequency response')
-        plt.xlabel('Frequency [radians / second]')
-        plt.ylabel('Amplitude [dB]')
-
-        plt.grid(True)
-        plt.margins(0, 0.1)
-        plt.grid(which='both', axis='both')
-        plt.axvline(1000, color='green') # cutoff frequency
-        plt.show()
-    
-    # def bandpass_filter(data, lowcut, highcut, fs, order=5):
-    #     nyq = 0.5 * fs
-    #     low = lowcut / nyq
-    #     high = highcut / nyq
-    #     b, a = butter(order, [low, high], btype='bandpass')
-    #     filtered = lfilter(b, a, data)
-    #     return filtered
+    def plotFilterResponse(self):
+        audioplot.shortPlot(vect=(self.fs * 0.5 / np.pi) * self.freqs, data=abs(self.fresponse))
+       
 
     # def equalizer_10band (data, fs, gain1=0, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0, gain7=0, gain8=0, gain9=0, gain10=0):
     #     band1 = bandpass_filter(data, 20, 39, fs, order=2)* 10**(gain1/20)

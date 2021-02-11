@@ -62,7 +62,7 @@ def pshow(legend: list = None):
     Args:
         legend (list, optional): [legend list to plot]. Defaults to None.
     """
-    fig = plt.gcf()
+    plt.gcf()
     plt.grid()
     if legend is not None:
         plt.legend(legend)
