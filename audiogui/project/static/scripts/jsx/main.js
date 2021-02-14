@@ -2,12 +2,9 @@ import React from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
 import ReactDOM from 'react-dom';
-import Sidebar from './sidebar.js';
-import { Container, Row, Col, Card, Form, Button } from "react-bootstrap";
+import '../../css/style.css';
+// import Sidebar from './sidebar.js';
 import { BrowserRouter as Router, Route, Link } from "react-router-dom";
-
-// Importing the Bootstrap CSS
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 class LineGraph extends React.Component {
@@ -80,9 +77,13 @@ class GenerateButton extends React.Component {
   render() {
     return (
       <div>
-        <Button onClick={() => this.handleClick()}>
+        <button
+          type="button"
+          className="text-gray-500"
+          onClick={() => this.handleClick()}
+        >
           Generate Graph
-        </Button>
+        </button>
         <LineGraph
           data={this.state.data}
           title="label"
@@ -95,16 +96,8 @@ class GenerateButton extends React.Component {
 
 ReactDOM.render(
   <Router>
-    <Container fluid>
-      <Row>
-        <Col xs={2} id="sidebar-wrapper">
-          <Sidebar />
-        </Col>
-        <Col id="page-content-wrapper">
-          <GenerateButton />
-        </Col>
-      </Row>
-    </Container>
+    {/* <Sidebar /> */}
+    <GenerateButton />
   </Router>,
   document.getElementById('main')
 );
