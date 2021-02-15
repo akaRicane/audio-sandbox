@@ -6,6 +6,7 @@ import struct
 from scipy.fftpack import fft
 import time
 from tkinter import TclError
+from scipy.io import wavfile
 
 # the file name output you want to record into
 filename = "recording.wav"
@@ -17,23 +18,22 @@ FORMAT = pyaudio.paInt16
 CHANNEL = 1
 # 44100 samples per second
 RATE = 44100
-record_seconds = 10
+record_seconds = 5
 # if you want playback on recording
 playback = False
 # if you want audio to be plotted
-rec_plot = True
+rec_plot = False
 
-
+fig, (ax) = plt.subplots(1, figsize=(15, 8))
+x = np.arange(0, 2 * CHUNK, 2)
+line, = ax.plot(x, np.random.rand(CHUNK), '-', lw=2)
+ax.set_title("AUDIO WAVEFORM")
+ax.set_xlabel("samples")
+ax.set_ylabel("volume")
+# ax.set_xlim(0, 2 * CHUNK)
+ax.set_ylim(0, 255)
+#plt.setp(ax, xticks=[0, CHUNK, 2 * CHUNK], yticks=[0, 120, 255])
 if rec_plot == True:
-    fig, (ax) = plt.subplots(1, figsize=(15, 8))
-    x = np.arange(0, 2 * CHUNK, 2)
-    line, = ax.plot(x, np.random.rand(CHUNK), '-', lw=2)
-    ax.set_title("AUDIO WAVEFORM")
-    ax.set_xlabel("samples")
-    ax.set_ylabel("volume")
-    # ax.set_xlim(0, 2 * CHUNK)
-    ax.set_ylim(0, 255)
-    #plt.setp(ax, xticks=[0, CHUNK, 2 * CHUNK], yticks=[0, 120, 255])
     plt.show(block=False)
 
 # initialize PyAudio object
@@ -64,7 +64,7 @@ for i in range(int(44100 / CHUNK * record_seconds)):
     if rec_plot == True:
         data_int = struct.unpack(str(2 * CHUNK) + 'B', data)
         data_np = np.array(data_int, dtype='b')[::2] + 128
-        data_np_whole = data_np_whole + list(data_np)
+        data_np_whole = data_np_whole + list(data_int)
         line.set_ydata(data_np)
     
         try:
@@ -99,3 +99,18 @@ wf.setframerate(RATE)
 wf.writeframes(b"".join(frames))
 # close the file
 wf.close()
+
+rate, data = wavfile.read("recording.wav")
+
+plt.cla()
+x = np.arange(0, len(data), 1)
+plt.subplot(211)
+plt.plot(x/rate, data, '-', lw=1, color='blue')
+plt.grid()
+plt.subplot(212)
+x_fft = np.linspace(0, rate, len(data))
+y_fft = abs(fft(data))
+plt.semilogx(x_fft, 20*np.log10(y_fft), '-', lw=1, color='red')
+plt.xlim(20, 20000)
+plt.grid()
+plt.show()
