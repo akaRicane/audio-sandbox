@@ -4,7 +4,7 @@
   "description": "",
   "main": "./audiogui/project/static/scripts/js/main.js",
   "scripts": {
-    "dev": "webpack --mode development --watch & ./venv/bin/python3.9 ./audiogui/project/app.py",
+    "dev": "webpack --mode development --watch",
     "start": "webpack serve"
   },
   "devDependencies": {

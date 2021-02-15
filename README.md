@@ -11,6 +11,6 @@ Installation
   Activate it (https://docs.python.org/fr/3/library/venv.html)
 2. Install packages:
   --> `pip install -r requirements.txt`
-3. run web server
-  --> `npm run dev` command
+3. run web server script and wait for webpack to successfully compile (may take few seconds)
+  --> `sh runserver.sh` command
 4. Go to `http://127.0.0.1:5000/` page in web browser
