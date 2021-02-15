@@ -11,7 +11,7 @@ from scipy.io import wavfile
 # the file name output you want to record into
 filename = "recording.wav"
 # set the chunk size of 1024 samples
-CHUNK = 1024*(2**2)
+CHUNK = 1024*(2**3)
 # sample format
 FORMAT = pyaudio.paInt16
 # mono, change to 2 if you want stereo
@@ -47,10 +47,7 @@ stream = p.open(format=FORMAT,
                 frames_per_buffer=CHUNK)
 
 
-
-
 frames = []
-data_np_whole = []
 frame_count = 0
 print("Recording...")
 for i in range(int(44100 / CHUNK * record_seconds)):
@@ -59,23 +56,17 @@ for i in range(int(44100 / CHUNK * record_seconds)):
     # Playback
     if playback == True:# Playback
         stream.write(data)
-    
     frames.append(data)
     if rec_plot == True:
         data_int = struct.unpack(str(2 * CHUNK) + 'B', data)
         data_np = np.array(data_int, dtype='b')[::2] + 128
-        data_np_whole = data_np_whole + list(data_int)
         line.set_ydata(data_np)
-    
         try:
             fig.canvas.draw()
             fig.canvas.flush_events()
             frame_count += 1
-
         except TclError:
-
             frame_rate = frame_count / (time.time() - start_time)
-
             print("Stream is stopped")
             print(f"Average frame rate: {frame_rate}")
             break
