@@ -9,7 +9,7 @@ FFT_WINDOWING = 1024  # points
 BANDS_SLICER_SIZE = 10  # bands
 
 # audiofile
-AUDIO_SOURCES = Path(AUDIO_REPOSITORY, "sources")
+AUDIO_SOURCES = Path(AUDIO_REPOSITORY, "resources")
 AUDIO_FILE_TEST = Path(AUDIO_SOURCES, "joyca.wav")
 
 # audiogenerator
