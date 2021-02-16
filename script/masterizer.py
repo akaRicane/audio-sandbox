@@ -1,17 +1,9 @@
-import sys
-import os
-import copy
 import logging
 import argparse
-from pathlib import Path
-import numpy as np
-
-import matplotlib.pyplot as plt
-
+import os
+import sys
 sys.path.append(os.getcwd())
-from lib import audio, audiodata, slicer 
-from lib import audioplot, audiofile
-from lib import config
+from lib import audioplot, audiodata, config  # noqa E402
 
 # ######################
 # #### ARCHITECTURE ####
@@ -27,15 +19,18 @@ from lib import config
 # output audio
 # ######################
 
+
 def getArguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", default=False, help="Audio to be processed regarding template files")
-    parser.add_argument("--template", default=False ,help="Audio template file for source processing")
+    parser.add_argument("--source", default=False,
+                        help="Audio to be processed regarding template files")
+    parser.add_argument("--template", default=False,
+                        help="Audio template file for source processing")
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    logging.info("--- Begining Masterizer module ---")
+    logging.info("--- Beginning Masterizer module ---")
     args = getArguments()
 
     # Would have been nicer way
@@ -43,7 +38,7 @@ if __name__ == "__main__":
     # source.addChannel()
     # source.data[0] = audio.AudioData()
     # but we simplify
-    
+
     # first: audio we want to masterize
     source = audiodata.AudioData()
     source.loadAudioFile()
@@ -55,10 +50,9 @@ if __name__ == "__main__":
     template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
     template.fft()
     template.addSlicer()
- 
+
     source.fplot()
-    # template.fplot()
-    source.slicer.plotSpectrumByAreas(ids=[7,8,9])
-    # source.slicer.plotSpectrumByAreas()
+    template.fplot()
+    source.slicer.plotSpectrumByAreas(ids=[4, 7, 9])
     audioplot.pshow()
     ...

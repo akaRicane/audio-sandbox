@@ -3,7 +3,8 @@ from lib import config
 
 
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
-    """Returns a list of the array indexes of the closest values regarding a given target.
+    """Returns a list of the array indexes of the closest values,
+    regarding a given target.
     In a = [0, 1, 2, 3, 5, 7, 11, 5, 1, 11]
     -> returns [5] if asked getClosest...InArray(a, 7)
     -> returns [4, 7] if asked getClosest...InArray(a, 5)
@@ -13,7 +14,8 @@ def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
         target (float): [target to match]
 
     Returns:
-        list: [list of closest indexes (if more than 2, than all val(i) are same)]
+        list:
+           [list of closest indexes (if more than 2, than all val(i) are same)]
     """
     closestIndexes = []
     minGap = None

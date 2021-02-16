@@ -59,7 +59,7 @@ class Slicer():
             if idx + 1 < len(refFreqList):
                 boundMax = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx + 1])[0] + 1
             else:
-                boundMax = len(_freqs) 
+                boundMax = len(_freqs)
             _bands[f"{idx}"] = {
                 "_id": idx,
                 "_freqIdx": _freqIdx,
@@ -86,14 +86,20 @@ class Slicer():
         return energy
         del energy, areas, index
 
-    def plotSpectrumByAreas(self, ids: list = None):
+    def plotSpectrumByAreas(self, ids: list = None, normFreqs: bool = False):
         if ids is None:
             areas = self.getAllBandsIdAvailable()
         else:
             areas = copy.deepcopy(ids)
+        if normFreqs:
+            whichFreq = "_w"
+            whichAmp = "_amp"
+        else:
+            whichFreq = "_f"
+            whichAmp = "_ampDb"
         for index, v in enumerate(areas):
             audioplot.shortPlot(
-                self.bands[f"{v}"]["_f"], self.bands[f"{v}"]["_ampDb"],
+                self.bands[f"{v}"][whichFreq], self.bands[f"{v}"][whichAmp],
                 space='spectral')
         del areas, index, v
 

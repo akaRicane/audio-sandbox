@@ -7,7 +7,8 @@ def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
     # TODO to fix and complete
     audioLength = round(arrayLength / rate * 1000, 2)
     logging.warning(f"---- Audio file opened successfully ----\n"
-                    f"Codec: {codec} | Rate: {rate} Hz| Length: {audioLength} ms")
+                    f"Codec: {codec}\nRate: {rate} Hz"
+                    f"Length: {audioLength} ms")
 
 
 def makeArrayMono(data):
@@ -46,4 +47,5 @@ def read(filePath, makeMono=False):
 
 
 def openWithFfmepg(filePath):
+    # TODO finish this shit
     cmd = f'ffmpeg -i {filePath}'
