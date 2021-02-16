@@ -1,4 +1,6 @@
+import os, sys
 from flask import Flask, render_template, jsonify
+sys.path.append(os.getcwd())
 from lib import audio
 
 app = Flask(__name__)

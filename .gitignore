@@ -5,3 +5,4 @@
 node_modules/
 /venv/
 audiogui/project/static/scripts/js/main.js
+package-lock.json
