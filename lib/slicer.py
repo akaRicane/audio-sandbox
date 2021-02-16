@@ -1,23 +1,25 @@
 import copy
 
-from lib import audiodata
-from lib import audiodsp, audiofile, audioplot, audiogenerator
+from lib import audiodsp, audioplot
 from lib import config, tool
 
+
 class Slicer():
-    def __init__(self, size: int=config.BANDS_SLICER_SIZE, newFreq: list=None, newAmp: list=None, newPhase: list=None):
+    def __init__(self, size: int = config.BANDS_SLICER_SIZE, newFreq: list = None, newAmp: list=None, newPhase: list=None):
         # newPhase is none means newAmp is complex
-        self.size = 10  #TODO to update
+        self.size = 10  # TODO to update
         self.bands = {}
         self.freqs = None
         self.amp = None
         self.ampDb = None
         self.phase = None
-        if newFreq is not None: self.importNewFreqArray(newFreq)
-        if newAmp is not None: self.importNewAmpArray(newAmp, newPhase)
+        if newFreq is not None:
+            self.importNewFreqArray(newFreq)
+        if newAmp is not None:
+            self.importNewAmpArray(newAmp, newPhase)
         self.updateSlicer()
-    
-    def importNewAmpArray(self, newAmp: list, newPhase: list=None):
+
+    def importNewAmpArray(self, newAmp: list, newPhase: list = None):
         # newPhase is none means newAmp is complex
         if newPhase is None:
             _amp, _phase = copy.deepcopy(audiodsp.splitFftVector(newAmp))
@@ -70,8 +72,8 @@ class Slicer():
             }
         self.bands = copy.deepcopy(_bands)
         del _bands, _freqs, _amp, _ampDb, _phase, refFreqList, idx, boundMax, boundMin
-    
-    def computeEnergyOfAreas(self, ids: list=None) -> list:
+
+    def computeEnergyOfAreas(self, ids: list = None) -> list:
         # list allows to precise which bands to be computed
         # if ids is None ==> compute all bands
         energy = []
@@ -81,10 +83,10 @@ class Slicer():
             areas = copy.deepcopy(ids)
         for index in areas:
             energy.append(audiodsp.getBandEnergy(self.bands[f"{index}"]["_amp"], self.bands[f"{index}"]["_phase"]))
-        return energy 
+        return energy
         del energy, areas, index
 
-    def plotSpectrumByAreas(self, ids: list=None):
+    def plotSpectrumByAreas(self, ids: list = None):
         if ids is None:
             areas = self.getAllBandsIdAvailable()
         else:
@@ -94,7 +96,7 @@ class Slicer():
                 self.bands[f"{v}"]["_f"], self.bands[f"{v}"]["_ampDb"],
                 space='spectral')
         del areas, index, v
-    
+
     def getAllBandsIdAvailable(self) -> list:
         areas = []
         for i, v in self.bands.items():

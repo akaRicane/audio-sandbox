@@ -1,6 +1,4 @@
 import logging
-import subprocess
-from pathlib import Path
 from pydub import AudioSegment
 from scipy.io import wavfile
 
@@ -11,12 +9,13 @@ def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
     logging.warning(f"---- Audio file opened successfully ----\n"
                     f"Codec: {codec} | Rate: {rate} Hz| Length: {audioLength} ms")
 
+
 def makeArrayMono(data):
     mono = []
     for idx, sample in enumerate(data):
         mono.append(sample[0])
     return mono
-    
+
 
 def read(filePath, makeMono=False):
     """ Read audio file from filepath

@@ -1,6 +1,6 @@
 import copy
-
 from lib import audiodata
+
 
 class AudioItem():
     def __init__(self):
@@ -8,7 +8,7 @@ class AudioItem():
         self.nchannel = 0
         self.codec = None
         self.data = []
-    
+
     # Channel Management
     def addChannel(self):
         self.data.append(audiodata.AudioData())
@@ -17,7 +17,7 @@ class AudioItem():
     def deleteChannel(self, indexToDelete):
         del self.data[indexToDelete]
         self.nchannel = len(self.data)
-        
+
     def cloneChannel(self, indexToClone):
         self.addChannel()
         self.data[-1] = copy.deepcopy(self.data[indexToClone])
@@ -31,7 +31,8 @@ class AudioItem():
             if idx != 0:
                 self.deleteChannel(idx)
         del idx, _
-    
+
     def addSinusAsNewChannel(self):
         self.addChannel()
-        self.data[-1] = slicer.loadSinus()
+        self.data[-1] = audiodata.AudioData()
+        self.data[-1].loadSinus()
