@@ -1,16 +1,12 @@
 # audio
 Audio sandbox for multipurpose audio projects
 
+# Add full tuto install
+Python 3.9.x
+Bash
 
-# Web API
-Installation
-1. Install all nodes modules
-  --> `npm install`
-1. Create virtual environment in root folder, called venv
-  --> In root folder: `python -m venv venv`
-  Activate it (https://docs.python.org/fr/3/library/venv.html)
-2. Install packages:
-  --> `pip install -r requirements.txt`
-3. run web server script and wait for webpack to successfully compile (may take few seconds)
-  --> `sh runserver.sh` command
-4. Go to `http://127.0.0.1:5000/` page in web browser
+# Web App
+In bash terminal:
+Setup install (mandatory 1st time): sh install.sh
+Run Audio Web App: sh runserver.sh
+Go to `http://127.0.0.1:5000/` page in web browser
