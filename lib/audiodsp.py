@@ -108,7 +108,8 @@ def splitFftVector(array: list) -> (list, list):
 def mergeFftVector(amplitude: list, phase: list) -> list:
     """Splits complex fft vector in twice.
     Format is returned like: [Z = amp + i*phase]. 
-    #FIXME : Incorrect !, [Z = Amp*exp(i*phase)] not [Z = amp + i*phase]
+    #FIXME : Incorrect !, [Z = Amp*exp(i*phase)] not [Z = amp + i*phase], correct way is [real = amp*cos(phase) and imag = amp*sin(phase)]
+
     Opposite function of audiodsp.splitFftVector().
 
     Args:
@@ -116,11 +117,12 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
         phase (list): [phase vector]
 
     Returns:
-        list: [amplitudes + i * phase]
+        list: [real + i * imaginary]
     """
     array = []
     for index in range(len(amplitude)):
         array.append(np.complex(real=amplitude[index], imag=phase[index]))
+        #FIXME : array.append(np.complex(real=amplitude[index]*np.cos(phase[index]), imag=amplitude[index]*np.sin(phase[index])))
     return array
     del array, index
 
