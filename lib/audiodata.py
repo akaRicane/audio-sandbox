@@ -52,7 +52,7 @@ class AudioData():
 
     def fft(self, iscomplex: bool = False):
         self.setSpectralContent(
-            *audiodsp.getFft(t=self.t, tAmplitude=self.tamp, fs=self.rate))
+            *audiodsp.getFft(tAmplitude=self.tamp, fs=self.rate))
 
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(
