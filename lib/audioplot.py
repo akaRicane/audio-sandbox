@@ -43,7 +43,7 @@ def pshow(legend: list = None):
     return fig
 
 
-def boardControl(vect: list, data:list, additionalData: list, legendList: list):
+def boardControl(vect: list, data: list, additionalData: list, legendList: list):
     """Displays nice plotting areas with fixed layout and informations about item
 
     Args:

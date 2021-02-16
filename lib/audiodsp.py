@@ -1,7 +1,6 @@
-import logging
 import numpy as np
-import scipy as sp
 from lib import config, tool
+
 
 def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
     """ Return full FFT transform of the given temporal content
@@ -12,20 +11,21 @@ def getFft(t, tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):
         tAmplitude (array of float): [time signal amplitudes]
         N (int, optional): [FFT size]. Defaults to config.FFT_WINDOWING.
         fs (float, optional): [sampling frequency]. Defaults to config.SAMPLING_FREQUENCY.
-    
+
     Returns:
         freq ([list]): [cleaned frequency axis]
         amplitude_lin ([list]): [cleaned fft amplitudes vector, linear]
         amplitude_db ([list]): [cleaned fft amplitudes vector, converted in dB]
         phase ([list]): [cleaned phase of signal]
-    """    
+    """
     # freq = fs * np.arange(N) / N
     freq = np.fft.fftfreq(len(t)) * fs
     output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
-    amplitude_lin, phase = splitFftVector(output)  
+    amplitude_lin, phase = splitFftVector(output)
     amplitude_db = tool.convertAmpToAmpDb(amplitude_lin)
     return retCleanFft(freq), retCleanFft(amplitude_lin), retCleanFft(amplitude_db), retCleanFft(phase)
     del freq, amplitude_lin, amplitude_db, phase
+
 
 def retCleanFft(x: list) -> list:
     """Returns a cleaned fft vect, e.g. [1:int(len(x)/2)]
@@ -40,9 +40,11 @@ def retCleanFft(x: list) -> list:
     """
     return x[1:int(len(x)/2)].tolist()
 
+
 def getiFft(array: list) -> list:
-    #TODO fix ifft -> 2 times faster sine vect 4043 -> 2021
+    # TODO fix ifft -> 2 times faster sine vect 4043 -> 2021
     return np.fft.ifft(array)
+
 
 def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     """Generate temporal vector of given time signal.
@@ -56,6 +58,7 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
         list: [0:1/fs:len(data)/fs]
     """
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
+
 
 def splitFftVector(array: list) -> (list, list):
     """Splits complex fft vector in twice.
@@ -75,6 +78,7 @@ def splitFftVector(array: list) -> (list, list):
     # phase = arctan(imag/real)
     return np.abs(array), np.arctan(np.imag(array) / np.real(array))
 
+
 def mergeFftVector(amplitude: list, phase: list) -> list:
     """Splits complex fft vector in twice.
     Format is returned like: [Z = amp + i*phase].
@@ -93,6 +97,7 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     return array
     del array
 
+
 def getBandEnergy(realPart: list, imagPart: list):
     """Computes and returns energy of given frequency band defined
     by its real and imaginary parts.
@@ -110,4 +115,4 @@ def getBandEnergy(realPart: list, imagPart: list):
     for i in range(len(realPart)):
         bandEnergy += realPart[i] ** 2 + imagPart[i] ** 2
     return bandEnergy / len(realPart)
-    del bandEnergy , i
+    del bandEnergy, i
