@@ -71,6 +71,21 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 
+def getFrequencyVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
+    """Generate frequency vector of given time signal.
+    Format is like [fs*(0:(L/2))/L].
+
+    Args:
+        data ([list]): [time signal]
+        fs ([int], optional): [sampling frequency]. Defaults to config.SAMPLING_FREQUENCY.
+
+    Returns:
+        list: [fs*(0:(L/2))/L]
+    """
+    # TODO : Check if correct and if int() is needed
+    return np.arange(start=0, stop=len(data)/2)*fs/len(data)
+
+
 def splitFftVector(array: list) -> (list, list):
     """Splits complex fft vector in twice.
     Format is like: [Z = a + i*b] is returned as [amp, phase],
@@ -92,7 +107,8 @@ def splitFftVector(array: list) -> (list, list):
 
 def mergeFftVector(amplitude: list, phase: list) -> list:
     """Splits complex fft vector in twice.
-    Format is returned like: [Z = amp + i*phase].
+    Format is returned like: [Z = amp + i*phase]. 
+    #FIXME : Incorrect !, [Z = Amp*exp(i*phase)] not [Z = amp + i*phase]
     Opposite function of audiodsp.splitFftVector().
 
     Args:
