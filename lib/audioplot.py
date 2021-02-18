@@ -46,7 +46,7 @@ def shortPlot(vect, data, space='time', scale='lin',
             plt.xlabel("Normalized frequency [rad/sample]")
             plt.title("Spectral Plot, normalized frequencies")
         else:
-            plt.xlim([10, 3e5])
+            # plt.xlim([10, ])
             plt.xlabel("Frequency [Hz]")
             plt.title("Spectral Plot")
 

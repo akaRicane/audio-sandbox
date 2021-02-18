@@ -2,7 +2,7 @@ import numpy as np
 from lib import config, tool
 
 
-def getFft(tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):  # noqa E501
+def getFft(tAmplitude, N=config.FFT_SIZE, fs=config.SAMPLING_FREQUENCY):  # noqa E501
     """ Return full FFT transform of the given temporal content
     t axis is not required for the operation
     -> output[0] is the zero-frequency sum (sum of the signal)
@@ -24,10 +24,11 @@ def getFft(tAmplitude, N=config.FFT_WINDOWING, fs=config.SAMPLING_FREQUENCY):  #
         phase ([list]): [cleaned phase of signal]
     """
     # freq = fs * np.arange(N) / N
-    w = np.fft.fftfreq(len(tAmplitude))
-    freq = w * fs
-    output = np.fft.fft(tAmplitude)  # output is like ([a1+b1j, a2+b2j, ../])
+    freq = np.fft.fftfreq(n=N, d=1.0/fs)
+    w = freq / fs
+    output = np.fft.fft(a=tAmplitude, n=N)  # output is like ([a1+b1j, a2+b2j, ../])
     amplitude_lin, phase = splitFftVector(output)
+    amplitude_lin = amplitude_lin / N
     amplitude_db = tool.convertAmpToAmpDb(amplitude_lin)
     return retCleanFft(w), retCleanFft(freq), retCleanFft(amplitude_lin),\
         retCleanFft(amplitude_db), retCleanFft(phase)

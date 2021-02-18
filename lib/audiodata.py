@@ -8,6 +8,7 @@ class AudioData():
     def __init__(self):
         self.npts = None
         self.rate = config.SAMPLING_FREQUENCY
+        self.fftsize = config.FFT_SIZE
         self.t = None
         self.tamp = None
         self.f = None
@@ -40,8 +41,8 @@ class AudioData():
         self.spectralAvailable = True
 
     def loadSinus(self, f=440, a=0.7):
-        self.rate = config.SAMPLING_FREQUENCY
-        self.setTemporalContent(*audiogenerator.generateSine(f=f, a=a))
+        self.rate = self.rate
+        self.setTemporalContent(*audiogenerator.generateSine(f=f, a=a, fs=self.rate))
 
     def loadAudioFile(self, filePath: str = None):
         if filePath is None:
@@ -52,7 +53,8 @@ class AudioData():
 
     def fft(self, iscomplex: bool = False):
         self.setSpectralContent(
-            *audiodsp.getFft(tAmplitude=self.tamp, fs=self.rate))
+            *audiodsp.getFft(tAmplitude=self.tamp,
+                             N=self.fftsize, fs=self.rate))
 
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(
@@ -77,7 +79,7 @@ class AudioData():
             elif space == "spectral":
                 if normFreqs:
                     audioplot.shortPlot(self.w, self.fampDb, space=space,
-                                        scale='semilog', isNormalizedAxis=True)
+                                        scale='lin', isNormalizedAxis=True)
                     legendList.append("Spectral Plot, normalized frequencies")
                 else:
                     audioplot.shortPlot(self.f, self.fampDb,
