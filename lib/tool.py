@@ -1,4 +1,6 @@
+import os, sys
 import numpy as np
+sys.path.append(os.getcwd())
 from lib import config
 
 
