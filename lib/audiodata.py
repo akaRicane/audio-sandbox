@@ -8,9 +8,11 @@ class AudioData():
     def __init__(self):
         self.npts = None
         self.rate = config.SAMPLING_FREQUENCY
+        self.fftsize = config.FFT_SIZE
         self.t = None
         self.tamp = None
         self.f = None
+        self.w = None
         self.famp = None
         self.fampDb = None
         self.fphase = None
@@ -29,8 +31,9 @@ class AudioData():
         self.npts = len(self.t)
         self.temporalAvailable = True
 
-    def setSpectralContent(self, freq: list, amplitude: list,
+    def setSpectralContent(self, w: list, freq: list, amplitude: list,
                            amplitude_db: list = None, phase: list = None):
+        self.w = w
         self.f = freq
         self.famp = amplitude
         self.fampDb = amplitude_db
@@ -38,8 +41,8 @@ class AudioData():
         self.spectralAvailable = True
 
     def loadSinus(self, f=440, a=0.7):
-        self.rate = config.SAMPLING_FREQUENCY
-        self.setTemporalContent(*audiogenerator.generateSine(f=f, a=a))
+        self.rate = self.rate
+        self.setTemporalContent(*audiogenerator.generateSine(f=f, a=a, fs=self.rate))
 
     def loadAudioFile(self, filePath: str = None):
         if filePath is None:
@@ -50,7 +53,8 @@ class AudioData():
 
     def fft(self, iscomplex: bool = False):
         self.setSpectralContent(
-            *audiodsp.getFft(t=self.t, tAmplitude=self.tamp, fs=self.rate))
+            *audiodsp.getFft(tAmplitude=self.tamp,
+                             N=self.fftsize, fs=self.rate))
 
     def ifft(self):
         self.tamp = audiodsp.getiFft(audiodsp.mergeFftVector(
@@ -64,30 +68,39 @@ class AudioData():
                 newFreq=self.f, newAmp=audiodsp.mergeFftVector(self.famp,
                                                                self.fphase))
 
-    def plot(self, space="time", mode="short", show: bool = False):
+    def plot(self, space="time", mode="short",
+             normFreqs: bool = False, show: bool = False):
+        # FIXME Are legendlist useful here ?
         legendList = []
         if mode == "short":
             if space == "time":
                 audioplot.shortPlot(self.t, self.tamp, space=space)
                 legendList.append("Time Plot")
             elif space == "spectral":
-                audioplot.shortPlot(self.f, self.fampDb, space=space)
-                legendList.append("Spectral Plot")
+                if normFreqs:
+                    audioplot.shortPlot(self.w, self.fampDb, space=space,
+                                        scale='lin', isNormalizedAxis=True)
+                    legendList.append("Spectral Plot, normalized frequencies")
+                else:
+                    audioplot.shortPlot(self.f, self.fampDb,
+                                        space=space, scale='semilog',
+                                        isNormalizedAxis=False)
+                    legendList.append("Spectral Plot")
         else:
             logging.error("Plot not possible")
         if show:
             audioplot.pshow(legend=legendList)
         del legendList, mode
 
-    def tplot(self):
+    def tplot(self, isNewFigure: bool = False):
         self.plot(space="time")
 
-    def fplot(self):
-        self.plot(space="spectral")
+    def fplot(self, normFreqs: bool = False, isNewFigure: bool = False):
+        self.plot(space="spectral", normFreqs=normFreqs)
 
     def callBoardControl(self):
         vect = [self.t, self.f]
         data = [[self.tamp], [self.fampDb]]
-        audioplot.boardControl(vect=vect, data=data, additionalData=self.infos, legendList=[
-                               "temporal", "spectral", "spectral2"])
+        audioplot.boardControl(vect=vect, data=data, additionalData=self.infos,
+                               legendList=["temporal", "spectral", "spect2"])
         del vect, data
