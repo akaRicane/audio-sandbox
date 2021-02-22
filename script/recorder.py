@@ -1,4 +1,5 @@
 import pyaudio
+import os
 import wave
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +10,7 @@ from tkinter import TclError
 from scipy.io import wavfile
 
 # the file name output you want to record into
-filename = "recording.wav"
+filename = os.path.join('inputs','recording.wav')
 # set the chunk size of 1024 samples
 CHUNK = 1024*(2**3)
 # sample format
@@ -22,7 +23,7 @@ record_seconds = 5
 # if you want playback on recording
 playback = False
 # if you want audio to be plotted
-rec_plot = False
+rec_plot = True
 
 fig, (ax) = plt.subplots(1, figsize=(15, 8))
 x = np.arange(0, 2 * CHUNK, 2)
@@ -91,17 +92,18 @@ wf.writeframes(b"".join(frames))
 # close the file
 wf.close()
 
-rate, data = wavfile.read("recording.wav")
+rate, data = wavfile.read(filename)
 
 plt.cla()
 x = np.arange(0, len(data), 1)
 plt.subplot(211)
-plt.plot(x/rate, data, '-', lw=1, color='blue')
+plt.plot(x/rate, data, '-', lw=1)
 plt.grid()
 plt.subplot(212)
 x_fft = np.linspace(0, rate, len(data))
 y_fft = abs(fft(data))
-plt.semilogx(x_fft, 20*np.log10(y_fft), '-', lw=1, color='red')
+plt.semilogx(x_fft, 20*np.log10(y_fft), '-', lw=1)
 plt.xlim(20, 20000)
 plt.grid()
 plt.show()
+

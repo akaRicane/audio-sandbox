@@ -1,5 +1,8 @@
+import os, sys, logging
 import numpy as np
-import logging
+
+
+sys.path.append(os.getcwd())
 from lib import config, tool
 
 
@@ -57,12 +60,23 @@ def generateSweptSine(amp: float = 0.8,
                       t: list = None,
                       duration: float = config.BASIC_DURATION,
                       fs: int = config.SAMPLING_FREQUENCY,
+                      fade: bool = True,
                       novak: bool = False):
     """Generates a Sweptsine, from f0 to f1, with a possibility to satisfy novaks conditions (based on https://www.ant-novak.com/publications/papers/2010_ieee_novak.pdf).
 
     Args:
+        amp ([float]): [amplitudes of swept sine]
+        f0 ([float]): [start frequency (in Hz)]
+        f1 ([float]): [end frequency (in Hz)]
+        t ([list], optional): [time vector]
+        duration ([float]): [Duration (in seconds) of the swept sine, duration may slighty change if novak conditions are respected]
+        fs ([int]): [sampling frequency, rate (in Hz)]
+        fade ([bool]): [if True, creates a fade in and out on the swept sine]
+        novak ([bool]): [imposes novaks condition to Dt between 2 instantaneous frequencies, usefull to easily deconvolute input from output recording, and separate fondamental signal and harmonic signals]
 
     Returns:
+        x ([list]): [list of amplitudes of the swept sine]
+        t ([list]): [time vector corresponding to x data]
         
     """
 
@@ -74,17 +88,39 @@ def generateSweptSine(amp: float = 0.8,
         L = np.floor( (f0*duration) / np.log(f1/f0) ) / f0
         newDuration = L * np.log(f1/f0)
         t = tool.createTemporalLinspace(fs=fs, duration=newDuration)
-        print(f'New duration of the signal has been set to {newDuration} seconds, to satisfy Novak\'s conditions')
     else:
         L = duration / np.log(f1 / f0)
 
     x = amp * np.sin(2 * np.pi * f0 * L * (np.exp(t / L) - 1))
+
+    if fade is True:
+        fadeInLength = 0.5*fs
+        fadeIn = np.linspace(start=0,stop=1,num=int(fadeInLength))
+        fadeOut = np.linspace(start=1,stop=0,num=int(fadeInLength/5))
+        window = np.ones(len(x))
+        window[0:len(fadeIn)] = fadeIn
+        window[len(window)-len(fadeOut):] = fadeOut
+        x = x*window
     
     if len(t)/fs < duration:
         zeroPadding = np.zeros(duration*fs - len(t))
-        print(type(zeroPadding))
         x = np.concatenate([x , zeroPadding])
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
-        print("Added Zero Padding to the signal to extend it to initial duration")
 
     return x, t
+
+sweep, tsweep = generateSweptSine(amp=0.5, f0=10, f1=20000, duration = 10, fs=48000, fade=True, novak=True)
+
+
+import matplotlib.pyplot as plt
+from scipy.fftpack import fft
+plt.figure(10)
+plt.subplot(211)
+plt.plot(tsweep, sweep)
+plt.subplot(212)
+plt.semilogx(20*np.log10(abs(fft(sweep))))
+
+plt.show()
+
+import sounddevice as sd
+sd.play(sweep, 48000)
