@@ -109,18 +109,21 @@ def generateSweptSine(amp: float = 0.8,
 
     return x, t
 
-sweep, tsweep = generateSweptSine(amp=0.5, f0=10, f1=20000, duration = 10, fs=48000, fade=True, novak=True)
+
+# TODO Wtf is this ? came after merge 
+# @arthur
+# sweep, tsweep = generateSweptSine(amp=0.5, f0=10, f1=20000, duration = 10, fs=48000, fade=True, novak=True)
 
 
-import matplotlib.pyplot as plt
-from scipy.fftpack import fft
-plt.figure(10)
-plt.subplot(211)
-plt.plot(tsweep, sweep)
-plt.subplot(212)
-plt.semilogx(20*np.log10(abs(fft(sweep))))
+# import matplotlib.pyplot as plt
+# from scipy.fftpack import fft
+# plt.figure(10)
+# plt.subplot(211)
+# plt.plot(tsweep, sweep)
+# plt.subplot(212)
+# plt.semilogx(20*np.log10(abs(fft(sweep))))
 
-plt.show()
+# plt.show()
 
-import sounddevice as sd
-sd.play(sweep, 48000)
+# import sounddevice as sd
+# sd.play(sweep, 48000)
