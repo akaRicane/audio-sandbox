@@ -7,7 +7,7 @@ from lib import config, tool
 class Slicer():
     def __init__(self, size: int = config.BANDS_SLICER_SIZE, newFreq: list = None, newAmp: list=None, newPhase: list=None):
         # newPhase is none means newAmp is complex
-        self.size = 10  # TODO to update
+        self.size = size
         self.bands = {}
         self.freqs = None
         self.amp = None
@@ -56,6 +56,8 @@ class Slicer():
             _freqIdx = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx])
             if len(_freqIdx) == 1:
                 boundMin = _freqIdx[0]
+            else:
+                boundMin = 0
             if idx + 1 < len(refFreqList):
                 boundMax = tool.getClosestIndexToTargetInArray(_freqs, refFreqList[idx + 1])[0] + 1
             else:
@@ -94,13 +96,15 @@ class Slicer():
         if normFreqs:
             whichFreq = "_w"
             whichAmp = "_amp"
+            whichScale = "lin"
         else:
             whichFreq = "_f"
             whichAmp = "_ampDb"
+            whichScale = "semilog"
         for index, v in enumerate(areas):
             audioplot.shortPlot(
                 self.bands[f"{v}"][whichFreq], self.bands[f"{v}"][whichAmp],
-                space='spectral')
+                space='spectral', scale=whichScale, isNormalizedAxis=normFreqs)
         del areas, index, v
 
     def getAllBandsIdAvailable(self) -> list:

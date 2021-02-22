@@ -59,7 +59,7 @@ while True:
     line.set_ydata(data_np)
 
     y_fft = fft(data_int)
-    line_fft.set_ydata(np.abs(y_fft[0:CHUNK]) * 2 / (256 + CHUNK))
+    line_fft.set_ydata(np.abs(y_fft[0:CHUNK]) * 2 / (256 * CHUNK))
 
     try:
         fig.canvas.draw()

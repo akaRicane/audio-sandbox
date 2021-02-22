@@ -41,18 +41,19 @@ if __name__ == "__main__":
 
     # first: audio we want to masterize
     source = audiodata.AudioData()
-    source.loadAudioFile()
+    # source.loadAudioFile()
+    source.loadSinus()
     source.fft()
     source.addSlicer()
 
     # then: audio target e.g. template
-    template = audiodata.AudioData()
-    template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
-    template.fft()
-    template.addSlicer()
+    # template = audiodata.AudioData()
+    # template.loadAudioFile(filePath=config.AUDIO_FILE_TEST)
+    # template.fft()
+    # template.addSlicer()
 
-    source.fplot()
-    template.fplot()
-    source.slicer.plotSpectrumByAreas(ids=[4, 7, 9])
+    # source.fplot()
+    # template.fplot()
+    source.slicer.plotSpectrumByAreas(ids=[1,3,4,6,9])
     audioplot.pshow()
     ...

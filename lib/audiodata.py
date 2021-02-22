@@ -40,9 +40,9 @@ class AudioData():
         self.fphase = phase
         self.spectralAvailable = True
 
-    def loadSinus(self, f=440, a=0.7):
+    def loadSinus(self, f=440, gain=0.7):
         self.rate = self.rate
-        self.setTemporalContent(*audiogenerator.generateSine(f=f, a=a, fs=self.rate))
+        self.setTemporalContent(*audiogenerator.generateSine(f0=f, gain=gain, fs=self.rate))
 
     def loadAudioFile(self, filePath: str = None):
         if filePath is None:

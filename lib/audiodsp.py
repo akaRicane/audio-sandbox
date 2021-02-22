@@ -1,4 +1,9 @@
+import os, sys, logging
 import numpy as np
+import scipy as sp
+from scipy.signal import get_window
+
+sys.path.append(os.getcwd())
 from lib import config, tool
 
 
@@ -67,7 +72,23 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     Returns:
         list: [0:1/fs:len(data)/fs]
     """
+    # TODO check with tool.createTemporalLinspace
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
+
+
+def getFrequencyVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
+    """Generate frequency vector of given time signal.
+    Format is like [fs*(0:(L/2))/L].
+
+    Args:
+        data ([list]): [time signal]
+        fs ([int], optional): [sampling frequency]. Defaults to config.SAMPLING_FREQUENCY.
+
+    Returns:
+        list: [fs*(0:(L/2))/L]
+    """
+    # TODO : Check if correct and if int() is needed
+    return np.arange(start=0, stop=len(data)/2)*fs/len(data)
 
 
 def splitFftVector(array: list) -> (list, list):
@@ -91,7 +112,9 @@ def splitFftVector(array: list) -> (list, list):
 
 def mergeFftVector(amplitude: list, phase: list) -> list:
     """Splits complex fft vector in twice.
-    Format is returned like: [Z = amp + i*phase].
+    Format is returned like: 
+    [Z = Amp*exp(i*phase)] <=> [real = amp*cos(phase) and imag = amp*sin(phase)]
+
     Opposite function of audiodsp.splitFftVector().
 
     Args:
@@ -99,13 +122,19 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
         phase (list): [phase vector]
 
     Returns:
-        list: [amplitudes + i * phase]
+        list: [Z = Amp*exp(i*phase)]
     """
     array = []
     for index in range(len(amplitude)):
-        array.append(np.complex(real=amplitude[index], imag=phase[index]))
+        array.append(np.complex(real=amplitude[index]*np.cos(phase[index]), imag=amplitude[index]*np.sin(phase[index])))
     return array
-    del array
+    del array, index
+
+
+def applyWindowOnSignal(window: str, dataToFilter: list) -> list:
+    window = get_window(window=window, Nx=len(dataToFilter), fftbins=False)
+    return dataToFilter * window
+    del window
 
 
 def getBandEnergy(realPart: list, imagPart: list):

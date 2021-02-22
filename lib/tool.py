@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, logging
 import numpy as np
 sys.path.append(os.getcwd())
 from lib import config
@@ -50,6 +50,20 @@ def convertAmpToAmpDb(amp: list) -> list:
 
 def convertAmpDbToAmp(ampDb: list) -> list:
     return 10 ** (ampDb / 20)
+
+
+def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
+                           duration=config.BASIC_DURATION) -> list:
+    # linspace
+    return np.linspace(0, duration, int(duration * fs), endpoint=False)
+
+
+def returnSumOfSignals(data1: list, data2: list) -> list:
+    result = []
+    for idx in range(len(data1)):
+        result.append(data1[idx] + data2[idx])
+    return result
+    del result
 
 
 def addToDict(destination: dict, key, data):

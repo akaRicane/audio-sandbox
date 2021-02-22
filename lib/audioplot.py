@@ -46,8 +46,11 @@ def shortPlot(vect, data, space='time', scale='lin',
             plt.xlabel("Normalized frequency [rad/sample]")
             plt.title("Spectral Plot, normalized frequencies")
         else:
-            df = vect[-1] - vect[-2]
-            plt.xlim(vect[0], vect[-1] + 10 * df)
+            # if len(vect) == 1:
+            #     plt.xlim(vect[0], vect[-1])
+            # else:
+            #     df = vect[-1] - vect[-2]
+            #     plt.xlim(vect[0], vect[-1] + 10 * df)
             plt.xlabel("Frequency [Hz]")
             plt.title("Spectral Plot")
 
@@ -62,12 +65,11 @@ def pshow(legend: list = None):
     Args:
         legend (list, optional): [legend list to plot]. Defaults to None.
     """
-    fig = plt.gcf()
+    plt.gcf()
     plt.grid()
     if legend is not None:
         plt.legend(legend)
     plt.show()
-    return fig
 
 
 def boardControl(vect: list, data: list,
