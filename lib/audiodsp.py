@@ -72,7 +72,6 @@ def getTemporalVector(data, fs=config.SAMPLING_FREQUENCY) -> list:
     Returns:
         list: [0:1/fs:len(data)/fs]
     """
-    # TODO check with tool.createTemporalLinspace
     return np.arange(start=0, stop=len(data)/fs, step=1/fs)
 
 
@@ -112,8 +111,8 @@ def splitFftVector(array: list) -> (list, list):
 
 def mergeFftVector(amplitude: list, phase: list) -> list:
     """Splits complex fft vector in twice.
-    Format is returned like: [Z = amp + i*phase]. 
-    #FIXME : Incorrect !, [Z = Amp*exp(i*phase)] not [Z = amp + i*phase], correct way is [real = amp*cos(phase) and imag = amp*sin(phase)]
+    Format is returned like: 
+    [Z = Amp*exp(i*phase)] <=> [real = amp*cos(phase) and imag = amp*sin(phase)]
 
     Opposite function of audiodsp.splitFftVector().
 
@@ -122,12 +121,11 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
         phase (list): [phase vector]
 
     Returns:
-        list: [real + i * imaginary]
+        list: [Z = Amp*exp(i*phase)]
     """
     array = []
     for index in range(len(amplitude)):
-        array.append(np.complex(real=amplitude[index], imag=phase[index]))
-        #FIXME : array.append(np.complex(real=amplitude[index]*np.cos(phase[index]), imag=amplitude[index]*np.sin(phase[index])))
+        array.append(np.complex(real=amplitude[index]*np.cos(phase[index]), imag=amplitude[index]*np.sin(phase[index])))
     return array
     del array, index
 
