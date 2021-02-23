@@ -58,7 +58,7 @@ def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
     return np.linspace(0, duration, int(duration * fs), endpoint=False)
 
 
-def returnSumOfSignals(data1: list, data2: list) -> list:
+def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fonction is not necessary, np.add() does the same thing
     result = []
     for idx in range(len(data1)):
         result.append(data1[idx] + data2[idx])
