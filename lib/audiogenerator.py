@@ -108,22 +108,3 @@ def generateSweptSine(amp: float = 0.8,
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
 
     return x, t
-
-
-# TODO Wtf is this ? came after merge 
-# @arthur
-# sweep, tsweep = generateSweptSine(amp=0.5, f0=10, f1=20000, duration = 10, fs=48000, fade=True, novak=True)
-
-
-# import matplotlib.pyplot as plt
-# from scipy.fftpack import fft
-# plt.figure(10)
-# plt.subplot(211)
-# plt.plot(tsweep, sweep)
-# plt.subplot(212)
-# plt.semilogx(20*np.log10(abs(fft(sweep))))
-
-# plt.show()
-
-# import sounddevice as sd
-# sd.play(sweep, 48000)
