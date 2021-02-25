@@ -49,3 +49,25 @@ def read(filePath, makeMono=False):
 def openWithFfmepg(filePath):
     # TODO finish this shit
     cmd = f'ffmpeg -i {filePath}'
+
+
+def convertMonoDatatoBytes(x, rate, filename):
+    """ Convert synthetic signal x to bytes object readable by readframes function of wave module
+    Args:
+        [list]:     x,          signal data
+        [int]:      rate,       sampling frequency of the signal
+        [string]:   filename,   name of the wavfile that will be created
+    Returns:
+        [???]:      bytesData
+    """
+    import wave, struct
+    obj = wave.open(filename,'w')
+    obj.setnchannels(1) # mono
+    obj.setsampwidth(2)
+    obj.setframerate(rate)
+    for i, value in enumerate(x):
+        data = struct.pack('<h', int(value*32767))
+        obj.writeframesraw( data )
+    obj.close()
+    bytesData = wave.open(filename,'r')
+    return bytesData
