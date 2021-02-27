@@ -43,20 +43,22 @@ nChannels = wf.getnchannels()
 
 audio_data_out = np.ndarray(shape=(BUFFER_SIZE,1), dtype=np.float64)
 
-b, a = signal.butter(1, [2000, 10000] , btype='bandstop', analog=False, fs=SAMPLE_RATE)
-filter_buffer = signal.lfilter_zi(b, a)
+# b, a = signal.butter(1, [100, 10000] , btype='bandstop', analog=False, fs=SAMPLE_RATE)
+# coefs = signal.butter(8, [1000, 2000] , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
+coefs = signal.butter(2, 300 , btype='low', analog=False, fs=SAMPLE_RATE, output='sos')
+# filter_buffer = signal.lfilter_zi(b, a)
+filter_buffer = signal.sosfilt_zi(coefs)
+
 frames_in=[]
 frames_out=[]
 data = inPut.readframes(int(BUFFER_SIZE/nChannels))
-# data = np.frombuffer(data, dtype=np.int16) / MAX_INT
-# data, filter_buffer = signal.lfilter(b, a, data, zi=filter_buffer)
-# data = np.array(np.round_(data * MAX_INT), dtype=np.int16).tobytes()
 while data != b'':
     # read audio
     string_audio_data_in = data
     audio_data_in = np.frombuffer(string_audio_data_in, dtype=np.int16) / MAX_INT
-    audio_data_out, filter_buffer = signal.lfilter(b, a, audio_data_in, zi=filter_buffer)
 
+    # Filter audio
+    audio_data_out, filter_buffer = signal.sosfilt(coefs, audio_data_in, zi=filter_buffer)
     # write audio
     string_audio_data_out = np.array(np.round_(audio_data_out * MAX_INT), dtype=np.int16).tobytes()
     stream.write(string_audio_data_out, BUFFER_SIZE)
