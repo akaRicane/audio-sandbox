@@ -51,7 +51,7 @@ def bufferDataToBytes(data, maximumInteger):
     return bytesData
 
 
-def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=False):
+def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=False, mute=False):
     frames_in=[]
     frames_out=[]
     # Get number of channels
@@ -68,6 +68,7 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
     data = wavinput.readframes(int(bufferSize/nChannels))
     # Initialize first buffer filter (updating with loop iterations)
     filter_buffer = signal.sosfilt_zi(filterCoefs)
+    filter_buffer = 0*filter_buffer
     # Filtering and playing loop
     while data != b'':
         # read audio
@@ -78,8 +79,9 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
         audio_data_out, filter_buffer = signal.sosfilt(filterCoefs, audio_data_in, zi=filter_buffer)
         # Convert back filtered buffer array into readable object buffer
         bytes_audio_data_out = bufferDataToBytes(audio_data_out, maximumInteger)
-        # Play audio on output
-        stream.write(bytes_audio_data_out, bufferSize)
+        # Play audio on output 
+        if mute != True:
+            stream.write(bytes_audio_data_out, bufferSize)
         # next data
         data = wavinput.readframes(int(bufferSize/nChannels))
         # append input and filtered buffers for plot and/or export
@@ -100,10 +102,12 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
         fft_out = fft(dataOut)
         fft_out = audiodsp.retCleanFft(fft_out)
         f = audiodsp.retCleanFft(f)
+        w_filt, h_filt = signal.sosfreqz(filterCoefs, len(fft_in), fs=rate)
         plt.figure(1)
         plt.subplot(311)
         plt.plot(audiodsp.getTemporalVector(dataIn,rate), dataIn)
         plt.plot(audiodsp.getTemporalVector(dataOut,rate), dataOut)
+        plt.ylim(-1.2, 1.2)
         plt.grid()
         plt.subplot(312)
         plt.semilogx(f,20*np.log10(abs(np.array(fft_in))))
@@ -113,8 +117,9 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
         plt.grid()
         plt.subplot(313)
         plt.semilogx(f, 20*np.log10(abs(np.array(fft_out)/np.array(fft_in))))
+        plt.semilogx(w_filt, 20*np.log10(abs(h_filt)), linestyle='--')
         plt.xlim(10,20000)
-        plt.ylim(-15,15)
+        plt.ylim(-40,10)
         plt.grid()
         plt.show()
 
