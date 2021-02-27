@@ -1,8 +1,9 @@
 import wave, struct
+import pyaudio
 import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
-
+from scipy import signal
 sys.path.append(os.getcwd())
 from lib import audiogenerator
 
@@ -47,10 +48,49 @@ def bufferDataToBytes(data, maximumInteger):
     return bytesData
 
 
-SAMPLE_RATE = 44100
-MAX_INT = 32768.0
-filename = os.path.join('resources','Sweep.wav')
-sweep, tsweep = audiogenerator.generateSweptSine(amp=0.9, f0=20, f1=20000, duration=2.5, fs=SAMPLE_RATE, fade=True, novak=True)
-bytesSweep = convertMonoDatatoBytes(sweep, SAMPLE_RATE, filename, MAX_INT)
-dataSweep = convertWaveobjectToData(bytesSweep, MAX_INT)
+def playAndFilter(wavinput, filterCoefs, rate, bufferSize, maximumInteger):
+    frames_in=[]
+    frames_out=[]
+    # Get number of channels
+    nChannels = wavinput.getnchannels()
+    # Initialize player
+    p = pyaudio.PyAudio()
+    stream = p.open(format=pyaudio.paInt16,
+                    channels=nChannels,
+                    rate=rate,
+                    input=False,
+                    output=True,
+                    frames_per_buffer=bufferSize)
+    # Read first data buffer
+    data = wavinput.readframes(int(bufferSize/nChannels))
+    # Initialize first buffer filter (updating with loop iterations)
+    filter_buffer = signal.sosfilt_zi(filterCoefs)
+    # Filtering and playing loop
+    while data != b'':
+        # read audio
+        bytes_audio_data_in = data
+        # convert buffer into array of buffer size for filtering
+        audio_data_in = bufferBytesToData(bytes_audio_data_in, maximumInteger)
+        # Filter buffer array
+        audio_data_out, filter_buffer = signal.sosfilt(filterCoefs, audio_data_in, zi=filter_buffer)
+        # Convert back filtered buffer array into readable object buffer
+        bytes_audio_data_out = bufferDataToBytes(audio_data_out, maximumInteger)
+        # Play audio on output
+        stream.write(bytes_audio_data_out, bufferSize)
+        # next data
+        data = wavinput.readframes(int(bufferSize/nChannels))
+        # append input and filtered buffers for plot and/or export
+        frames_out.append(audio_data_out)
+        frames_in.append(audio_data_in)
+    # Concatenate each buffer arrays into a single data array
+    dataIn = np.concatenate(frames_in)
+    dataOut = np.concatenate(frames_out)
+    # Close stream and open objects
+    stream.stop_stream()
+    stream.close()
+    wavinput.close()
+    p.terminate()
+    return dataIn, dataOut
+
+
 
