@@ -4,13 +4,16 @@ import os, sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import signal
-sys.path.append(os.getcwd())
-from lib import audiogenerator
+from scipy.fftpack import fft, fftfreq
 
-def convertMonoDatatoBytes(x, rate, filename, maximumInteger):
+sys.path.append(os.getcwd())
+from lib import audiogenerator, audiodsp
+
+
+def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
     """ Convert synthetic signal x to bytes object readable by readframes function of wave module
     Args:
-        [list]:     x,          signal data
+        [list]:     data,          signal data
         [int]:      rate,       sampling frequency of the signal
         [string]:   filename,   name of the wavfile that will be created
     Returns:
@@ -20,9 +23,9 @@ def convertMonoDatatoBytes(x, rate, filename, maximumInteger):
     obj.setnchannels(1) # mono
     obj.setsampwidth(2)
     obj.setframerate(rate)
-    for i, value in enumerate(x):
-        data = struct.pack('<h', int(value*maximumInteger))
-        obj.writeframesraw( data )
+    for value in data:
+        _bytesdata = struct.pack('<h', int(value*maximumInteger))
+        obj.writeframesraw(_bytesdata)
     obj.close()
     bytesData = wave.open(filename,'r')
     return bytesData
@@ -48,7 +51,7 @@ def bufferDataToBytes(data, maximumInteger):
     return bytesData
 
 
-def playAndFilter(wavinput, filterCoefs, rate, bufferSize, maximumInteger):
+def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=False):
     frames_in=[]
     frames_out=[]
     # Get number of channels
@@ -90,7 +93,28 @@ def playAndFilter(wavinput, filterCoefs, rate, bufferSize, maximumInteger):
     stream.close()
     wavinput.close()
     p.terminate()
-    return dataIn, dataOut
-
-
+    if plot == True:
+        fft_in = fft(dataIn)
+        f = fftfreq(len(fft_in), d=1/rate)
+        fft_in = audiodsp.retCleanFft(fft_in)
+        fft_out = fft(dataOut)
+        fft_out = audiodsp.retCleanFft(fft_out)
+        f = audiodsp.retCleanFft(f)
+        plt.figure(1)
+        plt.subplot(311)
+        plt.plot(audiodsp.getTemporalVector(dataIn,rate), dataIn)
+        plt.plot(audiodsp.getTemporalVector(dataOut,rate), dataOut)
+        plt.grid()
+        plt.subplot(312)
+        plt.semilogx(f,20*np.log10(abs(np.array(fft_in))))
+        plt.semilogx(f,20*np.log10(abs(np.array(fft_out))))
+        plt.xlim(10,20000)
+        plt.ylim(-10,70)
+        plt.grid()
+        plt.subplot(313)
+        plt.semilogx(f, 20*np.log10(abs(np.array(fft_out)/np.array(fft_in))))
+        plt.xlim(10,20000)
+        plt.ylim(-15,15)
+        plt.grid()
+        plt.show()
 
