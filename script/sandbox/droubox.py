@@ -12,59 +12,66 @@ import droulib
 sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp, tool
 
+# Global Parameters
 BUFFER_SIZE = 1024*2
 SAMPLE_RATE = 44100
 MAX_INT = 32768.0
 
+# Initialize empty array to stock buffers
 frames_in=[]
 frames_out=[]
 
-filename = os.path.join('resources','Sweep.wav')
+# Generate signal
 sweep, tsweep = audiogenerator.generateSweptSine(amp=0.9, f0=20, f1=20000, duration=2.5, fs=SAMPLE_RATE, fade=True, novak=True)
+
+# Convert signal to waveread object
+filename = os.path.join('resources','Sweep.wav')
 inPut = droulib.convertMonoDatatoBytes(sweep, SAMPLE_RATE, filename, MAX_INT)
 
-p = pyaudio.PyAudio()
-
-stream = p.open(
-    format=pyaudio.paInt16,
-    channels=1,
-    rate=SAMPLE_RATE,
-    input=False,
-    output=True,
-    frames_per_buffer=BUFFER_SIZE
-)
-
+# Get number of channels
 nChannels = inPut.getnchannels()
 
-audio_data_out = np.ndarray(shape=(BUFFER_SIZE,1), dtype=np.float64)
+# Initialize player
+p = pyaudio.PyAudio()
+stream = p.open(format=pyaudio.paInt16,
+                channels=nChannels,
+                rate=SAMPLE_RATE,
+                input=False,
+                output=True,
+                frames_per_buffer=BUFFER_SIZE)
 
+# Define filter
 coefs = signal.butter(2, 500 , btype='high', analog=False, fs=SAMPLE_RATE, output='sos')
-
+# Initialize first buffer filter (updating with loop iterations)
 filter_buffer = signal.sosfilt_zi(coefs)
-
+# Read first data buffer
 data = inPut.readframes(int(BUFFER_SIZE/nChannels))
 
+# Filtering and playing loop
 while data != b'':
     # read audio
     bytes_audio_data_in = data
+    # convert buffer into array of buffer size for filtering
     audio_data_in = droulib.bufferBytesToData(bytes_audio_data_in, MAX_INT)
-    # Filter audio
+    # Filter buffer array
     audio_data_out, filter_buffer = signal.sosfilt(coefs, audio_data_in, zi=filter_buffer)
-    # write audio
+    # Convert back filtered buffer array into readable object buffer
     string_audio_data_out = droulib.bufferDataToBytes(audio_data_out, MAX_INT)
+    # Play audio on output
     # stream.write(bytes_audio_data_out, BUFFER_SIZE)
     # next data
     data = inPut.readframes(int(BUFFER_SIZE/nChannels))
-    # append for plot and/or export
+    # append input and filtered buffers for plot and/or export
     frames_out.append(audio_data_out)
     frames_in.append(audio_data_in)
 
-
+# Close stream and open objects
 stream.stop_stream()
 stream.close()
+inPut.close()
 p.terminate()
 
-
+################### plot part #######################
 in_data = np.concatenate(frames_in)
 out_data = np.concatenate(frames_out)
 fft_in = fft(in_data)
