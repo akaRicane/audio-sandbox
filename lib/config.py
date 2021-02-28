@@ -1,4 +1,5 @@
 import os
+import pyaudio
 from pathlib import Path
 
 # general settings
@@ -8,10 +9,14 @@ AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_SIZE = 1024  # points
 BANDS_SLICER_SIZE = 10  # bands
+FRAMES_PER_BUFFER = 1024  # frames per buffer
+BYTES_DEFAULT_FORMAT = pyaudio.paInt16
 
 # audiofile
 AUDIO_RESSOURCES = Path(AUDIO_REPOSITORY, "resources")
-AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "joyca.wav")
+AUDIO_FILE_JOYCA = Path(AUDIO_RESSOURCES, "joyca.wav")
+AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "gaussian_white_noise.wav")
+AUDIO_FILE_SWEEP = Path(AUDIO_RESSOURCES, "CSC_sweep_20-20k.wav")
 
 # audiogenerator
 BASIC_DURATION = 0.1  # sec

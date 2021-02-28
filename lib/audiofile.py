@@ -1,6 +1,6 @@
 import logging
 from pydub import AudioSegment
-from scipy.io import wavfile
+import wave
 
 
 def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
@@ -28,7 +28,7 @@ def read(filePath, makeMono=False):
         [numpy.array]: data
     """
     if filePath.suffix == ".wav":
-        rate, data = wavfile.read(filePath)
+        rate, data = wave.open(filePath, 'rb')
     # TODO add other codecs
     elif filePath.suffix == ".mp3":
         song = AudioSegment.from_mp3(filePath)

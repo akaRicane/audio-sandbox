@@ -7,7 +7,7 @@ import wave
 import struct
 from scipy.io import wavfile
 from scipy.fftpack import fft, fftfreq
-import droulib
+import droulib, audiostream
 
 sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp, tool
