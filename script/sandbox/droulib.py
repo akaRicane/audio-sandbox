@@ -10,6 +10,32 @@ sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp
 
 
+def parametriqEQ(gain, f0, bandWidth, rate):
+    # Design a digital boost filter at given gain g, 
+    # center frequency fc in Hz,
+    # bandwidth bw in Hz (default = fs/10), and
+    # sampling rate fs in Hz (default = 1).
+
+    if bandWidth is None:
+        bandWidth = fs/10
+
+    c = 1/np.tan(np.pi*f0/rate)
+    cs = c**2
+    csp1 = cs+1
+    Bc = (bandWidth/rate)*c
+    gBc = gain*Bc
+    nrm = 1/(csp1+Bc)
+    b0 = (csp1+gBc)*nrm
+    b1 = 2*(1-cs)*nrm
+    b2 = (csp1-gBc)*nrm
+    a0 = 1
+    a1 = b1
+    a2 = (csp1-Bc)*nrm
+    a = [a0, a1, a2]
+    b = [b0, b1, b2]
+    return b, a
+
+
 def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
     """ Convert synthetic signal x to bytes object readable by readframes function of wave module
     Args:
