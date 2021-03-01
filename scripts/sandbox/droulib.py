@@ -11,14 +11,12 @@ from lib import audiogenerator, audiodsp
 
 
 def parametriqEQ(gain, f0, bandWidth, rate):
-    # Design a digital boost filter at given gain g, 
-    # center frequency fc in Hz,
-    # bandwidth bw in Hz (default = fs/10), and
+    # Design a digital boost filter at given gain, 
+    # center frequency f0 in Hz,
+    # bandwidth in Hz (default = fs/2), and
     # sampling rate fs in Hz (default = 1).
-
     if bandWidth is None:
-        bandWidth = fs/10
-
+        bandWidth = fs/2
     c = 1/np.tan(np.pi*f0/rate)
     cs = c**2
     csp1 = cs+1
@@ -80,18 +78,16 @@ def bufferDataToBytes(data, maximumInteger):
 def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=False, mute=False):
     frames_in=[]
     frames_out=[]
-    # Get number of channels
-    nChannels = wavinput.getnchannels()
     # Initialize player
     p = pyaudio.PyAudio()
     stream = p.open(format=pyaudio.paInt16,
-                    channels=nChannels,
+                    channels=wavinput.getnchannels(),
                     rate=rate,
                     input=False,
                     output=True,
                     frames_per_buffer=bufferSize)
     # Read first data buffer
-    data = wavinput.readframes(int(bufferSize/nChannels))
+    data = wavinput.readframes(int(bufferSize/wavinput.getnchannels()))
     # Initialize first buffer filter (updating with loop iterations)
     filter_buffer = signal.sosfilt_zi(filterCoefs)
     filter_buffer = 0*filter_buffer
@@ -148,4 +144,38 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
         plt.ylim(-40,10)
         plt.grid()
         plt.show()
+
+
+def RecordAndFilter(recordTime, nChannels, filterCoefs, rate, bufferSize, maximumInteger, playback=True):
+    p = pyaudio.PyAudio()
+    # open stream object as input & output
+    stream = p.open(format=pyaudio.paInt16,
+                    channels=nChannels,
+                    rate=rate,
+                    input=True,
+                    output=True,
+                    frames_per_buffer=bufferSize)
+    # frames = []
+    filter_buffer = signal.sosfilt_zi(filterCoefs)
+    filter_buffer = 0*filter_buffer
+    for i in range(int(rate / bufferSize * recordTime)):
+        # Recording
+        data = stream.read(bufferSize)
+        bytes_audio_data_in = data
+        # convert buffer into array of buffer size for filtering
+        audio_data_in = bufferBytesToData(bytes_audio_data_in, maximumInteger)
+        # Filter buffer array
+        audio_data_out, filter_buffer = signal.sosfilt(filterCoefs, audio_data_in, zi=filter_buffer)
+        # Convert back filtered buffer array into readable object buffer
+        bytes_audio_data_out = bufferDataToBytes(audio_data_out, maximumInteger)
+        # Playback
+        if playback == True:
+            stream.write(bytes_audio_data_out)
+        # frames.append(data)
+    # stop and close stream
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    print("recording finished...")
+    
 
