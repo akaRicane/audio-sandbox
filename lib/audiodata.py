@@ -5,9 +5,9 @@ import logging
 
 
 class AudioData():
-    def __init__(self):
+    def __init__(self, rate: int = config.SAMPLING_FREQUENCY):
         self.npts = None
-        self.rate = config.SAMPLING_FREQUENCY
+        self.rate = rate
         self.fftsize = config.FFT_SIZE
         self.t = None
         self.tamp = None

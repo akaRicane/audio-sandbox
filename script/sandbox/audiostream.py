@@ -7,6 +7,19 @@ from lib import tool, config  # noqa E402
 
 
 class AudioStream():
+    """Audio Stream is an object handling i/o audio interface
+    with running operating system. Uses pyaudio lib as player
+    interface. Stream object handles the bus gathering 
+    audio in -> stream -> audio output.
+
+    Read_audio_from_system to True activates the read of audio in
+    Play_audio_on_system to True activates the playback of current stream
+
+    my_stream = AudioStream()
+    my_stream.init_new_stream() opens new stream
+    my_stream.populate_playback(data) add data array to playback stream
+    my_stream.update() terminate current to init new stream with new parameters.
+    """
     def __init__(self):
         self.player = None
         self.stream = None
