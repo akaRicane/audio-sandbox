@@ -94,7 +94,7 @@ def generateSweptSine(amp: float = 0.8,
     x = amp * np.sin(2 * np.pi * f0 * L * (np.exp(t / L) - 1))
 
     if fade is True:
-        fadeInLength = 0.5*fs
+        fadeInLength = 0.25*fs
         fadeIn = np.linspace(start=0,stop=1,num=int(fadeInLength))
         fadeOut = np.linspace(start=1,stop=0,num=int(fadeInLength/5))
         window = np.ones(len(x))
@@ -103,7 +103,7 @@ def generateSweptSine(amp: float = 0.8,
         x = x*window
     
     if len(t)/fs < duration:
-        zeroPadding = np.zeros(duration*fs - len(t))
+        zeroPadding = np.zeros(int(duration*fs) - len(t))
         x = np.concatenate([x , zeroPadding])
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
 

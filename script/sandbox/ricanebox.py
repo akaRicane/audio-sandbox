@@ -1,41 +1,76 @@
 import os
 import sys
+import wave
+import droulib, audiostream
 sys.path.append(os.getcwd())
-from lib import audioplot, audiodata, audiodsp, tool, config  # noqa E402
+from lib import audioplot, audiofile, audiogenerator  # noqa E402 
+from lib import audiodata, audiodsp, audiofiltering  # noqa E402
+from lib import tool, config  # noqa E402
+
+
+def play_file_from_filepath(filepath):
+    f = wave.open(filepath.__str__(), 'r')
+
+    print("open stream")
+    my_stream = audiostream.AudioStream()
+    my_stream.update_buffer_size(BUFFER_SIZE)
+    my_stream.update_n_channels(f.getnchannels())
+    my_stream.update_stream_rate(f.getframerate())
+    my_stream.activate_playback()
+
+    print(f"Framerate: {f.getframerate()} samples/sec")
+    my_stream.init_new_stream()
+    input_file_bytes = f.readframes(int(BUFFER_SIZE/f.getnchannels()))
+    # format is byte
+    while input_file_bytes != b'':
+        # -- POSSIBLE DSP ON input_file_bytes --
+
+        # -- END OF DSP --
+        # format is byte
+        my_stream.populate_playback(input_file_bytes)
+        input_file_bytes = f.readframes(int(BUFFER_SIZE/f.getnchannels()))
+    print("End of file")
+    my_stream.close_stream()
+
+
+def play_from_audio_array(audio_array, rate):
+    print("open stream")
+    my_stream = audiostream.AudioStream()
+    my_stream.update_buffer_size(BUFFER_SIZE)
+    my_stream.update_n_channels(1)
+    my_stream.update_stream_rate(rate)
+    my_stream.activate_playback()
+
+    print(f"Framerate: {rate} samples/sec")
+    my_stream.init_new_stream()
+    input_file_wave_object = droulib.convertMonoDatatoWaveObject(audio_array,
+                                                           rate,
+                                                           'test.wav',
+                                                           32768.0)
+    input_file_bytes = input_file_wave_object.readframes(int(BUFFER_SIZE/input_file_wave_object.getnchannels()))
+    while input_file_bytes != b'':
+        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+
+        # -- END OF DSP --
+        my_stream.populate_playback(input_file_bytes)
+        input_file_bytes = input_file_wave_object.readframes(int(BUFFER_SIZE/input_file_wave_object.getnchannels()))
+
+    print("End of file")
+    my_stream.close_stream()
 
 
 if __name__ == "__main__":
-    legendList = []
-    source = audiodata.AudioData() # <-- stepped sine mesuré
-    f_sin = 3175.3548  # Hz <-- on sait quelle freq du stpsine est jouée
-    source.rate = 44100
-    source.fftsize = int(f_sin)
-    df = source.rate / source.fftsize
-    fTests = [f_sin, 2 * f_sin + 0.35*(df / 2.0)]
-    # source.loadAudioFile()
-    for f_test in fTests:
-        source.loadSinus(f=f_test)
-        print(f"Size of signal: {len(source.t)} points")
-        source.fft()
-        source.fplot(normFreqs=False)
-        legendList.append(f"{f_test} Hz")
-        # energy in all signal
-        energy_allsignal = 0
-        for value in source.famp:
-            energy_allsignal += value ** 2
-        # need to zero the peak, fin idx
-        idxPeak = tool.getClosestIndexToTargetInArray(source.famp, f_test)
-        # put 0 around peak
-        source.fampDb[idxPeak[0]] = 0
-        for i in range(5):
-            source.famp[idxPeak[0] - i] = 0
-            source.famp[idxPeak[0] + i] = 0
-        # energy in signal - peak
-        energy_remaining = 0
-        for value in source.famp:
-            energy_remaining += value ** 2
-        thdn = (energy_remaining / energy_allsignal)
-        source.fplot()
-        legendList.append(f"{f_test} Hz / THDN: {thdn}")
-    print(f"fs: {source.rate} / {source.fftsize} fft points")
-    audioplot.pshow(legendList)
+    # Global Parameters
+    BUFFER_SIZE = 1024
+    sweep, tsweep = audiogenerator.generateSweptSine(amp=0.5,
+                                                     f0=150,
+                                                     f1=10000,
+                                                     duration=2.0,
+                                                     fs=config.SAMPLING_FREQUENCY,
+                                                     fade=True,
+                                                     novak=True)
+    play_from_audio_array(sweep, config.SAMPLING_FREQUENCY)
+    # load audio as wave_read object
+    read_filepath = config.AUDIO_FILE_TEST
+    play_file_from_filepath(read_filepath)
+    ...
