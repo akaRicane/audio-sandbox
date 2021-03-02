@@ -34,11 +34,11 @@ class Audio_filter_rt():
 
     def set_bandpass(self):
         self.audio_filter.getBandPassSosCoefs(lowcut=150,
-                                              highcut=350,
+                                              highcut=2000,
                                               order=8)
 
     def set_highpass(self):
-        self.audio_filter.getHighPassSosCoefs(fcut=300,
+        self.audio_filter.getHighPassSosCoefs(fcut=3000,
                                               order=8)
 
     def init_rt_filtering(self):

@@ -25,7 +25,7 @@ class AudioStream():
         self.player = None
         self.stream = None
         self.n_channels = None
-        self.read_audio_from_system = False
+        self.read_audio_from_system = True
         self.play_audio_on_system = True
         self.stream_rate = config.SAMPLING_FREQUENCY
         self.buffer_size = config.FRAMES_PER_BUFFER
@@ -67,6 +67,7 @@ class AudioStream():
         self.play_audio_on_system = True
 
     def update_stream_parameters(self):
+        self.stream.stop_stream()
         self.stream.close()
         self.stream = self.player.open(format=self.bytes_format,
                                        channels=self.n_channels,
