@@ -1,7 +1,6 @@
 import os
 import sys
 import pyaudio
-import droulib
 sys.path.append(os.getcwd())
 from lib import tool, config  # noqa E402
 

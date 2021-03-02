@@ -71,7 +71,7 @@ class AudioFilter():
     def plotFilterResponse(self):
         audioplot.shortPlot(vect=(self.fs * 0.5 / np.pi) * self.freqs, data=abs(self.fresponse),
                             scale='semilog', space='spectral', isNormalizedAxis=False)
-       audioplot.pshow()
+        audioplot.pshow()
 
     # def equalizer_10band (data, fs, gain1=0, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0, gain7=0, gain8=0, gain9=0, gain10=0):
     #     band1 = bandpass_filter(data, 20, 39, fs, order=2)* 10**(gain1/20)
