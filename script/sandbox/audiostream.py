@@ -14,6 +14,7 @@ class AudioStream():
 
     Read_audio_from_system to True activates the read of audio in
     Play_audio_on_system to True activates the playback of current stream
+        by default true
 
     my_stream = AudioStream()
     my_stream.init_new_stream() opens new stream
@@ -25,7 +26,7 @@ class AudioStream():
         self.stream = None
         self.n_channels = None
         self.read_audio_from_system = False
-        self.play_audio_on_system = False
+        self.play_audio_on_system = True
         self.stream_rate = config.SAMPLING_FREQUENCY
         self.buffer_size = config.FRAMES_PER_BUFFER
         self.bytes_format = config.BYTES_DEFAULT_FORMAT

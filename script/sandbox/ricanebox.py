@@ -1,7 +1,9 @@
 import os
 import sys
 import wave
-import droulib, audiostream
+import droulib
+import ricanelib
+import audiostream
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
@@ -16,6 +18,7 @@ def play_file_from_filepath(filepath):
     my_stream.update_buffer_size(BUFFER_SIZE)
     my_stream.update_n_channels(f.getnchannels())
     my_stream.update_stream_rate(f.getframerate())
+    print("stream opened")
     my_stream.activate_playback()
 
     print(f"Framerate: {f.getframerate()} samples/sec")
@@ -34,26 +37,35 @@ def play_file_from_filepath(filepath):
 
 
 def play_from_audio_array(audio_array, rate):
+    MAX_INTEGER = 32768.0
     print("open stream")
     my_stream = audiostream.AudioStream()
     my_stream.update_buffer_size(BUFFER_SIZE)
     my_stream.update_n_channels(1)
     my_stream.update_stream_rate(rate)
-    my_stream.activate_playback()
+
+    # filtrage item
+    my_rt_filter = ricanelib.Audio_filter_rt(rate, BUFFER_SIZE)
+    my_rt_filter.set_bandpass()
+    # my_rt_filter.set_highpass()
+    my_rt_filter.init_rt_filtering()
 
     print(f"Framerate: {rate} samples/sec")
     my_stream.init_new_stream()
     input_file_wave_object = droulib.convertMonoDatatoWaveObject(audio_array,
-                                                           rate,
-                                                           'test.wav',
-                                                           32768.0)
-    input_file_bytes = input_file_wave_object.readframes(int(BUFFER_SIZE/input_file_wave_object.getnchannels()))
-    while input_file_bytes != b'':
-        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+                                                                 rate,
+                                                                 'test.wav',
+                                                                 MAX_INTEGER)
 
+    frames_to_read = int(BUFFER_SIZE/input_file_wave_object.getnchannels())
+    input_file_bytes = input_file_wave_object.readframes(frames_to_read)
+    while input_file_bytes != b'':
+        my_rt_filter.buffer_data = droulib.bufferBytesToData(input_file_bytes, MAX_INTEGER)
+        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+        my_rt_filter.filter_buffer_data()
         # -- END OF DSP --
-        my_stream.populate_playback(input_file_bytes)
-        input_file_bytes = input_file_wave_object.readframes(int(BUFFER_SIZE/input_file_wave_object.getnchannels()))
+        my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
+        input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
     print("End of file")
     my_stream.close_stream()
@@ -71,6 +83,6 @@ if __name__ == "__main__":
                                                      novak=True)
     play_from_audio_array(sweep, config.SAMPLING_FREQUENCY)
     # load audio as wave_read object
-    read_filepath = config.AUDIO_FILE_TEST
-    play_file_from_filepath(read_filepath)
+    # read_filepath = config.AUDIO_FILE_TEST
+    # play_file_from_filepath(read_filepath)
     ...

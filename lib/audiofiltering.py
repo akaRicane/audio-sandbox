@@ -19,34 +19,40 @@ class AudioFilter():
     def __init__(self, fs: int = config.SAMPLING_FREQUENCY):
         self.coefs = None
         self.type = "empty"
+        self.format = "empty"
         self.order = None
         self.fs = fs
+        self.zi = None
         self.freqs = None
         self.fresponse = None
 
     def getBandPassSosCoefs(self, lowcut, highcut, order=config.BANDPASS_DEFAULT_ORDER):
-        nyq = 0.5 * self.fs
-        low = lowcut / nyq
-        high = highcut / nyq
-        self.coefs = butter(order, [low, high], btype='band', output='sos')
-        self.type = "sos"
+        self.coefs = butter(order, [lowcut, highcut], btype='bandpass',
+                            analog=False, fs=self.fs, output='sos')
+        self.type = "bandpass"
+        self.format = "sos"
         self.order = order
-        del nyq, low, high
 
-    def getHighPassFiltSosCoefs(self, order: int = 4, fcut: float = 1000):
+    def getHighPassSosCoefs(self, fcut: float = 1000, order: int = 4):
         # wn = 2 * np.pi * fcut / 20000
-        self.coefs = signal.butter(order, fcut, btype="high", output="sos", analog="True")
-        self.type = "sos"
-
-    def filtBroadcast(self, dataToFilter: list) -> list:
-        pass
+        self.coefs = signal.butter(order, fcut, btype="highpass",
+                                   output="sos", analog=False, fs=self.fs)
+        self.type = "highpass"
+        self.format = "sos"
+        self.order = order
 
     def returnFilteredData(self, data: list):
-        if self.type == "sos":
-            return sosfilt(self.coefs, data)
+        if self.zi is None:
+            self.compute_sos_zi_response()
+        if self.format == "sos":
+            filtered_data, self.zi = sosfilt(sos=self.coefs, x=data, zi=self.zi)
+            return filtered_data
         # add elif for other methods
         else:
             logging.error("Asked filtering data with unexpected filter type coefs")
+
+    def compute_sos_zi_response(self):
+        self.zi = signal.sosfilt_zi(self.coefs)
 
     def computeFilterFreqResp(self):
         if self.type == "sos":
