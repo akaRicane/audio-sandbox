@@ -108,6 +108,10 @@ def play_from_audio_array(audio_array, rate):
             # zero padding du pauvre
             size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
             my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
+        if len(my_rt_filter.memory_data) != my_rt_filter.buffer_size * my_rt_filter.memory_size:
+            # zero padding du pauvre
+            size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
+            my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
         # plotting
         line.set_ydata(my_rt_filter.buffer_data)
         line2.set_ydata(my_rt_filter.memory_data)
