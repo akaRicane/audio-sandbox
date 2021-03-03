@@ -34,7 +34,7 @@ inPut = droulib.convertMonoDatatoWaveObject(sweep, SAMPLE_RATE, filename, MAX_IN
 # Define filter
 # coefs = signal.butter(2, 1000 , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
 # coefs = signal.butter(6, [3000, 6000] , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
-coefs = droulib.parametriqEQ(gain=10**((-24)/20), f0=1000, bandWidth=SAMPLE_RATE, rate=SAMPLE_RATE, output='sos')
+coefs = droulib.peakFilter(gain=10**((-24)/20), f0=1000, bandWidth=SAMPLE_RATE, rate=SAMPLE_RATE, output='sos')
 
 
 # Play and filtrer function
