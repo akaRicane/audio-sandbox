@@ -10,28 +10,45 @@ sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp
 
 
-def parametriqEQ(gain, f0, bandWidth, rate):
-    # Design a digital boost filter at given gain, 
-    # center frequency f0 in Hz,
-    # bandwidth in Hz (default = fs/2), and
-    # sampling rate fs in Hz (default = 1).
+def parametriqEQ(gain, f0, bandWidth, rate, output='sos'):
+    """[Design a digital boost filter at given gain, center frequency f0 in Hz, bandwidth in Hz (default = fs/2), and sampling rate fs in Hz.
+    The analog filter transfer function is:
+    
+                        s^2 + gain*bandWidth*s + 1
+                H(s) = _____________________________
+                        s^2 +    bandWidth*s   + 1]
+
+    Args:
+        gain ([float]): [Gain in dB of the peak (negative or positive)]
+        f0 ([float]): [resonance frequency of the peak]
+        bandWidth ([float]): [width of the peak]
+        rate ([int]): [Sampling frequency]
+        output (str, optional): [type of coefs to output (for now ba or sos)]. Defaults to 'sos'.
+
+    Returns:
+        [tuple or array]: [coefs of the filter]
+    """
     if bandWidth is None:
-        bandWidth = fs/2
+        bandWidth = rate/2
+    # Bilinear transform constant
     c = 1/np.tan(np.pi*f0/rate)
-    cs = c**2
-    csp1 = cs+1
-    Bc = (bandWidth/rate)*c
-    gBc = gain*Bc
-    nrm = 1/(csp1+Bc)
-    b0 = (csp1+gBc)*nrm
-    b1 = 2*(1-cs)*nrm
-    b2 = (csp1-gBc)*nrm
+    # Normalization term
+    norm = 1/(c**2 + 1 + (bandWidth/rate)*c)
+    # b coefs definition
+    b0 = (c**2 + 1 + gain*(bandWidth/rate)*c)*norm
+    b1 = 2*(1 - c**2)* norm
+    b2 = (c**2 + 1 - gain*(bandWidth/rate)*c)*norm
+    # a coefs definition
     a0 = 1
     a1 = b1
-    a2 = (csp1-Bc)*nrm
+    a2 = (c**2 + 1 - (bandWidth/rate)*c)*norm
+
     a = [a0, a1, a2]
     b = [b0, b1, b2]
-    return b, a
+    if output == 'ba':
+        return b, a
+    if output == 'sos':
+        return signal.tf2sos(b, a)
 
 
 def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
@@ -86,6 +103,7 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
                     input=False,
                     output=True,
                     frames_per_buffer=bufferSize)
+    nChannels = wavinput.getnchannels()
     # Read first data buffer
     data = wavinput.readframes(int(bufferSize/wavinput.getnchannels()))
     # Initialize first buffer filter (updating with loop iterations)
@@ -146,7 +164,7 @@ def filterAndPlay(wavinput, filterCoefs, rate, bufferSize, maximumInteger, plot=
         plt.show()
 
 
-def RecordAndFilter(recordTime, nChannels, filterCoefs, rate, bufferSize, maximumInteger, playback=True):
+def RecordAndFilter(recordTime, nChannels, filterCoefs, rate, bufferSize, maximumInteger, playback=True, dataReturn=True):
     p = pyaudio.PyAudio()
     # open stream object as input & output
     stream = p.open(format=pyaudio.paInt16,
@@ -155,7 +173,8 @@ def RecordAndFilter(recordTime, nChannels, filterCoefs, rate, bufferSize, maximu
                     input=True,
                     output=True,
                     frames_per_buffer=bufferSize)
-    # frames = []
+    frames_in = []
+    frames_out = []
     filter_buffer = signal.sosfilt_zi(filterCoefs)
     filter_buffer = 0*filter_buffer
     for i in range(int(rate / bufferSize * recordTime)):
@@ -171,11 +190,15 @@ def RecordAndFilter(recordTime, nChannels, filterCoefs, rate, bufferSize, maximu
         # Playback
         if playback == True:
             stream.write(bytes_audio_data_out)
-        # frames.append(data)
+        if dataReturn == True:
+            frames_in.append(audio_data_in)
+            frames_out.append(audio_data_out)
     # stop and close stream
     stream.stop_stream()
     stream.close()
     p.terminate()
     print("recording finished...")
+    if dataReturn == True:
+        return np.concatenate(frames_in), np.concatenate(frames_out)
     
 
