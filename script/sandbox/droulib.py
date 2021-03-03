@@ -69,11 +69,11 @@ def convertWaveobjectToData(waveobject, maximumInteger):
 
 def bufferBytesToData(bytesData, maximumInteger):
     data = np.frombuffer(bytesData, dtype=np.int16) / maximumInteger
-    return data
+    return data.tolist()
 
 
 def bufferDataToBytes(data, maximumInteger):
-    bytesData = np.array(np.round_(data*maximumInteger), dtype=np.int16).tobytes()
+    bytesData = np.array(np.round_(np.array(data)*maximumInteger), dtype=np.int16).tobytes()
     return bytesData
 
 

@@ -41,7 +41,7 @@ def play_file_from_filepath(filepath):
 
 def play_from_audio_array(audio_array, rate):
     MAX_INTEGER = 32768.0
-    BUFFER_SIZE = int(1024 * 4)
+    BUFFER_SIZE = int(1024)
     print(f"Framerate: {rate} samples/sec")
 
     # filtrage item
@@ -54,28 +54,30 @@ def play_from_audio_array(audio_array, rate):
     # my_rt_filter.audio_filter.plotFilterResponse()
 
     # plotting definition
-    x2_max = 2 * BUFFER_SIZE * my_rt_filter.memory_size
+    x2_max = BUFFER_SIZE * my_rt_filter.memory_size
     fig, (ax, ax2) = plt.subplots(2, figsize=(15, 8))
-    x = np.arange(0, 2 * BUFFER_SIZE, 2)
-    x2 = np.arange(0, x2_max, 2)
+    x = np.arange(0, BUFFER_SIZE)
+    # x2 = np.arange(0, x2_max)
 
     line, = ax.plot(x, np.random.rand(BUFFER_SIZE), '-', lw=2)
-    # line2, = ax2.plot(x2, np.random.rand(int(x2_max / 2.0)), '-', lw=2)
+    # line2, = ax2.plot(x2, np.random.rand(x2_max), '-', lw=2)
 
     ax.set_title("AUDIO WAVEFORM")
     ax.set_xlabel("Samples")
     ax.set_ylabel("Magnitude")
-    ax.set_xlim(0, 2 * BUFFER_SIZE)
+    ax.set_xlim(0, BUFFER_SIZE)
     ax.set_ylim(-1, 1)
-    plt.setp(ax, xticks=[0, BUFFER_SIZE, 2 * BUFFER_SIZE], yticks=[-1, 1])
+    plt.setp(ax, xticks=[0, int(BUFFER_SIZE / 2), BUFFER_SIZE], yticks=[-1, 1])
 
     # ax2.set_title("MEMORY")
     # ax2.set_xlabel("Full signal memory")
     # ax2.set_ylabel("Mangitude")
     # ax2.set_xlim(0, x2_max)
     # ax2.set_ylim(-1, 1)
-    # plt.setp(ax2, xticks=[0, BUFFER_SIZE, x2_max], yticks=[-1, 1])
+    # plt.setp(ax2, xticks=[0, int(x2_max / 2), x2_max], yticks=[-1, 1])
     plt.show(block=False)
+    line.set_ydata(my_rt_filter.buffer_data)
+    # line2.set_ydata(my_rt_filter.memory_data)
     ...
     print("open stream")
     my_stream = audiostream.AudioStream()
@@ -104,28 +106,24 @@ def play_from_audio_array(audio_array, rate):
         # playback filtered chunk
         my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
 
-        if len(my_rt_filter.buffer_data) < my_rt_filter.buffer_size:
-            size_missing = my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)
-            my_rt_filter.buffer_data += my_rt_filter.buffer_data \
-                                        + np.zeros(size_missing)
+        if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
+            # zero padding du pauvre
+            size_missing = float(my_rt_filter.buffer_size) - len(my_rt_filter.buffer_data)
+            my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, int(size_missing)).tolist()
         # plotting
         line.set_ydata(my_rt_filter.buffer_data)
         # line2.set_ydata(my_rt_filter.memory_data)
-        # try:
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-        frame_count += 1
-        # except TclError:
-            
-            
-            
-            # break
+        try:
+            fig.canvas.draw()
+            fig.canvas.flush_events()
+            frame_count += 1
+        except:
+            frame_rate = frame_count / (time.time() - start_time)
+            print("Stream is stopped")
+            print(f"Average frame rate: {frame_rate}")
         # load new chunk
         input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
-    frame_rate = frame_count / (time.time() - start_time)
-    print("Stream is stopped")
-    print(f"Average frame rate: {frame_rate}")
     print("End of file")
     my_stream.close_stream()
 
