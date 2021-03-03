@@ -39,4 +39,4 @@ class Audio_filter_rt():
 
     def init_rt_filtering(self):
         self.audio_filter.compute_sos_zi_response()
-        self.buffer_data = 0 * self.audio_filter.zi
+        self.audio_filter.zi = (0 * numpy.array(self.audio_filter.zi)).tolist()
