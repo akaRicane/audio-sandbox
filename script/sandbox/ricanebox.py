@@ -57,10 +57,10 @@ def play_from_audio_array(audio_array, rate):
     x2_max = BUFFER_SIZE * my_rt_filter.memory_size
     fig, (ax, ax2) = plt.subplots(2, figsize=(15, 8))
     x = np.arange(0, BUFFER_SIZE)
-    # x2 = np.arange(0, x2_max)
+    x2 = np.arange(0, x2_max)
 
     line, = ax.plot(x, np.random.rand(BUFFER_SIZE), '-', lw=2)
-    # line2, = ax2.plot(x2, np.random.rand(x2_max), '-', lw=2)
+    line2, = ax2.plot(x2, np.random.rand(x2_max), '-', lw=2)
 
     ax.set_title("AUDIO WAVEFORM")
     ax.set_xlabel("Samples")
@@ -69,15 +69,13 @@ def play_from_audio_array(audio_array, rate):
     ax.set_ylim(-1, 1)
     plt.setp(ax, xticks=[0, int(BUFFER_SIZE / 2), BUFFER_SIZE], yticks=[-1, 1])
 
-    # ax2.set_title("MEMORY")
-    # ax2.set_xlabel("Full signal memory")
-    # ax2.set_ylabel("Mangitude")
-    # ax2.set_xlim(0, x2_max)
-    # ax2.set_ylim(-1, 1)
-    # plt.setp(ax2, xticks=[0, int(x2_max / 2), x2_max], yticks=[-1, 1])
+    ax2.set_title("MEMORY")
+    ax2.set_xlabel("Full signal memory")
+    ax2.set_ylabel("Mangitude")
+    ax2.set_xlim(0, x2_max)
+    ax2.set_ylim(-1, 1)
+    plt.setp(ax2, xticks=[0, int(x2_max / 2), x2_max], yticks=[-1, 1])
     plt.show(block=False)
-    line.set_ydata(my_rt_filter.buffer_data)
-    # line2.set_ydata(my_rt_filter.memory_data)
     ...
     print("open stream")
     my_stream = audiostream.AudioStream()
@@ -108,19 +106,22 @@ def play_from_audio_array(audio_array, rate):
 
         if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
             # zero padding du pauvre
-            size_missing = float(my_rt_filter.buffer_size) - len(my_rt_filter.buffer_data)
-            my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, int(size_missing)).tolist()
+            size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
+            my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
         # plotting
         line.set_ydata(my_rt_filter.buffer_data)
-        # line2.set_ydata(my_rt_filter.memory_data)
-        try:
-            fig.canvas.draw()
-            fig.canvas.flush_events()
-            frame_count += 1
-        except:
-            frame_rate = frame_count / (time.time() - start_time)
-            print("Stream is stopped")
-            print(f"Average frame rate: {frame_rate}")
+        line2.set_ydata(my_rt_filter.memory_data)
+        # try:
+        #     fig.canvas.draw()
+        #     fig.canvas.flush_events()
+        #     frame_count += 1
+        # except:
+        #     frame_rate = frame_count / (time.time() - start_time)
+        #     print("Stream is stopped")
+        #     print(f"Average frame rate: {frame_rate}")
+        fig.canvas.draw()
+        fig.canvas.flush_events()
+        frame_count += 1
         # load new chunk
         input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     sweep, tsweep = audiogenerator.generateSweptSine(amp=0.5,
                                                      f0=150,
                                                      f1=10000,
-                                                     duration=2.0,
+                                                     duration=1.0,
                                                      fs=config.SAMPLING_FREQUENCY,
                                                      fade=True,
                                                      novak=True)
@@ -175,4 +176,3 @@ if __name__ == "__main__":
     # read_filepath = config.AUDIO_FILE_TEST
     # play_file_from_filepath(read_filepath)
     # io_filtering(44100)
-    ...

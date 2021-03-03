@@ -14,8 +14,8 @@ class Audio_filter_rt():
         self.buffer_size = buffer_size
         self.buffer_data = numpy.zeros(self.buffer_size, dtype=float).tolist()
         self.dsp_state = "Wait"  # can be Wait, Done, Processing, Saving
-        self.memory_size = 2
-        self.memory_data = numpy.zeros(self.memory_size * self.buffer_size - 1, dtype=float).tolist()
+        self.memory_size = 128
+        self.memory_data = numpy.zeros(self.memory_size * self.buffer_size, dtype=float).tolist()
         self.audio_filter = audiofiltering.AudioFilter(fs=self.fs)
 
     def filter_buffer_data(self, export_data: bool = False):
@@ -26,9 +26,8 @@ class Audio_filter_rt():
             return self.buffer_data
 
     def save_in_memory(self):
-        if len(self.memory_data) == self.memory_size:
-            self.memory_data.pop(0)
-        self.memory_data.append(self.buffer_data)
+        self.memory_data = self.memory_data[self.buffer_size:] \
+                           + self.buffer_data
 
     def set_bandpass(self, lowcut: float, highcut: float, order: int = 2):
         self.audio_filter.getBandPassSosCoefs(lowcut=lowcut,
