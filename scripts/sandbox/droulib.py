@@ -10,7 +10,7 @@ sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp
 
 
-def parametriqEQ(gain, f0, bandWidth, rate, output='sos'):
+def peakFilter(gain, f0, bandWidth, rate, output='sos'):
     """[Design a digital boost filter at given gain, center frequency f0 in Hz, bandwidth in Hz (default = fs/2), and sampling rate fs in Hz.
     The analog filter transfer function is:
     
