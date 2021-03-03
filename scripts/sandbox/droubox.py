@@ -8,12 +8,13 @@ import struct
 from scipy.io import wavfile
 from scipy.fftpack import fft, fftfreq
 import droulib, audiostream
+from scipy.signal import savgol_filter
 
 sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp, tool
 
 # Global Parameters
-BUFFER_SIZE = 1024*2
+BUFFER_SIZE = int(1024/4)
 SAMPLE_RATE = 48000
 MAX_INT = 32768.0
 
@@ -27,18 +28,39 @@ sweep, tsweep = audiogenerator.generateSweptSine(amp=0.5,
                                                  novak=True)
 
 # Convert signal to waveread object
-#filename = os.path.join('resources','Sweep.wav')
-#inPut = droulib.convertMonoDatatoWaveObject(sweep, SAMPLE_RATE, filename, MAX_INT)
+filename = os.path.join('resources','Sweep.wav')
+inPut = droulib.convertMonoDatatoWaveObject(sweep, SAMPLE_RATE, filename, MAX_INT)
 
 # Define filter
-# coefs = signal.butter(2, [40, 18000] , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
-coefs = signal.butter(2, [1000, 5000] , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
+# coefs = signal.butter(2, 1000 , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
+# coefs = signal.butter(6, [3000, 6000] , btype='bandpass', analog=False, fs=SAMPLE_RATE, output='sos')
+coefs = droulib.parametriqEQ(gain=10**((-24)/20), f0=1000, bandWidth=SAMPLE_RATE, rate=SAMPLE_RATE, output='sos')
+
 
 # Play and filtrer function
-# droulib.filterAndPlay(inPut, coefs, SAMPLE_RATE, BUFFER_SIZE, MAX_INT, plot=True, mute=True)
-droulib.RecordAndFilter(recordTime=10, nChannels=1, filterCoefs=coefs, rate=SAMPLE_RATE, bufferSize=BUFFER_SIZE, maximumInteger=MAX_INT, playback=True)
+# droulib.filterAndPlay(inPut, coefs, SAMPLE_RATE, BUFFER_SIZE, MAX_INT, plot=True, mute=False)
+signal, filt_signal = droulib.RecordAndFilter(recordTime=10, nChannels=1, filterCoefs=coefs, rate=SAMPLE_RATE, bufferSize=BUFFER_SIZE, maximumInteger=MAX_INT, playback=True)
+t = audiodsp.getTemporalVector(filt_signal, SAMPLE_RATE)
+
+fft_in = fft(signal)
+fft_out = fft(filt_signal)
+f = fftfreq(len(fft_in), d=1/SAMPLE_RATE)
+
+TF = savgol_filter(abs(fft_out[0:int(len(f)/2)]/fft_in[0:int(len(f)/2)]), 51, 3)
 
 
+plt.figure(1)
+plt.subplot(211)
+plt.plot(t, signal)
+plt.plot(t, filt_signal)
+plt.grid()
+plt.subplot(212)
+plt.semilogx(f[0:int(len(f)/2)], 20*np.log10(abs(fft_in[0:int(len(f)/2)])))
+plt.semilogx(f[0:int(len(f)/2)], 20*np.log10(abs(fft_out[0:int(len(f)/2)])))
+plt.semilogx(f[0:int(len(f)/2)], 20*np.log10(abs(TF)))
+plt.xlim(20, 20000)
+plt.grid()
+plt.show()
 
 ############################## EQ Test ##########################################
 # b, a = droulib.parametriqEQ(gain=10**(6/20), f0=100, bandWidth=SAMPLE_RATE, rate=SAMPLE_RATE)
