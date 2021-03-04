@@ -40,3 +40,16 @@ class Audio_filter_rt():
     def init_rt_filtering(self):
         self.audio_filter.compute_sos_zi_response()
         self.audio_filter.zi = (0 * numpy.array(self.audio_filter.zi)).tolist()
+
+    def get_past_chunk(self, index: int) -> list:
+        return self.memory_data[index * self.buffer_size:(index + 1) * self.buffer_size]
+
+    def feedforward(self, delay: int = 1, magnitude: float = 0.90):
+        if delay > self.memory_size:
+            delay = self.memory_size
+        if magnitude >= 1.0:
+            magnitude = 1.0 - 1e-9
+        elif magnitude <= 0.0:
+            magnitude = 1e-9
+        past_buffer = [i * magnitude for i in self.get_past_chunk(delay)]
+        self.buffer_data = numpy.add(self.buffer_data, past_buffer).tolist()

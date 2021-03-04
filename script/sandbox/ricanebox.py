@@ -46,7 +46,7 @@ def play_from_audio_array(audio_array, rate):
 
     # filtrage item
     my_rt_filter = rt_filtering.Audio_filter_rt(rate, BUFFER_SIZE)
-    my_rt_filter.set_bandpass(lowcut=600, highcut=6500, order=4)
+    my_rt_filter.set_bandpass(lowcut=150, highcut=2500, order=4)
     # my_rt_filter.set_highpass(fcut=2000, order=2)
     my_rt_filter.init_rt_filtering()
 
@@ -74,13 +74,7 @@ def play_from_audio_array(audio_array, rate):
 
     while input_file_bytes != b'':
         my_rt_filter.buffer_data = droulib.bufferBytesToData(input_file_bytes, MAX_INTEGER)
-        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
-        my_rt_filter.filter_buffer_data()
-        # -- END OF DSP --
-        my_rt_filter.save_in_memory()
-        # playback filtered chunk
-        my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
-
+        
         if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
             # zero padding du pauvre
             size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
@@ -89,9 +83,17 @@ def play_from_audio_array(audio_array, rate):
             # zero padding du pauvre
             size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
             my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
+   
+        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+        # my_rt_filter.filter_buffer_data()
+        my_rt_filter.feedforward(delay=64)
+        # -- END OF DSP --
+        my_rt_filter.save_in_memory()
+        # playback filtered chunk
+        my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
 
         # plotting
-        visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
+        # visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
         # load new chunk
         input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
