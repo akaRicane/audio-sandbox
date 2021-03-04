@@ -4,8 +4,8 @@ import wave
 import droulib
 import numpy as np
 import matplotlib.pyplot as plt
-from tkinter import TclError
 import time
+import ricanelib
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
@@ -54,29 +54,9 @@ def play_from_audio_array(audio_array, rate):
     # my_rt_filter.audio_filter.plotFilterResponse()
 
     # plotting definition
-    x2_max = BUFFER_SIZE * my_rt_filter.memory_size
-    fig, (ax, ax2) = plt.subplots(2, figsize=(15, 8))
-    x = np.arange(0, BUFFER_SIZE)
-    x2 = np.arange(0, x2_max)
+    visualizer = ricanelib.Spectrum_vizualier(memory_size=my_rt_filter.memory_size,
+                                              buffer_size=my_rt_filter.buffer_size)
 
-    line, = ax.plot(x, np.random.rand(BUFFER_SIZE), '-', lw=2)
-    line2, = ax2.plot(x2, np.random.rand(x2_max), '-', lw=2)
-
-    ax.set_title("AUDIO WAVEFORM")
-    ax.set_xlabel("Samples")
-    ax.set_ylabel("Magnitude")
-    ax.set_xlim(0, BUFFER_SIZE)
-    ax.set_ylim(-1, 1)
-    plt.setp(ax, xticks=[0, int(BUFFER_SIZE / 2), BUFFER_SIZE], yticks=[-1, 1])
-
-    ax2.set_title("MEMORY")
-    ax2.set_xlabel("Full signal memory")
-    ax2.set_ylabel("Mangitude")
-    ax2.set_xlim(0, x2_max)
-    ax2.set_ylim(-1, 1)
-    plt.setp(ax2, xticks=[0, int(x2_max / 2), x2_max], yticks=[-1, 1])
-    plt.show(block=False)
-    ...
     print("open stream")
     my_stream = audiostream.AudioStream()
     my_stream.update_buffer_size(BUFFER_SIZE)
@@ -88,19 +68,16 @@ def play_from_audio_array(audio_array, rate):
                                                                  rate,
                                                                  'test.wav',
                                                                  MAX_INTEGER)
-    frame_count = 0
-    start_time = time.time()
+
     frames_to_read = int(BUFFER_SIZE/input_file_wave_object.getnchannels())
     input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
     while input_file_bytes != b'':
         my_rt_filter.buffer_data = droulib.bufferBytesToData(input_file_bytes, MAX_INTEGER)
-
         # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
         my_rt_filter.filter_buffer_data()
         # -- END OF DSP --
         my_rt_filter.save_in_memory()
-
         # playback filtered chunk
         my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
 
@@ -112,20 +89,9 @@ def play_from_audio_array(audio_array, rate):
             # zero padding du pauvre
             size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
             my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
+
         # plotting
-        line.set_ydata(my_rt_filter.buffer_data)
-        line2.set_ydata(my_rt_filter.memory_data)
-        # try:
-        #     fig.canvas.draw()
-        #     fig.canvas.flush_events()
-        #     frame_count += 1
-        # except:
-        #     frame_rate = frame_count / (time.time() - start_time)
-        #     print("Stream is stopped")
-        #     print(f"Average frame rate: {frame_rate}")
-        fig.canvas.draw()
-        fig.canvas.flush_events()
-        frame_count += 1
+        visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
         # load new chunk
         input_file_bytes = input_file_wave_object.readframes(frames_to_read)
 
