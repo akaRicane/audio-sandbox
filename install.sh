@@ -1,4 +1,6 @@
 npm install
+# TODO code may won't work if python path link to python version not supported
+# User should specify version
 python -m venv venv
 
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
