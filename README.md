@@ -1,12 +1,24 @@
-# audio
-Audio sandbox for multipurpose audio projects
+# General
+This repository is an Audio Sandbox made for multipurpose audio projects.
+***
+## Installation
+Required Python version: 3.8.5\
+Use bash as terminal (installed with Git).
 
-# Add full tuto install
-Python 3.9.x
-Bash
+In bash terminal, run\
+`sh install.sh`
 
-# Web App
-In bash terminal:
-Setup install (mandatory 1st time): sh install.sh
-Run Audio Web App: sh runserver.sh
-Go to `http://127.0.0.1:5000/` page in web browser
+***
+## Web App
+In bash terminal, run\
+`sh runserver.sh`
+
+Go to [127.0.0.1:5000](http://127.0.0.1:5000/) page in web browser
+
+***
+## Coding rules
+Pep8 is the standard with:
+> my_variable\
+> my_class_method()\
+> MyClass()
+
