@@ -1,10 +1,10 @@
 import os
 import sys
 import wave
-import droulib
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import droulib
 import ricanelib
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
@@ -74,7 +74,7 @@ def play_from_audio_array(audio_array, rate):
 
     while input_file_bytes != b'':
         my_rt_filter.buffer_data = droulib.bufferBytesToData(input_file_bytes, MAX_INTEGER)
-        
+      
         if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
             # zero padding du pauvre
             size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)

@@ -14,6 +14,7 @@ else
 
 fi
 echo "Install is a success ! Processing packages ..."
+pip install wheel
 pip install -r requirements.txt
-echo "Packages installed ! Running sh.runserver.sh"
-sh runserver.sh
+pipwin install pyaudio
+echo "Packages installed ! Please run: sh.runserver.sh"
