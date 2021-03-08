@@ -63,6 +63,34 @@ class Spectrum_vizualier():
             raise TclError
 
 
+class Player():
+    """ Define rack item module as player module.
+    Handles either stream, audiofile or audio array as content.
+    Player gathers three content bus:
+    - original : as original audio content == input
+    - processed : as on_going dsp processing on rack
+    - edited : as orignal filtered by last saved version of rack
+    Player handles also the stream playback as dj controler
+    -> in charge of content provided to output stream
+    -> in charge of content supplying in rack
+    Player can be used both ways:
+    - static : loads content and play populates stream
+    - dynamic : content is buffer chunk only appending in original
+    """
+    def __init__(self):
+        self.behavior = "static"
+        self.behavior_list = ["static", "dynamic"]
+        self.player_mode = "loop"
+        self.player_mode_list = ["loop", "single"]
+        self.player_track = "processed"
+        self.player_track_list = ["original", "processed", "edited"]
+        self.original = None
+        self.processed = None
+        self.edited = None
+
+    def 
+
+
 class AudioRack():
 
     def __init__(self):

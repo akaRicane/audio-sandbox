@@ -100,6 +100,22 @@ def play_from_audio_array(audio_array, rate):
     print("End of file")
     my_stream.close_stream()
 
+# define callback (2)
+def callback(in_data, frame_count, time_info, status):
+    data = wf.readframes(frame_count)
+    return (data, pyaudio.paContinue)
+
+
+def generic_stream_loop(rate):
+    MAX_INTEGER = 32768.0
+    BUFFER_SIZE = int(1024)
+    print(f"Framerate: {rate} samples/sec")
+    print("open stream")
+    my_stream = audiostream.AudioStream()
+    my_stream.update_buffer_size(BUFFER_SIZE)
+    my_stream.update_n_channels(1)
+    my_stream.update_stream_rate(rate)
+
 
 def io_filtering(rate):
     MAX_INTEGER = 32768.0
