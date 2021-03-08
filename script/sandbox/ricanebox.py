@@ -128,31 +128,41 @@ def player_audio_array(audio_array, rate):
     # define player
     player = ricanelib.PlayerRecorder()
     player.load_audio_array_as_content(audio_array, rate, BUFFER_SIZE, MAX_INTEGER)
+    count = 0
 
-    while player.input_file_bytes != b'':
-        my_rt_filter.buffer_data = droulib.bufferBytesToData(player.input_file_bytes, MAX_INTEGER)
-      
-        if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
-            # zero padding du pauvre
-            size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
-            my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
-        if len(my_rt_filter.memory_data) != my_rt_filter.buffer_size * my_rt_filter.memory_size:
-            # zero padding du pauvre
-            size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
-            my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
-   
-        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
-        # my_rt_filter.filter_buffer_data()
-        my_rt_filter.feedforward(delay=64)
-        # -- END OF DSP --
-        my_rt_filter.save_in_memory()
-        # playback filtered chunk
-        my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
+    while player.player_mode == "loop":
+        while player.is_end == False:
+            my_rt_filter.buffer_data = player.last_in_original()
 
-        # plotting
-        # visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
-        # load new chunk
-        player.read_frames()
+            if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
+                # zero padding du pauvre
+                size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
+                my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
+            if len(my_rt_filter.memory_data) != my_rt_filter.buffer_size * my_rt_filter.memory_size:
+                # zero padding du pauvre
+                size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
+                my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
+
+            # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+            my_rt_filter.filter_buffer_data()
+            # my_rt_filter.feedforward(delay=64)
+            # my_rt_filter.save_in_memory()
+            # -- END OF DSP --
+
+            player.save_processed_buffer(my_rt_filter.buffer_data)
+
+            # playback filtered chunk
+            my_stream.populate_playback(player.populate_buffer_in_stream())
+
+            # plotting
+            # visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
+            # load new chunk
+            player.read_frames()
+
+        count += 1
+        if count >= 3:
+            player.player_mode = "single"
+        player.restart_read()
 
     print("End of file")
     my_stream.close_stream()
@@ -205,7 +215,7 @@ if __name__ == "__main__":
                                                      fade=True,
                                                      novak=True)
     
-    play_from_audio_array(sweep, config.SAMPLING_FREQUENCY)
+    player_audio_array(sweep.tolist(), config.SAMPLING_FREQUENCY)
     # load audio as wave_read object
     # read_filepath = config.AUDIO_FILE_TEST
     # play_file_from_filepath(read_filepath)

@@ -85,14 +85,16 @@ class PlayerRecorder():
         self.player_track = "processed"
         self.player_track_list = ["original", "processed", "edited"]
         self.original = []
-        self.processed = None
+        self.processed = []
         self.edited = None
         self.frames_to_read = None
-        self.input_file_bytes = None
+        self.read_bytes = None
         self.rate = None
         self.buffer_size = None
         self.max_integer = None
         self.n_channels = None
+        self.readable_content = None
+        self.is_end = False
 
     def load_wave_object_as_content(self, wave_object, buffer_size):
         self.rate = wave_object.getframerate()
@@ -114,8 +116,41 @@ class PlayerRecorder():
         self.load_wave_object_as_content(input_file_wave_obj, buffer_size)
 
     def read_frames(self):
-        self.input_file_bytes = self.readable_content.readframes(self.frames_to_read)
+        self.read_bytes = self.readable_content.readframes(self.frames_to_read)
+        self.original.append(droulib.bufferBytesToData(self.read_bytes, self.max_integer))
+        self.raise_if_end()
 
+    def populate_buffer_in_stream(self):
+        if self.player_track == "original":
+            buffer_streamed = self.last_in_original()
+        elif self.player_track == "processed":
+            buffer_streamed = self.last_in_processed()
+        else:
+            # add handle edited playback
+            buffer_streamed = self.last_in_original()
+        return droulib.bufferDataToBytes(buffer_streamed, self.max_integer)
+
+    def restart_read(self):
+        self.is_end = False
+        self.readable_content.rewind()
+
+    def raise_if_end(self):
+        if self.read_bytes == b'':
+            self.is_end = True
+        else:
+            pass
+
+    def last_in_original(self):
+        return self.original[-1]
+
+    def last_in_processed(self):
+        return self.processed[-1]
+
+    def save_processed_buffer(self, processed_buffer: list):
+        self.processed.append(processed_buffer)
+
+    def render_edited(self, rack):
+        pass
 
 class AudioRack():
 
