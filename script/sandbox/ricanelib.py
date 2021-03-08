@@ -63,8 +63,8 @@ class Spectrum_vizualier():
             raise TclError
 
 
-class Player():
-    """ Define rack item module as player module.
+class PlayerRecorder():
+    """ Define rack item module as player recorder module.
     Handles either stream, audiofile or audio array as content.
     Player gathers three content bus:
     - original : as original audio content == input
@@ -84,11 +84,37 @@ class Player():
         self.player_mode_list = ["loop", "single"]
         self.player_track = "processed"
         self.player_track_list = ["original", "processed", "edited"]
-        self.original = None
+        self.original = []
         self.processed = None
         self.edited = None
+        self.frames_to_read = None
+        self.input_file_bytes = None
+        self.rate = None
+        self.buffer_size = None
+        self.max_integer = None
+        self.n_channels = None
 
-    def 
+    def load_wave_object_as_content(self, wave_object, buffer_size):
+        self.rate = wave_object.getframerate()
+        self.n_channels = wave_object.getnchannels()
+        self.frames_to_read = int(buffer_size/self.n_channels)
+        self.readable_content = wave_object
+        # init first read
+        self.read_frames()
+
+    def load_audio_array_as_content(self, audio_array, rate, buffer_size, max_integer):
+        # input content
+        self.original = audio_array
+        self.buffer_size = buffer_size
+        self.max_integer = max_integer
+        input_file_wave_obj = droulib.convertMonoDatatoWaveObject(audio_array,
+                                                                  rate,
+                                                                  'test.wav',
+                                                                  max_integer)
+        self.load_wave_object_as_content(input_file_wave_obj, buffer_size)
+
+    def read_frames(self):
+        self.input_file_bytes = self.readable_content.readframes(self.frames_to_read)
 
 
 class AudioRack():

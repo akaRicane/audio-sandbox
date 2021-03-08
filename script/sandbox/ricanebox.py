@@ -58,12 +58,12 @@ def play_from_audio_array(audio_array, rate):
                                               buffer_size=my_rt_filter.buffer_size)
 
     print("open stream")
-    my_stream = audiostream.AudioStream()
-    my_stream.update_buffer_size(BUFFER_SIZE)
-    my_stream.update_n_channels(1)
-    my_stream.update_stream_rate(rate)
+    my_stream = audiostream.AudioStream(n_channels=1,
+                                        stream_rate=rate,
+                                        buffer_size=BUFFER_SIZE)
+    my_stream.init_array_stream()
 
-    my_stream.init_new_stream()
+    # input content
     input_file_wave_object = droulib.convertMonoDatatoWaveObject(audio_array,
                                                                  rate,
                                                                  'test.wav',
@@ -100,21 +100,67 @@ def play_from_audio_array(audio_array, rate):
     print("End of file")
     my_stream.close_stream()
 
+
+def player_audio_array(audio_array, rate):
+    MAX_INTEGER = 32768.0
+    BUFFER_SIZE = int(1024)
+    print(f"Framerate: {rate} samples/sec")
+
+    # filtrage item
+    my_rt_filter = rt_filtering.Audio_filter_rt(rate, BUFFER_SIZE)
+    my_rt_filter.set_bandpass(lowcut=150, highcut=2500, order=4)
+    # my_rt_filter.set_highpass(fcut=2000, order=2)
+    my_rt_filter.init_rt_filtering()
+
+    # my_rt_filter.audio_filter.computeFilterFreqResp()
+    # my_rt_filter.audio_filter.plotFilterResponse()
+
+    # plotting definition
+    visualizer = ricanelib.Spectrum_vizualier(memory_size=my_rt_filter.memory_size,
+                                              buffer_size=my_rt_filter.buffer_size)
+
+    print("open stream")
+    my_stream = audiostream.AudioStream(n_channels=1,
+                                        stream_rate=rate,
+                                        buffer_size=BUFFER_SIZE)
+    my_stream.init_array_stream()
+
+    # define player
+    player = ricanelib.PlayerRecorder()
+    player.load_audio_array_as_content(audio_array, rate, BUFFER_SIZE, MAX_INTEGER)
+
+    while player.input_file_bytes != b'':
+        my_rt_filter.buffer_data = droulib.bufferBytesToData(player.input_file_bytes, MAX_INTEGER)
+      
+        if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
+            # zero padding du pauvre
+            size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
+            my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
+        if len(my_rt_filter.memory_data) != my_rt_filter.buffer_size * my_rt_filter.memory_size:
+            # zero padding du pauvre
+            size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
+            my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
+   
+        # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
+        # my_rt_filter.filter_buffer_data()
+        my_rt_filter.feedforward(delay=64)
+        # -- END OF DSP --
+        my_rt_filter.save_in_memory()
+        # playback filtered chunk
+        my_stream.populate_playback(droulib.bufferDataToBytes(my_rt_filter.buffer_data, MAX_INTEGER))
+
+        # plotting
+        # visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
+        # load new chunk
+        player.read_frames()
+
+    print("End of file")
+    my_stream.close_stream()
+
 # define callback (2)
 def callback(in_data, frame_count, time_info, status):
     data = wf.readframes(frame_count)
     return (data, pyaudio.paContinue)
-
-
-def generic_stream_loop(rate):
-    MAX_INTEGER = 32768.0
-    BUFFER_SIZE = int(1024)
-    print(f"Framerate: {rate} samples/sec")
-    print("open stream")
-    my_stream = audiostream.AudioStream()
-    my_stream.update_buffer_size(BUFFER_SIZE)
-    my_stream.update_n_channels(1)
-    my_stream.update_stream_rate(rate)
 
 
 def io_filtering(rate):

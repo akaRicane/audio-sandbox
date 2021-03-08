@@ -16,28 +16,32 @@ class AudioStream():
         by default true
 
     my_stream = AudioStream()
-    my_stream.init_new_stream() opens new stream
+    my_stream.init_###_stream() opens new stream
     my_stream.populate_playback(data) add data array to playback stream
     my_stream.update() terminate current to init new stream with new parameters.
     """
     def __init__(self,
                  n_channels: int,
-                 read_audio_from_system: bool = False,
+                 read_audio_from_system: bool = True,
                  play_audio_on_system: bool = True,
                  stream_rate: int = config.SAMPLING_FREQUENCY,
-                 buffer_size: int = config.FRAMES_PER_BUFFER,
-                 bytes_format: int = config.BYTES_DEFAULT_FORMAT):
+                 buffer_size: int = config.FRAMES_PER_BUFFER,):
         self.player = pyaudio.PyAudio()
-        self.stream = None
         self.read_audio_from_system = read_audio_from_system
         self.play_audio_on_system = play_audio_on_system
-        self.n_channels = None
+        self.n_channels = n_channels
         self.stream_rate = stream_rate
         self.buffer_size = buffer_size
-        self.bytes_format = bytes_format
+        self.bytes_format = config.BYTES_DEFAULT_FORMAT
         self.callback = None
 
-    def init_callback_array_stream(self):
+    def init_array_stream(self):
+        self.stream = self.player.open(format=self.bytes_format,
+                                       channels=self.n_channels,
+                                       rate=self.stream_rate,
+                                       input=False,
+                                       output=self.play_audio_on_system,
+                                       frames_per_buffer=self.buffer_size)
 
     def close_stream(self):
         self.pause_playback()
@@ -68,7 +72,7 @@ class AudioStream():
         self.update_stream_parameters()
 
     def update_callback(self, callback_method):
-        self.callback = callback_method
+        self.callback = callback_method()
 
     def update_stream_parameters(self):
         self.pause_playback()
@@ -80,5 +84,3 @@ class AudioStream():
                                        output=self.play_audio_on_system,
                                        frames_per_buffer=self.buffer_size,
                                        stream_callback=self.callback)
-
-    
