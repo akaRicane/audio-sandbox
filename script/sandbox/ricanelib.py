@@ -12,8 +12,8 @@ from lib import audiodata, audiodsp, audiofiltering  # noqa E402
 from lib import tool, config  # noqa E402
 
 
-class Spectrum_vizualier():
-    def __init__(self, memory_size, buffer_size):
+class Spectrum_visualizer():
+    def __init__(self, buffer_size, memory_size):
         self.fig, (self.ax, self.ax2) = plt.subplots(2, figsize=(15, 8))
         self.memory_size = memory_size
         self.buffer_size = buffer_size
@@ -117,7 +117,7 @@ class PlayerRecorder():
 
     def read_frames(self):
         self.read_bytes = self.readable_content.readframes(self.frames_to_read)
-        self.original.append(droulib.bufferBytesToData(self.read_bytes, self.max_integer))
+        self.original += droulib.bufferBytesToData(self.read_bytes, self.max_integer)
         self.raise_if_end()
 
     def populate_buffer_in_stream(self):
@@ -141,13 +141,13 @@ class PlayerRecorder():
             pass
 
     def last_in_original(self):
-        return self.original[-1]
+        return self.original[-self.buffer_size:-1]
 
     def last_in_processed(self):
-        return self.processed[-1]
+        return self.processed[-self.buffer_size:-1]
 
     def save_processed_buffer(self, processed_buffer: list):
-        self.processed.append(processed_buffer)
+        self.processed += processed_buffer
 
     def render_edited(self, rack):
         pass

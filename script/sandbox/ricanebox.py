@@ -103,7 +103,7 @@ def play_from_audio_array(audio_array, rate):
 
 def player_audio_array(audio_array, rate):
     MAX_INTEGER = 32768.0
-    BUFFER_SIZE = int(1024)
+    BUFFER_SIZE = int(1024/2)
     print(f"Framerate: {rate} samples/sec")
 
     # filtrage item
@@ -114,10 +114,6 @@ def player_audio_array(audio_array, rate):
 
     # my_rt_filter.audio_filter.computeFilterFreqResp()
     # my_rt_filter.audio_filter.plotFilterResponse()
-
-    # plotting definition
-    visualizer = ricanelib.Spectrum_vizualier(memory_size=my_rt_filter.memory_size,
-                                              buffer_size=my_rt_filter.buffer_size)
 
     print("open stream")
     my_stream = audiostream.AudioStream(n_channels=1,
@@ -152,7 +148,7 @@ def player_audio_array(audio_array, rate):
             player.save_processed_buffer(my_rt_filter.buffer_data)
 
             # playback filtered chunk
-            my_stream.populate_playback(player.populate_buffer_in_stream())
+            # my_stream.populate_playback(player.populate_buffer_in_stream())
 
             # plotting
             # visualizer.populate_plot(data_line=my_rt_filter.buffer_data, data_line2=my_rt_filter.memory_data)
@@ -160,12 +156,21 @@ def player_audio_array(audio_array, rate):
             player.read_frames()
 
         count += 1
+        print(f"Loop = {count}")
         if count >= 3:
             player.player_mode = "single"
         player.restart_read()
 
-    print("End of file")
+    print("End of file\nPlotting rec now !")
     my_stream.close_stream()
+
+    # plotting definition
+    # rec = audiodata.AudioData(player.rate)
+    # rec.compute_audio_array_analysis(player.original)
+    # rec_processed = audiodata.AudioData(player.rate)
+    # rec_processed.compute_audio_array_analysis(player.processed)
+    # rec.signal_visualizer.show()
+
 
 # define callback (2)
 def callback(in_data, frame_count, time_info, status):

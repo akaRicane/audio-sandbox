@@ -62,8 +62,8 @@ def convertAmpDbToAmp(ampDb: list) -> list:
 def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
                            duration=config.BASIC_DURATION) -> list:
     # linspace
-    return np.linspace(0, duration, int(duration * fs), endpoint=False)
-
+    vect = np.linspace(0, duration, int(duration * fs), endpoint=False) / fs
+    return vect.tolist()
 
 def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fonction is not necessary, np.add() does the same thing
     result = []

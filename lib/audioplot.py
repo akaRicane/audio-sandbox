@@ -1,5 +1,50 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import logging
+
+
+class SignalVisualizer():
+    """ Displays a couple of audio signal and their fft 
+    """
+    def __init__(self, t: list, tamp: list, f: list, famp: list):
+        self.fig, (self.ax, self.ax2) = plt.subplots(2, figsize=(15, 8))
+        self.t = t
+        self.tamp = tamp
+        self.f = f
+        self.famp = famp
+
+        self.init_lines()
+        self.init_axes()
+
+    def init_lines(self):
+        self.line, = self.ax.plot(self.t, np.random.rand(len(self.tamp)), '-', lw=2)
+        self.line2, = self.ax2.plot(self.f, np.random.rand(len(self.famp)), '-', lw=2)
+
+    def init_axes(self):
+        self.ax.set_title("AUDIO WAVEFORM")
+        self.ax.set_xlabel("t [sec]")
+        self.ax.set_ylabel("Magnitude")
+        self.ax.set_xlim(self.t[0], self.t[-1])
+        self.ax.set_ylim(-1, 1)
+        plt.setp(self.ax,
+                 xticks=[0, int(len(self.t) / 2), len(self.t)],
+                 yticks=[min(self.tamp), max(self.tamp)])
+
+        self.ax2.set_title("Spectral Content")
+        self.ax2.set_xlabel("frequencies [Hz]")
+        self.ax2.set_ylabel("Magnitude")
+        self.ax2.set_xlim(self.f[0], self.f[-1])
+        self.ax2.set_ylim(-1, 1)
+        plt.setp(self.ax2,
+                 xticks=[0, len(self.f)],
+                 yticks=[min(self.famp), max(self.famp)])
+
+    def show(self):
+        plt.show()
+
+    def populate_plot(self, data_line, data_line2):
+        self.line.set_ydata(data_line)
+        self.line2.set_ydata(data_line2)
 
 
 def shortPlot(vect, data, space='time', scale='lin',
