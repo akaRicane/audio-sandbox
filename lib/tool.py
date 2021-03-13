@@ -1,7 +1,14 @@
-import os, sys, logging
+import os
+import sys
+import copy
+import logging
 import numpy as np
 sys.path.append(os.getcwd())
 from lib import config
+
+
+def return_copy(item):
+    return copy.deepcopy(item)
 
 
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:

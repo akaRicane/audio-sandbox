@@ -19,37 +19,48 @@ class AudioFilter():
     def __init__(self, fs: int = config.SAMPLING_FREQUENCY):
         self.coefs = None
         self.type = "empty"
+        self.format = "empty"
         self.order = None
         self.fs = fs
+        self.zi = None
         self.freqs = None
         self.fresponse = None
 
+    def set_zi_tolist(self):
+        self.zi = self.zi.tolist()
+
     def getBandPassSosCoefs(self, lowcut, highcut, order=config.BANDPASS_DEFAULT_ORDER):
-        nyq = 0.5 * self.fs
-        low = lowcut / nyq
-        high = highcut / nyq
-        self.coefs = butter(order, [low, high], btype='band', output='sos')
-        self.type = "sos"
+        self.coefs = butter(order, [lowcut, highcut], btype='bandpass',
+                            analog=False, fs=self.fs, output='sos')
+        self.type = "bandpass"
+        self.format = "sos"
         self.order = order
-        del nyq, low, high
 
-    def getHighPassFiltSosCoefs(self, order: int = 4, fcut: float = 1000):
+    def getHighPassSosCoefs(self, fcut: float = 1000, order: int = 4):
         # wn = 2 * np.pi * fcut / 20000
-        self.coefs = signal.butter(order, fcut, btype="high", output="sos", analog="True")
-        self.type = "sos"
+        self.coefs = signal.butter(order, fcut, btype="highpass",
+                                   output="sos", analog=False, fs=self.fs)
+        self.type = "highpass"
+        self.format = "sos"
+        self.order = order
 
-    def filtBroadcast(self, dataToFilter: list) -> list:
-        pass
-
-    def returnFilteredData(self, data: list):
-        if self.type == "sos":
-            return sosfilt(self.coefs, data)
+    def returnFilteredData(self, data: list) -> list:
+        if self.zi is None:
+            self.compute_sos_zi_response()
+        if self.format == "sos":
+            filtered_data, self.zi = sosfilt(sos=self.coefs, x=data, zi=self.zi)
+            self.set_zi_tolist()
+            return filtered_data.tolist()
         # add elif for other methods
         else:
             logging.error("Asked filtering data with unexpected filter type coefs")
 
+    def compute_sos_zi_response(self):
+        self.zi = signal.sosfilt_zi(self.coefs)
+        self.set_zi_tolist()
+
     def computeFilterFreqResp(self):
-        if self.type == "sos":
+        if self.format == "sos":
             self.freqs, self.fresponse = signal.sosfreqz(sos=self.coefs, worN=2000)
         else:
             logging.error("Asked computing filter frequency response with unexpected filter type coefs")
@@ -63,8 +74,9 @@ class AudioFilter():
         audioplot.pshow(legend=["impulse", "response"])
 
     def plotFilterResponse(self):
-        audioplot.shortPlot(vect=(self.fs * 0.5 / np.pi) * self.freqs, data=abs(self.fresponse))
-       
+        audioplot.shortPlot(vect=(self.fs * 0.5 / np.pi) * self.freqs, data=abs(self.fresponse),
+                            scale='semilog', space='spectral', isNormalizedAxis=False)
+        audioplot.pshow()
 
     # def equalizer_10band (data, fs, gain1=0, gain2=0, gain3=0, gain4=0, gain5=0, gain6=0, gain7=0, gain8=0, gain9=0, gain10=0):
     #     band1 = bandpass_filter(data, 20, 39, fs, order=2)* 10**(gain1/20)
