@@ -10,7 +10,7 @@ sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
 from lib import audiofiltering_rt as rt_filtering # noqa E402
-from lib import audiostream, tool, config  # noqa E402
+from lib import audiostream, player, tool, config  # noqa E402
 
 
 def play_file_from_filepath(filepath):
@@ -122,7 +122,7 @@ def player_audio_array(audio_array, rate):
     my_stream.init_array_stream()
 
     # define player
-    player = ricanelib.PlayerRecorder()
+    player = ricanelib.Player()
     player.load_audio_array_as_content(audio_array, rate, BUFFER_SIZE, MAX_INTEGER)
     count = 0
 
@@ -130,14 +130,8 @@ def player_audio_array(audio_array, rate):
         while player.is_end == False:
             my_rt_filter.buffer_data = player.last_in_original()
 
-            if len(my_rt_filter.buffer_data) != my_rt_filter.buffer_size:
-                # zero padding du pauvre
-                size_missing = int((my_rt_filter.buffer_size - len(my_rt_filter.buffer_data)) / 2)
-                my_rt_filter.buffer_data = np.pad(my_rt_filter.buffer_data, size_missing).tolist()
-            if len(my_rt_filter.memory_data) != my_rt_filter.buffer_size * my_rt_filter.memory_size:
-                # zero padding du pauvre
-                size_missing = int((my_rt_filter.buffer_size * my_rt_filter.memory_size - len(my_rt_filter.memory_data)) / 2)
-                my_rt_filter.memory_data = np.pad(my_rt_filter.memory_data, size_missing).tolist()
+            my_rt_filter.check_chunk_size_or_zeropad()
+            my_rt_filter.check_memory_size_or_zeropad()
 
             # -- POSSIBLE DSP ON INPUT_FILE_FRAME --
             my_rt_filter.filter_buffer_data()
@@ -165,11 +159,14 @@ def player_audio_array(audio_array, rate):
     my_stream.close_stream()
 
     # plotting definition
-    # rec = audiodata.AudioData(player.rate)
-    # rec.compute_audio_array_analysis(player.original)
+    rec = audiodata.AudioData(player.rate)
+    idx = 1024
+    rec.compute_audio_array_analysis(player.original[idx * player.buffer_size:
+                                                     (idx + 1) * player.buffer_size])
+    rec.signal_visualizer.show()
     # rec_processed = audiodata.AudioData(player.rate)
     # rec_processed.compute_audio_array_analysis(player.processed)
-    # rec.signal_visualizer.show()
+    # rec_processed.signal_visualizer.show()
 
 
 # define callback (2)
@@ -212,16 +209,30 @@ def io_filtering(rate):
 
 if __name__ == "__main__":
     # Global Parameters
+    rate = config.SAMPLING_FREQUENCY
     sweep, tsweep = audiogenerator.generateSweptSine(amp=0.5,
                                                      f0=150,
                                                      f1=10000,
                                                      duration=1.0,
-                                                     fs=config.SAMPLING_FREQUENCY,
+                                                     fs=rate,
                                                      fade=True,
                                                      novak=True)
-    
-    player_audio_array(sweep.tolist(), config.SAMPLING_FREQUENCY)
+    tsine, sine = audiogenerator.generateSine(f0=500, gain=0.8, fs=rate)
+
     # load audio as wave_read object
-    # read_filepath = config.AUDIO_FILE_TEST
-    # play_file_from_filepath(read_filepath)
-    # io_filtering(44100)
+    khi_project = ricanelib.Lab()
+    # load filtering modules
+    khi_project.ModulesRack.add_new_module(ricanelib.ModuleItem(type="Audio_filter_rt",
+                                                                subtype="rt_bandpass"))
+    # load content
+    # khi_project.Player.init_stream_with_filepath(config.AUDIO_FILE_SWEEP)
+    # khi_project.Player.init_stream_with_audio_array(sine, rate)
+    # print("Init first play")
+    # khi_project.timeless_loop_static()
+
+    # init recording
+    khi_project.record_stream_input_during(duration=5.0, rate=rate)
+    # after process plot
+    khi_project.init_labvisualizer()
+
+    print("\n\nBye bye")

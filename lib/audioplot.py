@@ -25,7 +25,6 @@ class SignalVisualizer():
         self.ax.set_xlabel("t [sec]")
         self.ax.set_ylabel("Magnitude")
         self.ax.set_xlim(self.t[0], self.t[-1])
-        self.ax.set_ylim(-1, 1)
         plt.setp(self.ax,
                  xticks=[0, int(len(self.t) / 2), len(self.t)],
                  yticks=[min(self.tamp), max(self.tamp)])
@@ -34,7 +33,6 @@ class SignalVisualizer():
         self.ax2.set_xlabel("frequencies [Hz]")
         self.ax2.set_ylabel("Magnitude")
         self.ax2.set_xlim(self.f[0], self.f[-1])
-        self.ax2.set_ylim(-1, 1)
         plt.setp(self.ax2,
                  xticks=[0, len(self.f)],
                  yticks=[min(self.famp), max(self.famp)])

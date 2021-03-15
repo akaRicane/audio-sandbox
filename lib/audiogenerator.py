@@ -16,8 +16,8 @@ def generateSine(f0: float,
     if t is None:
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
     # sine
-    sine = gain * np.sin(w*t)
-    return t.tolist(), sine.tolist()
+    sine = gain * np.sin(w*np.array(t))
+    return t, sine.tolist()
 
 
 def generateMultiSine(f0List: list,

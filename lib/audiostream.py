@@ -22,7 +22,7 @@ class AudioStream():
     """
     def __init__(self,
                  n_channels: int,
-                 read_audio_from_system: bool = True,
+                 read_audio_from_system: bool = False,
                  play_audio_on_system: bool = True,
                  stream_rate: int = config.SAMPLING_FREQUENCY,
                  buffer_size: int = config.FRAMES_PER_BUFFER,):
@@ -36,6 +36,14 @@ class AudioStream():
         self.callback = None
 
     def init_array_stream(self):
+        self.stream = self.player.open(format=self.bytes_format,
+                                       channels=self.n_channels,
+                                       rate=self.stream_rate,
+                                       input=False,
+                                       output=self.play_audio_on_system,
+                                       frames_per_buffer=self.buffer_size)
+
+    def init_audiofile_stream(self):
         self.stream = self.player.open(format=self.bytes_format,
                                        channels=self.n_channels,
                                        rate=self.stream_rate,

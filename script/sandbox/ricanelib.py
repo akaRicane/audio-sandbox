@@ -5,10 +5,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal as signal
 from tkinter import TclError
-import droulib
+import droulib, testqt
+import time
+from pyqtgraph.Qt import QtGui, QtCore
+import pyqtgraph as pg
+from pyqtgraph.Point import Point
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
+from lib import audiofiltering_rt as rt_filtering # noqa E402
+from lib import player as Player# noqa E402
 from lib import tool, config  # noqa E402
 
 
@@ -63,99 +69,147 @@ class Spectrum_visualizer():
             raise TclError
 
 
-class PlayerRecorder():
-    """ Define rack item module as player recorder module.
-    Handles either stream, audiofile or audio array as content.
-    Player gathers three content bus:
-    - original : as original audio content == input
-    - processed : as on_going dsp processing on rack
-    - edited : as orignal filtered by last saved version of rack
-    Player handles also the stream playback as dj controler
-    -> in charge of content provided to output stream
-    -> in charge of content supplying in rack
-    Player can be used both ways:
-    - static : loads content and play populates stream
-    - dynamic : content is buffer chunk only appending in original
+class ModulesRack():
+    """ Module rack gathering processing modules
     """
     def __init__(self):
-        self.behavior = "static"
-        self.behavior_list = ["static", "dynamic"]
-        self.player_mode = "loop"
-        self.player_mode_list = ["loop", "single"]
-        self.player_track = "processed"
-        self.player_track_list = ["original", "processed", "edited"]
-        self.original = []
-        self.processed = []
-        self.edited = None
-        self.frames_to_read = None
-        self.read_bytes = None
-        self.rate = None
-        self.buffer_size = None
-        self.max_integer = None
-        self.n_channels = None
-        self.readable_content = None
-        self.is_end = False
+        self.chunck = None
+        self.module_items = []
+        self.wiring = "waterfall"
 
-    def load_wave_object_as_content(self, wave_object, buffer_size):
-        self.rate = wave_object.getframerate()
-        self.n_channels = wave_object.getnchannels()
-        self.frames_to_read = int(buffer_size/self.n_channels)
-        self.readable_content = wave_object
-        # init first read
-        self.read_frames()
+    def load_and_process_chunck(self, chunk):
+        if self.wiring == "waterfall":
+            self.chunck = tool.return_copy(chunk)
+            self.process_by_parsing_items()
 
-    def load_audio_array_as_content(self, audio_array, rate, buffer_size, max_integer):
-        # input content
-        self.original = audio_array
-        self.buffer_size = buffer_size
-        self.max_integer = max_integer
-        input_file_wave_obj = droulib.convertMonoDatatoWaveObject(audio_array,
-                                                                  rate,
-                                                                  'test.wav',
-                                                                  max_integer)
-        self.load_wave_object_as_content(input_file_wave_obj, buffer_size)
+    def process_by_parsing_items(self):
+        for module in self.module_items:
+            self.chunck = module.process_and_return_chunck(self.chunck)
 
-    def read_frames(self):
-        self.read_bytes = self.readable_content.readframes(self.frames_to_read)
-        self.original += droulib.bufferBytesToData(self.read_bytes, self.max_integer)
-        self.raise_if_end()
+    def add_new_module(self, *new_module):
+        self.module_items.append(*new_module)
 
-    def populate_buffer_in_stream(self):
-        if self.player_track == "original":
-            buffer_streamed = self.last_in_original()
-        elif self.player_track == "processed":
-            buffer_streamed = self.last_in_processed()
-        else:
-            # add handle edited playback
-            buffer_streamed = self.last_in_original()
-        return droulib.bufferDataToBytes(buffer_streamed, self.max_integer)
 
-    def restart_read(self):
-        self.is_end = False
-        self.readable_content.rewind()
+class ModuleItem():
+    """Module wrapper into module item format
+    """
+    def __init__(self, type: str = "Audio_filter_rt", subtype: str = "rt_bandpass"):
+        self.input = None
+        self.output = None
+        self.module = None
+        self.type = type
+        self.subtype = subtype
 
-    def raise_if_end(self):
-        if self.read_bytes == b'':
-            self.is_end = True
+        if self.type == "Audio_filter_rt":
+            if self.subtype == "rt_bandpass":
+                self.init_rt_bandpass()
         else:
             pass
 
-    def last_in_original(self):
-        return self.original[-self.buffer_size:-1]
+    def process_and_return_chunck(self, chunk) -> list:
+        self.input = chunk
+        if self.type == "Audio_filter_rt":
+            if self.subtype == "rt_bandpass":
+                self.output = self.module.filter_buffer_data(self.input)
+        else:
+            self.output = self.input
+        return self.output
 
-    def last_in_processed(self):
-        return self.processed[-self.buffer_size:-1]
+    def init_rt_bandpass(self):
+        self.module = rt_filtering.Audio_filter_rt(LAB_DEFAULT_CONFIG_DICT['SAMPLING_RATE'],
+                                                   LAB_DEFAULT_CONFIG_DICT['BUFFER_SIZE'])
+        self.module.set_bandpass(lowcut=150, highcut=2500, order=4)
+        self.module.init_rt_filtering()
 
-    def save_processed_buffer(self, processed_buffer: list):
-        self.processed += processed_buffer
 
-    def render_edited(self, rack):
-        pass
+LAB_DEFAULT_CONFIG_DICT = {
+    "MAX_INTEGER": 32768.0,
+    "BUFFER_SIZE": 1024,
+    "SAMPLING_RATE": 44100
+}
 
-class AudioRack():
 
+class Lab():
+    """ Higher layer of lab project.
+    Basically handles all process.
+    Works with rack items.
+    Stream is processed by AudioStream instance through Player.
+    Processing is handles by audiofitlering_rt instances.
+    [AUDIO GENERATOR] / [STREAM IN] / [FILE READ]
+    -> [PLAYER] or [MIXER]
+        -> [I -> PLAYER(rackitems) -> O]
+    -> [RACK ITEMS]
+        -> filtering (modules rack)
+        -> visualizers (labvisualizer)
+        -> edited: input*ModuleRack = output
+    """
     def __init__(self):
+        self.config = self.load_lab_config()
+        self.Player = Player.Player()
+        self.LabVisualizer = None
+        self.ModulesRack = ModulesRack()
+        self.session_is_active = True
+
+    def add_new_module(self, module, param):
+        # self.module = module.module(param)
         pass
 
-    def add_new_rack_item(self, module, param):
-        self.rack_item_i = module.module(param)
+    def load_lab_config(self):
+        pass
+
+    def timeless_loop_static(self):
+        """ Aim to manipulate playback in Lab module
+        like while true would. Shall handle play pause
+        loop and stop in playback somehow.
+        Need to make processing through Player.processed
+        in rack items.
+        """
+        # lock input from stream
+        # only rack items can be modifiyed from now on
+        # freeze.audio.stream()
+        while self.session_is_active is True:
+            if self.Player.player_mode != "stop":
+                # either play mode
+                while self.Player.is_end is False:
+                    # dsp
+                    self.ModulesRack.load_and_process_chunck(self.Player.last_in_original())
+                    self.Player.save_processed_buffer(self.ModulesRack.chunck)
+
+                    # playback chunck
+                    # self.Player.populate_buffer_in_stream()
+                    # continue reading
+                    self.Player.read_frames()
+                # else wait and see...
+                if self.Player.is_end is True and self.Player.player_mode == "single":
+                    # self.timeless_sleep()
+                    self.Player.player_mode = "stop"
+                # or loop again
+                elif self.Player.is_end is True and self.Player.player_mode == "loop":
+                    time.sleep(0.5)
+                    self.Player.restart_read()
+            else:
+                print("Closing Player")
+                self.Player._close()
+                break
+
+    def timedef_loop_dynamic(self, duration: float = 5.0):
+        start_time = time.time()
+        while time.time() <= start_time + duration:
+            self.Player.read_frames()
+        time.sleep(0.1)
+
+    def record_stream_input_during(self, duration, rate):
+        self.Player.init_stream_in(rate)
+        self.timedef_loop_dynamic(duration)
+
+    def timeless_sleep(self):
+        print("Time to sleep ...")
+        self.Player.player_mode = "sleep"
+        while self.Player.player_mode == "sleep":
+            time.sleep(1)
+
+    def init_labvisualizer(self):
+        self.LabVisualizer = testqt.LabVisualizer(self.Player.original, self.Player.processed)
+        # Start Qt event loop unless running in interactive mode or using pyside.
+        if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
+            pg.QtGui.QApplication.exec_()
