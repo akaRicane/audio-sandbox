@@ -11,7 +11,13 @@ from lib import audioplot, audiofile, audiogenerator  # noqa E402
 
 class LabVisualizer():
 
-    def __init__(self, data1, data2):
+    def __init__(self, mode: int = 0, *args):
+        if mode == 0:
+            self.init_as_static_1(*args)
+        else:
+            pass
+
+    def init_as_static_1(self, data1, data2):
         self.data1 = data1
         self.data2 = data2
         self.slice_lenght = 512
@@ -82,7 +88,7 @@ if __name__ == "__main__":
                                                      fade=True,
                                                      novak=True)
 
-    visualizer = LabVisualizer(tsweep, sweep)
+    visualizer = LabVisualizer(0, tsweep, sweep)
     # Start Qt event loop unless running in interactive mode or using pyside.
     if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
         pg.QtGui.QApplication.exec_()
