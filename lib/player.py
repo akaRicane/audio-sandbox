@@ -1,7 +1,6 @@
 import os
 import sys
 import wave
-import droulib
 sys.path.append(os.getcwd())
 from lib import audiostream, tool, config  # noqa E402
 
@@ -71,22 +70,22 @@ class Player():
     def load_audio_array_as_content(self, audio_array, rate):
         # input content
         # self.original = audio_array
-        input_file_wave_obj = droulib.convertMonoDatatoWaveObject(audio_array,
-                                                                  rate,
-                                                                  'test.wav',
-                                                                  self.max_integer)
+        input_file_wave_obj = tool.convertMonoDatatoWaveObject(audio_array,
+                                                               rate,
+                                                               'test.wav',
+                                                               self.max_integer)
         self.load_wave_object_as_content(input_file_wave_obj, self.buffer_size)
 
     def init_stream_in(self, rate):
         self.behavior = "dynamic"
-        self.AudioStream = audiostream.AudioStream()
+        self.AudioStream = audiostream.AudioStream(n_channels=1)
         self.AudioStream.update_n_channels(1)
         self.AudioStream.update_stream_rate(rate)
         # self.AudioStream.init_audiofile_stream()
 
     def read_frames(self):
         self.read_bytes = self.readable_content.readframes(self.frames_to_read)
-        self.original += droulib.bufferBytesToData(self.read_bytes, self.max_integer)
+        self.original += tool.bufferBytesToData(self.read_bytes, self.max_integer)
         self.raise_if_end()
 
     def populate_buffer_in_stream(self):
@@ -97,7 +96,7 @@ class Player():
         else:
             # add handle edited playback
             buffer_streamed = self.last_in_original()
-        self.AudioStream.populate_playback(droulib.bufferDataToBytes(buffer_streamed, self.max_integer))
+        self.AudioStream.populate_playback(tool.bufferDataToBytes(buffer_streamed, self.max_integer))
 
     def restart_read(self):
         self.is_end = False

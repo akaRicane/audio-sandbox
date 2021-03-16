@@ -1,20 +1,15 @@
 import os
 import sys
-import wave
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.signal as signal
-from tkinter import TclError
-import droulib, testqt
 import time
-from pyqtgraph.Qt import QtGui, QtCore
-import pyqtgraph as pg
-from pyqtgraph.Point import Point
+from tkinter import TclError
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
 from lib import audiofiltering_rt as rt_filtering # noqa E402
-from lib import player as Player# noqa E402
+from lib import audioplot_qt as qt_plot # noqa E402
+from lib import player as Player  # noqa E402
 from lib import tool, config  # noqa E402
 
 
@@ -209,7 +204,4 @@ class Lab():
             time.sleep(1)
 
     def init_labvisualizer(self):
-        self.LabVisualizer = testqt.LabVisualizer(self.Player.original, self.Player.processed)
-        # Start Qt event loop unless running in interactive mode or using pyside.
-        if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
-            pg.QtGui.QApplication.exec_()
+        self.LabVisualizer = qt_plot.LabVisualizer(0, self.Player.original, self.Player.processed)

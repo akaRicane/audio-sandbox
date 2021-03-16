@@ -1,9 +1,10 @@
-import os, sys, logging
+import os
+import sys
+import logging
 import numpy as np
 
-
 sys.path.append(os.getcwd())
-from lib import config, tool
+from lib import config, tool  # noqa E402
 
 
 def generateSine(f0: float,
