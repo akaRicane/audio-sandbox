@@ -4,6 +4,7 @@ from pyqtgraph.Qt import QtGui, QtCore
 
 
 # DOCUMENTATION HERE ######
+# import pyqtgraph.examples
 # pyqtgraph.examples.run()
 ###########################
 
