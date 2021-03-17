@@ -11,9 +11,15 @@ from pyqtgraph.Qt import QtGui, QtCore
 
 class LabVisualizer():
 
-    def __init__(self, mode: int = 0, *args):
-        if mode == 0:
+    def __init__(self, mode: int = 1, *args):
+        if mode == 1:
             self.init_as_static_1(*args)
+        elif mode == 2:
+            self.init_as_static_2(*args)
+        elif mode == 3:
+            self.init_as_static_3(*args)
+        elif mode == 10:
+            self.init_as_dynamic_1(*args)
         else:
             pass
 
@@ -24,7 +30,7 @@ class LabVisualizer():
         # generate layout
         self.app = QtGui.QApplication([])
         self.win = pg.GraphicsLayoutWidget(show=True)
-        self.win.setWindowTitle('pyqtgraph example: crosshair')
+        self.win.setWindowTitle('static 1')
         self.label = pg.LabelItem(justify='right')
         self.win.addItem(self.label)
         self.upper_wind = self.win.addPlot(row=1, col=0)  # window with original and processed signals
@@ -61,6 +67,86 @@ class LabVisualizer():
         # Start Qt event loop unless running in interactive mode or using pyside.
         if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
             pg.QtGui.QApplication.exec_()
+
+    def init_as_static_2(self, data1, data2):
+        self.data1 = data1
+        self.data2 = data2
+        self.slice_lenght = 512
+        # generate layout
+        self.app = QtGui.QApplication([])
+        self.win = pg.GraphicsLayoutWidget(show=True)
+        self.win.setWindowTitle('static 2')
+        self.label = pg.LabelItem(justify='right')
+        self.win.addItem(self.label)
+        self.upper_wind = self.win.addPlot(row=1, col=0)  # window with original and processed signals
+        self.lower_wind = self.win.addPlot(row=2, col=0)  # window with processed signal and slice selector
+
+        self.upper_wind.setAutoVisible(y=True)
+
+        self.upper_wind.plot(self.data1, pen="r")
+        self.upper_wind.plot(self.data2, pen="g")
+
+        self.lower_wind.plot(self.data2, pen="g")
+
+        if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
+            pg.QtGui.QApplication.exec_()
+
+    def init_as_dynamic_1(self, data):
+        # generate layout
+        self.app = QtGui.QApplication([])
+        self.win = pg.GraphicsLayoutWidget(show=True)
+        self.win.setWindowTitle('dynamic 1')
+        self.label = pg.LabelItem(justify='right')
+        self.win.addItem(self.label)
+        self.rt_plot = self.win.addPlot(title="Updating plot")
+        self.curve = self.rt_plot.plot(pen='y')
+        # self.ptr = 0
+        def run():
+            self.curve.setData(data)
+            # self.curve.setData(data[self.ptr % 10])
+            # if self.ptr == 0:
+            #     self.rt_plot.enableAutoRange('xy', False)  ## stop auto-scaling after the first data set is plotted
+            # self.ptr += 1
+        timer = QtCore.QTimer()
+        timer.timeout.connect(run)
+        timer.start(5)
+        if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
+            pg.QtGui.QApplication.exec_()
+
+    def init_as_static_3(self, data1, data2):
+        pass
+    #     self.data1 = data1
+    #     self.data2 = data2
+    #     self.slice_lenght = 512
+    #     # generate layout
+    #     self.app = QtGui.QApplication([])
+    #     self.win = pg.GraphicsLayoutWidget(show=True)
+    #     self.win.setWindowTitle('static 3')
+    #     # LABEL
+    #     self.label = pg.LabelItem(justify='right')
+    #     self.win.addItem(self.label)
+    #     # PLOT
+    #     self.upper_wind = self.win.addPlot(row=1, col=0)  # window with original and processed signals
+    #     self.lower_wind = self.win.addPlot(row=2, col=0)  # window with processed signal and slice selector
+    #     self.upper_wind.setAutoVisible(y=True)
+    #     self.upper_wind.plot(self.data1, pen="r")
+    #     self.upper_wind.plot(self.data2, pen="g")
+    #     self.lower_wind.plot(self.data2, pen="g")
+    #     # TREE
+    #     self.param = Parameter.create(name='Parameters', type='group', children=tree_architecture)
+    #     # loop waiting modif in tree content
+    #     self.param.sigTreeStateChanged.connect(self.change)
+    #     self.param.sigValueChanging.connect(self.valueChanging)
+    #     # create ParameterTree widget
+    #     self.tree = ParameterTree()
+    #     self.tree.setParameters(self.param, showTop=False)
+    #     self.tree.setWindowTitle('pyqtgraph example: Parameter Tree')
+
+    #     if sys.flags.interactive != 1 or not hasattr(QtCore, 'PYQT_VERSION'):
+    #         pg.QtGui.QApplication.exec_()
+
+    def create_region_item(self):
+        pass
 
     def update(self):
         self.region.setZValue(self.slice_lenght)
