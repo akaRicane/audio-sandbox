@@ -50,7 +50,6 @@ def getBandFrequencies(size: int) -> list:
     for idx in range(size):
         freqList.append(f0 * 2 ** (idx + 1))
     return freqList
-    del freqList
 
 
 def convertAmpToAmpDb(amp: list) -> list:
@@ -73,7 +72,6 @@ def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fon
     for idx in range(len(data1)):
         result.append(data1[idx] + data2[idx])
     return result
-    del result
 
 
 def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):

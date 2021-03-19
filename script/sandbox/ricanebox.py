@@ -9,8 +9,9 @@ import ricanelib
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
-from lib import audiofiltering_rt as rt_filtering # noqa E402
-from lib import audiostream, player, tool, config  # noqa E402
+from lib import audiostream, tool, config  # noqa E402
+from modules import audiofiltering_rt as rt_filtering # noqa E402
+from modules import player as Player  # noqa E402
 
 
 def play_file_from_filepath(filepath):
@@ -226,12 +227,12 @@ if __name__ == "__main__":
                                                                 subtype="rt_bandpass"))
     # load content
     # khi_project.Player.init_stream_with_filepath(config.AUDIO_FILE_SWEEP)
-    # khi_project.Player.init_stream_with_audio_array(sine, rate)
-    # print("Init first play")
-    # khi_project.timeless_loop_static()
+    khi_project.Player.init_stream_with_audio_array(sine, rate)
+    print("Init first play")
+    khi_project.timeless_loop_static()
 
     # init recording
-    khi_project.record_stream_input_during(duration=5.0, rate=rate)
+    # khi_project.record_stream_input_during(duration=5.0, rate=rate)
     # after process plot
     khi_project.init_labvisualizer()
 

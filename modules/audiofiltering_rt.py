@@ -7,7 +7,7 @@ from lib import audiofiltering  # noqa E402
 from lib import config  # noqa E402
 
 
-class Audio_filter_rt():
+class AudioFilter_rt():
     def __init__(self, fs: int = config.SAMPLING_FREQUENCY,
                  buffer_size: int = config.FRAMES_PER_BUFFER):
         self.fs = fs

@@ -1,7 +1,10 @@
+import logging
+import os
+import sys
+sys.path.append(os.getcwd())
 from lib import slicer
 from lib import audiodsp, audiofile, audioplot, audiogenerator
 from lib import config, tool
-import logging
 
 
 class AudioData():
@@ -23,6 +26,10 @@ class AudioData():
             "SNR": '96 dB',
             'THD': '0.001%'
         }
+
+    def rt_chunck_anaysis(self, chunk):
+        self.tamp = chunk
+        self.chunk.famp = audiodsp.chunck_fft(self.tamp, self.fftsize)
 
     # Data Management
     def setTemporalContent(self, timeVector: list, amplitude: list):

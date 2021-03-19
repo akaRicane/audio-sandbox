@@ -3,13 +3,14 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+from threading import Thread 
 from tkinter import TclError
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
-from lib import audiofiltering_rt as rt_filtering # noqa E402
 from lib import audioplot_qt as qt_plot # noqa E402
-from lib import player as Player  # noqa E402
+from modules import audiofiltering_rt as rt_filtering # noqa E402
+from modules import player as Player  # noqa E402
 from lib import tool, config  # noqa E402
 
 
@@ -74,7 +75,7 @@ class ModulesRack():
 
     def load_and_process_chunck(self, chunk):
         if self.wiring == "waterfall":
-            self.chunck = tool.return_copy(chunk)
+            self.chunck = chunk
             self.process_by_parsing_items()
 
     def process_by_parsing_items(self):
@@ -111,7 +112,7 @@ class ModuleItem():
         return self.output
 
     def init_rt_bandpass(self):
-        self.module = rt_filtering.Audio_filter_rt(LAB_DEFAULT_CONFIG_DICT['SAMPLING_RATE'],
+        self.module = rt_filtering.AudioFilter_rt(LAB_DEFAULT_CONFIG_DICT['SAMPLING_RATE'],
                                                    LAB_DEFAULT_CONFIG_DICT['BUFFER_SIZE'])
         self.module.set_bandpass(lowcut=150, highcut=2500, order=4)
         self.module.init_rt_filtering()
@@ -141,7 +142,7 @@ class Lab():
     def __init__(self):
         self.config = self.load_lab_config()
         self.Player = Player.Player()
-        self.LabVisualizer = None
+        self.Visualizer = None
         self.ModulesRack = ModulesRack()
         self.session_is_active = True
 
@@ -173,17 +174,19 @@ class Lab():
                     # playback chunck
                     # self.Player.populate_buffer_in_stream()
                     # continue reading
-                    self.Player.read_frames()
+                    self.Player.read_frames(bypass=True)
+                    self.Visualizer.update(self.Player.read_chunck)
                 # else wait and see...
                 if self.Player.is_end is True and self.Player.player_mode == "single":
                     # self.timeless_sleep()
-                    self.Player.player_mode = "stop"
+                    self.Player.player_mode = "sleep"
                 # or loop again
                 elif self.Player.is_end is True and self.Player.player_mode == "loop":
                     time.sleep(0.5)
                     self.Player.restart_read()
             else:
                 print("Closing Player")
+                # self.thread.join()
                 self.Player._close()
                 break
 

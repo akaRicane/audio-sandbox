@@ -8,8 +8,8 @@ from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 
 import struct
-import pyaudio
 from scipy.fftpack import fft
+import pyaudio
 
 import sys
 import time

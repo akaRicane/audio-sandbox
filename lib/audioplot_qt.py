@@ -2,6 +2,12 @@ import sys
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 
+import numpy as np
+import os
+sys.path.append(os.getcwd())
+from modules import player as Player
+from lib import audiodata, audiodsp
+
 
 # DOCUMENTATION HERE ######
 # import pyqtgraph.examples
@@ -166,3 +172,77 @@ class LabVisualizer():
                 self.label.setText("<span style='font-size: 12pt'>x=%0.1f,   <span style='color: red'>y1=%0.1f</span>,   <span style='color: green'>y2=%0.1f</span>" % (mousePoint.x(), self.data1[index], self.data2[index]))
             self.vLine.setPos(mousePoint.x())
             self.hLine.setPos(mousePoint.y())
+
+
+class SignalVisualizer():
+
+    def __init__(self, buffer_size, rate, n_channels=1):
+        # pyqtgraph stuff
+        pg.setConfigOptions(antialias=True)
+        self.traces = dict()
+        self.chunk = audiodata.AudioData(rate=rate)
+        self.chunk.fftsize = 512
+        self.chunk.npts = buffer_size
+        self.chunk.t = np.arange(0, buffer_size, n_channels)
+        self.chunk.f = np.linspace(0, int(self.chunk.rate / 2), self.chunk.fftsize)
+        self.app = QtGui.QApplication(sys.argv)
+        self.win = pg.GraphicsWindow(title='Spectrum Analyzer')
+        self.win.setWindowTitle('Spectrum Analyzer')
+        self.win.setGeometry(5, 115, 1200, 800)
+
+        wf_xlabels = [(0, '0'), (2048, '2048'), (4096, '4096')]
+        wf_xaxis = pg.AxisItem(orientation='bottom')
+        wf_xaxis.setTicks([wf_xlabels])
+
+        wf_ylabels = [(0, '0'), (127, '128'), (255, '255')]
+        wf_yaxis = pg.AxisItem(orientation='left')
+        wf_yaxis.setTicks([wf_ylabels])
+
+        sp_xlabels = [
+            (np.log10(10), '10'), (np.log10(100), '100'),
+            (np.log10(1000), '1000'), (np.log10(22050), '22050')
+        ]
+        sp_xaxis = pg.AxisItem(orientation='bottom')
+        sp_xaxis.setTicks([sp_xlabels])
+
+        self.waveform = self.win.addPlot(
+            title='WAVEFORM', row=1, col=1, axisItems={'bottom': wf_xaxis, 'left': wf_yaxis},
+        )
+        self.spectrum = self.win.addPlot(
+            title='SPECTRUM', row=2, col=1, axisItems={'bottom': sp_xaxis},
+        )
+        self.win.show()
+
+    def start(self):
+        # if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+        #     QtGui.QApplication.instance().exec_()
+        self.app.exec_()
+
+    def set_plotdata(self, name, data_x, data_y):
+        if len(data_y) != len(data_x):
+            # zero padding du pauvre
+            size_missing = int((len(data_x) - len(data_y)) / 2)
+            data_y = np.pad(data_y, size_missing).tolist()
+        if name in self.traces:
+            self.traces[name].setData(data_x, data_y)
+        else:
+            if name == 'waveform':
+                self.traces[name] = self.waveform.plot(pen='c', width=3)
+                self.waveform.setYRange(0, 255, padding=0)
+                self.waveform.setXRange(0, self.chunk.npts, padding=0.005)
+            if name == 'spectrum':
+                self.traces[name] = self.spectrum.plot(pen='m', width=3)
+                self.spectrum.setLogMode(x=True, y=True)
+                self.spectrum.setYRange(-4, 0, padding=0)
+                self.spectrum.setXRange(
+                    np.log10(20), np.log10(self.chunk.rate / 2), padding=0.005)
+
+    def update(self, chunck):
+        # self.chunk.rt_chunck_anaysis(chunck)
+        self.set_plotdata(name='waveform', data_x=self.chunk.t, data_y=chunck)
+        self.set_plotdata(name='spectrum', data_x=self.chunk.f, data_y=self.chunk.f)
+
+    def animation(self, chunck):
+        timer = QtCore.QTimer()
+        timer.timeout.connect(lambda: self.update(chunck))
+        timer.start(40)
