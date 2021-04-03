@@ -12,6 +12,7 @@ from lib import audiodata, audiodsp, audiofiltering  # noqa E402
 from lib import audiostream, tool, config  # noqa E402
 from modules import audiofiltering_rt as rt_filtering # noqa E402
 from modules import player as Player  # noqa E402
+from modules import audiocore as AudioCore  # noqa E402
 
 
 def play_file_from_filepath(filepath):
@@ -221,7 +222,7 @@ if __name__ == "__main__":
     tsine, sine = audiogenerator.generateSine(f0=500, gain=0.8, fs=rate)
 
     # load audio as wave_read object
-    khi_project = ricanelib.Lab()
+    khi_project = AudioCore.AudioCore()
     # load filtering modules
     khi_project.ModulesRack.add_new_module(ricanelib.ModuleItem(type="Audio_filter_rt",
                                                                 subtype="rt_bandpass"))

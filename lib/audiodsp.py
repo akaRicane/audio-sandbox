@@ -41,10 +41,8 @@ def getFft(tAmplitude, N=config.FFT_SIZE, fs=config.SAMPLING_FREQUENCY):  # noqa
         retCleanFft(amplitude_db), retCleanFft(phase)
 
 
-def chunk_fft(chunk, chunck_size):
-    chunck_fft = fft(chunk, dtype='int8')
-    chunck_fft = np.abs(chunck_fft) * 2 / (128 * chunck_size)
-    return retCleanFft(chunck_fft)
+def chunk_fft(chunk, chunk_size):
+    return abs(fft(chunk)) * 2 / (128 * chunk_size)
 
 
 def retCleanFft(x: list) -> list:

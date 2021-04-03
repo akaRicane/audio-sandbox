@@ -14,6 +14,13 @@ from modules import player as Player  # noqa E402
 from lib import tool, config  # noqa E402
 
 
+LAB_DEFAULT_CONFIG_DICT = {
+    "MAX_INTEGER": 32768.0,
+    "BUFFER_SIZE": 1024,
+    "SAMPLING_RATE": 44100
+}
+
+
 class Spectrum_visualizer():
     def __init__(self, buffer_size, memory_size):
         self.fig, (self.ax, self.ax2) = plt.subplots(2, figsize=(15, 8))
@@ -69,18 +76,18 @@ class ModulesRack():
     """ Module rack gathering processing modules
     """
     def __init__(self):
-        self.chunck = None
+        self.chunk = None
         self.module_items = []
         self.wiring = "waterfall"
 
-    def load_and_process_chunck(self, chunk):
+    def load_and_process_chunk(self, chunk):
         if self.wiring == "waterfall":
-            self.chunck = chunk
+            self.chunk = chunk
             self.process_by_parsing_items()
 
     def process_by_parsing_items(self):
         for module in self.module_items:
-            self.chunck = module.process_and_return_chunck(self.chunck)
+            self.chunk = module.process_and_return_chunk(self.chunk)
 
     def add_new_module(self, *new_module):
         self.module_items.append(*new_module)
@@ -102,7 +109,7 @@ class ModuleItem():
         else:
             pass
 
-    def process_and_return_chunck(self, chunk) -> list:
+    def process_and_return_chunk(self, chunk) -> list:
         self.input = chunk
         if self.type == "Audio_filter_rt":
             if self.subtype == "rt_bandpass":
@@ -116,95 +123,3 @@ class ModuleItem():
                                                    LAB_DEFAULT_CONFIG_DICT['BUFFER_SIZE'])
         self.module.set_bandpass(lowcut=150, highcut=2500, order=4)
         self.module.init_rt_filtering()
-
-
-LAB_DEFAULT_CONFIG_DICT = {
-    "MAX_INTEGER": 32768.0,
-    "BUFFER_SIZE": 1024,
-    "SAMPLING_RATE": 44100
-}
-
-
-class Lab():
-    """ Higher layer of lab project.
-    Basically handles all process.
-    Works with rack items.
-    Stream is processed by AudioStream instance through Player.
-    Processing is handles by audiofitlering_rt instances.
-    [AUDIO GENERATOR] / [STREAM IN] / [FILE READ]
-    -> [PLAYER] or [MIXER]
-        -> [I -> PLAYER(rackitems) -> O]
-    -> [RACK ITEMS]
-        -> filtering (modules rack)
-        -> visualizers (labvisualizer)
-        -> edited: input*ModuleRack = output
-    """
-    def __init__(self):
-        self.config = self.load_lab_config()
-        self.Player = Player.Player()
-        self.Visualizer = None
-        self.ModulesRack = ModulesRack()
-        self.session_is_active = True
-
-    def add_new_module(self, module, param):
-        # self.module = module.module(param)
-        pass
-
-    def load_lab_config(self):
-        pass
-
-    def timeless_loop_static(self):
-        """ Aim to manipulate playback in Lab module
-        like while true would. Shall handle play pause
-        loop and stop in playback somehow.
-        Need to make processing through Player.processed
-        in rack items.
-        """
-        # lock input from stream
-        # only rack items can be modifiyed from now on
-        # freeze.audio.stream()
-        while self.session_is_active is True:
-            if self.Player.player_mode != "stop":
-                # either play mode
-                while self.Player.is_end is False:
-                    # dsp
-                    self.ModulesRack.load_and_process_chunck(self.Player.last_in_original())
-                    self.Player.save_processed_buffer(self.ModulesRack.chunck)
-
-                    # playback chunck
-                    # self.Player.populate_buffer_in_stream()
-                    # continue reading
-                    self.Player.read_frames(bypass=True)
-                    self.Visualizer.update(self.Player.read_chunck)
-                # else wait and see...
-                if self.Player.is_end is True and self.Player.player_mode == "single":
-                    # self.timeless_sleep()
-                    self.Player.player_mode = "sleep"
-                # or loop again
-                elif self.Player.is_end is True and self.Player.player_mode == "loop":
-                    time.sleep(0.5)
-                    self.Player.restart_read()
-            else:
-                print("Closing Player")
-                # self.thread.join()
-                self.Player._close()
-                break
-
-    def timedef_loop_dynamic(self, duration: float = 5.0):
-        start_time = time.time()
-        while time.time() <= start_time + duration:
-            self.Player.read_frames()
-        time.sleep(0.1)
-
-    def record_stream_input_during(self, duration, rate):
-        self.Player.init_stream_in(rate)
-        self.timedef_loop_dynamic(duration)
-
-    def timeless_sleep(self):
-        print("Time to sleep ...")
-        self.Player.player_mode = "sleep"
-        while self.Player.player_mode == "sleep":
-            time.sleep(1)
-
-    def init_labvisualizer(self):
-        self.LabVisualizer = qt_plot.LabVisualizer(0, self.Player.original, self.Player.processed)

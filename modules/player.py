@@ -38,7 +38,7 @@ class Player():
         # STREAM
         self.frames_to_read = None
         self.read_bytes = None
-        self.read_chunck = None
+        self.read_chunk = None
         self.readable_content = None
         self.is_end = False
 
@@ -51,14 +51,12 @@ class Player():
         self.AudioStream = audiostream.AudioStream(n_channels=self.n_channels,
                                                    stream_rate=self.readable_content.getframerate(),
                                                    buffer_size=self.buffer_size)
-        self.AudioStream.init_static_stream()
 
     def init_stream_with_audio_array(self, audio_array: list, rate: int):
         self.load_audio_array_as_content(audio_array, rate)
         self.AudioStream = audiostream.AudioStream(n_channels=self.n_channels,
                                                    stream_rate=self.readable_content.getframerate(),
                                                    buffer_size=self.buffer_size)
-        self.AudioStream.init_static_stream()
 
     def init_stream_in(self, rate):
         self.behavior = "dynamic"
@@ -95,9 +93,9 @@ class Player():
     def read_frames(self, bypass: bool = False):
         self.read_bytes = self.readable_content.readframes(self.frames_to_read)
         self.raise_if_end()
-        self.read_chunck = tool.bufferBytesToData(self.read_bytes, self.max_integer)
+        self.read_chunk = tool.bufferBytesToData(self.read_bytes, self.max_integer)
         if bypass is not True:
-            self.original += self.read_chunck
+            self.original += self.read_chunk
 
     def populate_buffer_in_stream(self):
         if self.player_track == "original":

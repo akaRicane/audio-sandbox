@@ -27,9 +27,9 @@ class AudioData():
             'THD': '0.001%'
         }
 
-    def rt_chunck_anaysis(self, chunk):
+    def rt_chunk_anaysis(self, chunk):
         self.tamp = chunk
-        self.chunk.famp = audiodsp.chunck_fft(self.tamp, self.fftsize)
+        self.famp = audiodsp.chunk_fft(self.tamp, self.fftsize)
 
     # Data Management
     def setTemporalContent(self, timeVector: list, amplitude: list):
