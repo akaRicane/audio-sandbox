@@ -28,7 +28,7 @@ class Player():
         # ITSELF INSTANCE ATTRIBUTES
         self.behavior = "static"
         self.behavior_list = ["static", "dynamic"]
-        self.player_mode = "loop"
+        self.player_mode = "single"
         self.player_mode_list = ["loop", "single", "sleep", "stop"]
         self.player_track = "original"
         self.player_track_list = ["original", "processed", "edited"]
@@ -46,22 +46,24 @@ class Player():
     # init stream with specific behavior
     ##########
 
-    def init_stream_with_filepath(self, filepath):
+    def config_stream_with_filepath(self, filepath):
         self.load_wav_from_filepath(filepath)
         self.AudioStream = audiostream.AudioStream(n_channels=self.n_channels,
                                                    stream_rate=self.readable_content.getframerate(),
                                                    buffer_size=self.buffer_size)
 
-    def init_stream_with_audio_array(self, audio_array: list, rate: int):
+    def config_stream_with_audio_array(self, audio_array: list, rate: int):
         self.load_audio_array_as_content(audio_array, rate)
         self.AudioStream = audiostream.AudioStream(n_channels=self.n_channels,
                                                    stream_rate=self.readable_content.getframerate(),
                                                    buffer_size=self.buffer_size)
 
-    def init_stream_in(self, rate):
+    def config_stream_in(self, rate):
         self.behavior = "dynamic"
-        self.AudioStream = audiostream.AudioStream(n_channels=1, stream_rate=rate)
-        # self.AudioStream.init_audiofile_stream()
+        self.rate = rate
+        self.AudioStream = audiostream.AudioStream(n_channels=1,
+                                                   read_audio_from_system=True,
+                                                   stream_rate=self.rate)
 
     ##########
     # load audio content
@@ -82,7 +84,7 @@ class Player():
     def load_audio_array_as_content(self, audio_array, rate):
         input_file_wave_obj = tool.convertMonoDatatoWaveObject(audio_array,
                                                                rate,
-                                                               'test.wav',
+                                                               'resources/bin/test.wav',
                                                                self.max_integer)
         self.load_wave_object_as_content(input_file_wave_obj, self.buffer_size)
 
@@ -94,7 +96,7 @@ class Player():
         self.read_bytes = self.readable_content.readframes(self.frames_to_read)
         self.raise_if_end()
         self.read_chunk = tool.bufferBytesToData(self.read_bytes, self.max_integer)
-        if bypass is not True:
+        if bypass is False:
             self.original += self.read_chunk
 
     def populate_buffer_in_stream(self):
@@ -110,6 +112,7 @@ class Player():
     def raise_if_end(self):
         if self.read_bytes == b'':
             self.is_end = True
+            print("Player.is_end passed to False")
         else:
             pass
 

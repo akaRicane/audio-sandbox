@@ -29,7 +29,7 @@ class AudioStream():
                  read_audio_from_system: bool = False,
                  play_audio_on_system: bool = True,
                  stream_rate: int = config.SAMPLING_FREQUENCY,
-                 buffer_size: int = config.FRAMES_PER_BUFFER,):
+                 buffer_size: int = config.FRAMES_PER_BUFFER):
         self.player = pyaudio.PyAudio()
         self.read_audio_from_system = read_audio_from_system
         self.play_audio_on_system = play_audio_on_system
@@ -43,11 +43,11 @@ class AudioStream():
     # init stream with specific behavior
     ##########
 
-    def init_static_stream(self):
+    def init_stream(self):
         self.stream = self.player.open(format=self.bytes_format,
                                        channels=self.n_channels,
                                        rate=self.stream_rate,
-                                       input=False,
+                                       input=self.read_audio_from_system,
                                        output=self.play_audio_on_system,
                                        frames_per_buffer=self.buffer_size)
 
@@ -73,6 +73,13 @@ class AudioStream():
 
     def pause_playback(self):
         self.stream.stop_stream()
+
+    def unpack_stream(self):
+        data_in = self.stream.read(self.buffer_size)
+        data_in = struct.unpack(str(2 * self.buffer_size) + 'B', data_in)
+        data_in = numpy.array(data_in, dtype='b')[::2]
+        self.data_in = data_in.tolist()
+
 
     ##########
     # update stream parameters
@@ -104,9 +111,3 @@ class AudioStream():
 
     def update_callback(self, callback_method):
         self.callback = callback_method()
-
-    def unpack_stream(self):
-        data_in = self.stream.read(self.buffer_size)
-        data_in = struct.unpack(str(2 * self.CHUNK) + 'B', data_in)
-        data_in = numpy.array(data_in, dtype='b')[::2] + 128
-        self.data_in = data_in.tolist()

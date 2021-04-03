@@ -30,6 +30,8 @@ class AudioCore():
         self.Visualizer = None  # TODO move to gui handler
         self.ModulesRack = ricanelib.ModulesRack()
         self.session_is_active = True
+        self.session_is_muted = True
+        self.session_visualizer_is_active = False
 
     def load_lab_config(self):
         pass
@@ -41,6 +43,24 @@ class AudioCore():
     ##########
     # manipulate Player
     ##########
+    def play_once_until_end(self):
+        """ Read all frames until player.is_end is False"""
+        print("Play_once_until_end running")
+        while self.Player.is_end is False:
+            # dsp
+            self.ModulesRack.load_and_process_chunk(self.Player.last_in_original())
+            self.Player.save_processed_buffer(self.ModulesRack.chunk)
+
+            # playback chunk
+            if not self.session_is_muted:
+                self.Player.populate_buffer_in_stream()
+
+            # continue reading
+            self.Player.read_frames(bypass=True)
+
+            # populate visualizer
+            if self.session_visualizer_is_active:
+                self.Visualizer.update(self.Player.read_chunk)
 
     def timeless_loop_static(self):
         """ Aim to manipulate playback in Lab module
@@ -49,48 +69,57 @@ class AudioCore():
         Need to make processing through Player.processed
         in rack items.
         """
+        self.Player.AudioStream.init_stream()
         while self.session_is_active is True:
-            if self.Player.player_mode != "stop":
-                # either play mode
-                while self.Player.is_end is False:
-                    # dsp
-                    self.ModulesRack.load_and_process_chunk(self.Player.last_in_original())
-                    self.Player.save_processed_buffer(self.ModulesRack.chunk)
-
-                    # playback chunk
-                    # self.Player.populate_buffer_in_stream()
-                    # continue reading
-                    self.Player.read_frames(bypass=True)
-                    self.Visualizer.update(self.Player.read_chunk)
-                # else wait and see...
-                if self.Player.is_end is True and self.Player.player_mode == "single":
-                    # self.timeless_sleep()
-                    self.Player.player_mode = "sleep"
-                # or loop again
-                elif self.Player.is_end is True and self.Player.player_mode == "loop":
-                    time.sleep(0.5)
-                    self.Player.restart_read()
-            else:
+            if self.Player.player_mode == "stop":
                 print("Closing Player")
-                # self.thread.join()
                 self.Player._close()
                 break
-
-    def timedef_loop_dynamic(self, duration: float = 5.0):
-        start_time = time.time()
-        while time.time() <= start_time + duration:
-            self.Player.read_frames()
-        time.sleep(0.1)
-
-    def record_stream_input_during(self, duration, rate):
-        self.Player.init_stream_in(rate)
-        self.timedef_loop_dynamic(duration)
+            else:
+                # play content
+                self.play_once_until_end()
+                if self.Player.player_mode == "single":
+                    # put in sleep after played once
+                    self.Player.player_mode = "sleep"
+                # or loop again
+                elif self.Player.player_mode == "loop":
+                    time.sleep(0.1)
+                    self.Player.restart_read()
+                # or sleep
+                elif self.Player.player_mode == "sleep":
+                    self.timeless_sleep()
+                else:
+                    if self.Player.player_mode not in self.Player.player_mode_list:
+                        print(f"Selected player_mode is undefined: {self.Player.player_mode}")
+                    else:
+                        print("Undefined error with player mode")
+                    self.Player.player_mode = "stop"
 
     def timeless_sleep(self):
         print("Time to sleep ...")
         self.Player.player_mode = "sleep"
         while self.Player.player_mode == "sleep":
-            time.sleep(1)
+            time.sleep(0.5)
+
+    def timedef_loop_dynamic(self, duration: float = 5.0):
+        self.Player.AudioStream.init_stream()
+        start_time = time.time()
+        while time.time() <= start_time + duration:
+            self.Player.AudioStream.unpack_stream()
+        time.sleep(0.1)
+
+    def record_stream_input_during(self, duration: float, rate: int):
+        print("Start recording input stream session")
+        self.Player.config_stream_in(rate)
+        if duration <= 0.0:
+            # timeless loop
+            pass  # TODO timeless recording in
+        else:
+            self.timedef_loop_dynamic(duration)
+        print("Record is done. Now processing ...")
+        # store whatever been recorded in original
+        self.Player.original = self.Player.AudioStream.data_in
+        print("Processing done.")
 
     ##########
     # manipulate ModuleRack
@@ -101,4 +130,4 @@ class AudioCore():
         pass
 
     def init_labvisualizer(self):
-        self.LabVisualizer = qt_plot.LabVisualizer(0, self.Player.original, self.Player.processed)
+        self.LabVisualizer = qt_plot.LabVisualizer(2, self.Player.original, self.Player.processed)

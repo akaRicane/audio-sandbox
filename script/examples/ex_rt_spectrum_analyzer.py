@@ -24,7 +24,7 @@ class AudioStream(object):
         self.app = QtGui.QApplication(sys.argv)
         self.win = pg.GraphicsWindow(title='Spectrum Analyzer')
         self.win.setWindowTitle('Spectrum Analyzer')
-        self.win.setGeometry(5, 115, 1910, 1070)
+        self.win.setGeometry(5, 115, 800, 600)
 
         wf_xlabels = [(0, '0'), (2048, '2048'), (4096, '4096')]
         wf_xaxis = pg.AxisItem(orientation='bottom')
