@@ -24,10 +24,8 @@ if __name__ == "__main__":
     # visualizer = qt_plot.LabVisualizer(2, sweep.tolist(), sweep2.tolist())
     # visualizer = qt_plot.LabVisualizer(10, session.Player.processed)
 
-    session = ricanelib.Lab()
+    session = AudioCore.AudioCore()
     session.Player.init_stream_with_audio_array(sweep2, 44100)
     session.Visualizer = qt_plot.SignalVisualizer(buffer_size=session.Player.buffer_size,
-                                                   rate=session.Player.rate,
-                                                   n_channels=session.Player.n_channels)
-        
-    session.timeless_loop_static()
+                                                  rate=session.Player.rate,
+                                                  n_channels=session.Player.n_channels)

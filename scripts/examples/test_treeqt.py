@@ -18,6 +18,7 @@ from pyqtgraph.parametertree import Parameter, ParameterTree, ParameterItem, reg
 
 
 # DOCUMENTATION HERE ######
+
 # import pyqtgraph.examples
 # pyqtgraph.examples.run()
 ###########################
