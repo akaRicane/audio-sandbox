@@ -41,22 +41,23 @@ class AudioCore():
         self.timeless_loop_static()
 
     ##########
-    # manipulate Player
+    # manipulate Player : STATIC
     ##########
     def play_once_until_end(self):
         """ Read all frames until player.is_end is False"""
         print("Play_once_until_end running")
         while self.Player.is_end is False:
+            # remember a first read_frames is always done in init
             # dsp
-            self.ModulesRack.load_and_process_chunk(self.Player.last_in_original())
-            self.Player.save_processed_buffer(self.ModulesRack.chunk)
+            # self.ModulesRack.load_and_process_chunk(self.Player.last_in_original())
+            # self.Player.save_processed_buffer(self.ModulesRack.chunk)
+
+            # reading
+            self.Player.read_frames_from_waveobject(bypass=False)
 
             # playback chunk
             if not self.session_is_muted:
                 self.Player.populate_buffer_in_stream()
-
-            # continue reading
-            self.Player.read_frames(bypass=True)
 
             # populate visualizer
             if self.session_visualizer_is_active:
@@ -100,6 +101,10 @@ class AudioCore():
         self.Player.player_mode = "sleep"
         while self.Player.player_mode == "sleep":
             time.sleep(0.5)
+
+    ##########
+    # manipulate Player : DYNAMIC
+    ##########
 
     def timedef_loop_dynamic(self, duration: float = 5.0):
         self.Player.AudioStream.init_stream()

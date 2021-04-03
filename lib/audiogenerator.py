@@ -108,4 +108,4 @@ def generateSweptSine(amp: float = 0.8,
         x = np.concatenate([x , zeroPadding])
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
 
-    return x, t
+    return t, x

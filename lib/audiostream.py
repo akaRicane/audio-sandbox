@@ -26,7 +26,7 @@ class AudioStream():
     """
     def __init__(self,
                  n_channels: int,
-                 read_audio_from_system: bool = False,
+                 read_audio_from_system: bool = True,
                  play_audio_on_system: bool = True,
                  stream_rate: int = config.SAMPLING_FREQUENCY,
                  buffer_size: int = config.FRAMES_PER_BUFFER):
@@ -38,9 +38,10 @@ class AudioStream():
         self.buffer_size = buffer_size
         self.bytes_format = config.BYTES_DEFAULT_FORMAT
         self.callback = None
+        self.data_in = None
 
     ##########
-    # init stream with specific behavior
+    # init stream
     ##########
 
     def init_stream(self):
@@ -56,7 +57,7 @@ class AudioStream():
     ##########
 
     def close_stream(self):
-        self.pause_playback()
+        # self.pause_playback()
         self.stream.close()
         self.player.terminate()
 
@@ -79,7 +80,6 @@ class AudioStream():
         data_in = struct.unpack(str(2 * self.buffer_size) + 'B', data_in)
         data_in = numpy.array(data_in, dtype='b')[::2]
         self.data_in = data_in.tolist()
-
 
     ##########
     # update stream parameters

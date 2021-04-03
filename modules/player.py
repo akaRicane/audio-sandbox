@@ -35,6 +35,7 @@ class Player():
         self.original = []
         self.processed = []
         self.edited = None
+        self.original_size = 0
         # STREAM
         self.frames_to_read = None
         self.read_bytes = None
@@ -79,7 +80,7 @@ class Player():
         self.frames_to_read = int(buffer_size/self.n_channels)
         self.readable_content = wave_object
         # init first read
-        self.read_frames(bypass=False)
+        self.read_frames_from_waveobject(bypass=False)
 
     def load_audio_array_as_content(self, audio_array, rate):
         input_file_wave_obj = tool.convertMonoDatatoWaveObject(audio_array,
@@ -92,12 +93,19 @@ class Player():
     # manipulate stream content
     ##########
 
-    def read_frames(self, bypass: bool = False):
+    def read_frames_from_waveobject(self, bypass: bool = False):
         self.read_bytes = self.readable_content.readframes(self.frames_to_read)
         self.raise_if_end()
         self.read_chunk = tool.bufferBytesToData(self.read_bytes, self.max_integer)
         if bypass is False:
             self.original += self.read_chunk
+            self.original_size += 1
+
+    def read_raw_frames(self):
+        self.AudioStream.unpack_stream()
+        self.raise_if_end()
+        self.original += self.AudioStream.data_in
+        self.original_size += 1
 
     def populate_buffer_in_stream(self):
         if self.player_track == "original":
