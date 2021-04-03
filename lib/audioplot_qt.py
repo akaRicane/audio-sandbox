@@ -175,21 +175,28 @@ class LabVisualizer():
 
 
 class SignalVisualizer():
-
+    # defines only a visualization window
     def __init__(self, buffer_size, rate, n_channels=1):
         # pyqtgraph stuff
+        self.counter = 0
         pg.setConfigOptions(antialias=True)
+        # data contener
         self.traces = dict()
+        # audioData to contain signal as
+        # tamp is the chunk
+        # famp and fampDb are bindeed FFT's
         self.chunk = audiodata.AudioData(rate=rate)
         self.chunk.fftsize = 512
         self.chunk.npts = buffer_size
-        self.chunk.t = np.arange(0, buffer_size, n_channels)
-        self.chunk.f = np.linspace(0, int(self.chunk.rate / 2), self.chunk.fftsize)
+        self.chunk.t = np.arange(0, buffer_size, n_channels).tolist()
+        self.chunk.f = np.linspace(0, int(self.chunk.rate / 2), self.chunk.fftsize).tolist()
+        # GUI setup
         self.app = QtGui.QApplication(sys.argv)
         self.win = pg.GraphicsWindow(title='Spectrum Analyzer')
         self.win.setWindowTitle('Spectrum Analyzer')
         self.win.setGeometry(5, 115, 1200, 800)
 
+        # prettify
         wf_xlabels = [(0, '0'), (2048, '2048'), (4096, '4096')]
         wf_xaxis = pg.AxisItem(orientation='bottom')
         wf_xaxis.setTicks([wf_xlabels])
@@ -204,13 +211,14 @@ class SignalVisualizer():
         ]
         sp_xaxis = pg.AxisItem(orientation='bottom')
         sp_xaxis.setTicks([sp_xlabels])
-
+        # create cruves on plot
         self.waveform = self.win.addPlot(
             title='WAVEFORM', row=1, col=1, axisItems={'bottom': wf_xaxis, 'left': wf_yaxis},
         )
         self.spectrum = self.win.addPlot(
             title='SPECTRUM', row=2, col=1, axisItems={'bottom': sp_xaxis},
         )
+        # show GUI
         self.win.show()
 
     def start(self):
@@ -218,11 +226,18 @@ class SignalVisualizer():
         #     QtGui.QApplication.instance().exec_()
         self.app.exec_()
 
+    def start2(self):
+        if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+            QtGui.QApplication.instance().exec_()
+
     def set_plotdata(self, name, data_x, data_y):
-        if len(data_y) != len(data_x):
+        if len(data_y) < len(data_x):
             # zero padding du pauvre
-            size_missing = int((len(data_x) - len(data_y)) / 2)
+            size_missing = int(abs(len(data_y) - len(data_x)) / 2)
             data_y = np.pad(data_y, size_missing).tolist()
+        elif len(data_y) > len(data_x):
+            # zero padding du pauvre
+            data_y = data_y[:len(data_x)]
         if name in self.traces:
             self.traces[name].setData(data_x, data_y)
         else:
@@ -237,12 +252,19 @@ class SignalVisualizer():
                 self.spectrum.setXRange(
                     np.log10(20), np.log10(self.chunk.rate / 2), padding=0.005)
 
-    def update(self, chunck):
-        # self.chunk.rt_chunck_anaysis(chunck)
-        self.set_plotdata(name='waveform', data_x=self.chunk.t, data_y=chunck)
-        self.set_plotdata(name='spectrum', data_x=self.chunk.f, data_y=self.chunk.f)
+    def update(self, chunk):
+        self.counter += 1
+        if chunk != []:
+            self.chunk.rt_chunk_anaysis(chunk)
+        else:
+            self.chunk.tamp = np.zeros(self.chunk.npts)
+            self.chunk.famp = np.zeros(self.chunk.fftsize)
+        self.set_plotdata(name='waveform', data_x=self.chunk.t,
+                          data_y=self.chunk.tamp)
+        self.set_plotdata(name='spectrum', data_x=self.chunk.f,
+                          data_y=self.chunk.famp)
 
-    def animation(self, chunck):
+    def animation(self, chunk):
         timer = QtCore.QTimer()
-        timer.timeout.connect(lambda: self.update(chunck))
+        timer.timeout.connect(lambda: self.update(chunk))
         timer.start(40)
