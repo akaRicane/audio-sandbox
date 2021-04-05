@@ -4,5 +4,6 @@
 *.egg-info
 node_modules/
 /venv/
+/resources/bin/
 audiogui/project/static/scripts/js/main.js
 package-lock.json

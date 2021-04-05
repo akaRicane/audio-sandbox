@@ -1,6 +1,8 @@
 import os
 import sys
 import copy
+import wave
+import struct
 import logging
 import numpy as np
 sys.path.append(os.getcwd())
@@ -48,7 +50,6 @@ def getBandFrequencies(size: int) -> list:
     for idx in range(size):
         freqList.append(f0 * 2 ** (idx + 1))
     return freqList
-    del freqList
 
 
 def convertAmpToAmpDb(amp: list) -> list:
@@ -62,7 +63,8 @@ def convertAmpDbToAmp(ampDb: list) -> list:
 def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
                            duration=config.BASIC_DURATION) -> list:
     # linspace
-    return np.linspace(0, duration, int(duration * fs), endpoint=False)
+    vect = np.linspace(0, duration, int(duration * fs), endpoint=False) / fs
+    return vect.tolist()
 
 
 def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fonction is not necessary, np.add() does the same thing
@@ -70,7 +72,47 @@ def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fon
     for idx in range(len(data1)):
         result.append(data1[idx] + data2[idx])
     return result
-    del result
+
+
+def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
+    """ Convert synthetic signal x to bytes object readable by readframes function of wave module
+    Args:
+        [list]:     data,          signal data
+        [int]:      rate,       sampling frequency of the signal
+        [string]:   filename,   name of the wavfile that will be created
+    Returns:
+        [class: waveread object]:      bytesData
+    """
+    obj = wave.open(filename, 'w')
+    obj.setnchannels(1) # mono
+    obj.setsampwidth(2)
+    obj.setframerate(rate)
+    for value in data:
+        _bytesdata = struct.pack('<h', int(value*maximumInteger))
+        obj.writeframesraw(_bytesdata)
+    obj.close()
+    bytesData = wave.open(filename, 'r')
+    return bytesData
+
+
+def convertWaveobjectToData(waveobject, maximumInteger):
+    # Read file to get buffer
+    samples = waveobject.getnframes()
+    audio = waveobject.readframes(samples)
+    # Convert buffer to float32 with numPy
+    audio_int16 = np.frombuffer(audio, dtype=np.int16)
+    data = audio_int16.astype(np.float)/maximumInteger
+    return data
+
+
+def bufferBytesToData(bytesData, maximumInteger):
+    data = np.frombuffer(bytesData, dtype=np.int16) / maximumInteger
+    return data.tolist()
+
+
+def bufferDataToBytes(data, maximumInteger):
+    bytesData = np.array(np.round_(np.array(data)*maximumInteger), dtype=np.int16).tobytes()
+    return bytesData
 
 
 def addToDict(destination: dict, key, data):

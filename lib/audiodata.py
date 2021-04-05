@@ -1,7 +1,10 @@
+import logging
+import os
+import sys
+sys.path.append(os.getcwd())
 from lib import slicer
 from lib import audiodsp, audiofile, audioplot, audiogenerator
-from lib import config
-import logging
+from lib import config, tool
 
 
 class AudioData():
@@ -24,6 +27,10 @@ class AudioData():
             'THD': '0.001%'
         }
 
+    def rt_chunk_anaysis(self, chunk):
+        self.tamp = chunk
+        self.famp = audiodsp.chunk_fft(self.tamp, self.fftsize)
+
     # Data Management
     def setTemporalContent(self, timeVector: list, amplitude: list):
         self.tamp = amplitude
@@ -40,8 +47,12 @@ class AudioData():
         self.fphase = phase
         self.spectralAvailable = True
 
+    def load_audio_array(self, audio_array: list):
+        duration = len(audio_array) / self.rate
+        time_vector = tool.createTemporalLinspace(fs=self.rate, duration=duration)
+        self.setTemporalContent(time_vector, audio_array)
+
     def loadSinus(self, f=440, gain=0.7):
-        self.rate = self.rate
         self.setTemporalContent(*audiogenerator.generateSine(f0=f, gain=gain, fs=self.rate))
 
     def loadAudioFile(self, filePath: str = None):
@@ -67,6 +78,12 @@ class AudioData():
             self.slicer = slicer.Slicer(
                 newFreq=self.f, newAmp=audiodsp.mergeFftVector(self.famp,
                                                                self.fphase))
+
+    def compute_audio_array_analysis(self, audio_array: list):
+        self.load_audio_array(audio_array)
+        self.fft(iscomplex=False)
+        self.build_signal_visualizer()
+
 
     def plot(self, space="time", mode="short",
              normFreqs: bool = False, show: bool = False):
@@ -98,9 +115,6 @@ class AudioData():
     def fplot(self, normFreqs: bool = False, isNewFigure: bool = False):
         self.plot(space="spectral", normFreqs=normFreqs)
 
-    def callBoardControl(self):
-        vect = [self.t, self.f]
-        data = [[self.tamp], [self.fampDb]]
-        audioplot.boardControl(vect=vect, data=data, additionalData=self.infos,
-                               legendList=["temporal", "spectral", "spect2"])
-        del vect, data
+    def build_signal_visualizer(self):
+        self.signal_visualizer = audioplot.SignalVisualizer(self.t, self.tamp,
+                                                            self.f, self.fampDb)

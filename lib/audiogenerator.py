@@ -1,9 +1,10 @@
-import os, sys, logging
+import os
+import sys
+import logging
 import numpy as np
 
-
 sys.path.append(os.getcwd())
-from lib import config, tool
+from lib import config, tool  # noqa E402
 
 
 def generateSine(f0: float,
@@ -16,8 +17,8 @@ def generateSine(f0: float,
     if t is None:
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
     # sine
-    sine = gain * np.sin(w*t)
-    return t.tolist(), sine.tolist()
+    sine = gain * np.sin(w*np.array(t))
+    return t, sine.tolist()
 
 
 def generateMultiSine(f0List: list,
@@ -107,4 +108,4 @@ def generateSweptSine(amp: float = 0.8,
         x = np.concatenate([x , zeroPadding])
         t = tool.createTemporalLinspace(fs=fs, duration=duration)
 
-    return x, t
+    return t, x

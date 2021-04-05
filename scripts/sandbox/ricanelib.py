@@ -1,19 +1,28 @@
 import os
 import sys
-import wave
 import matplotlib.pyplot as plt
 import numpy as np
-import scipy.signal as signal
+import time
+from threading import Thread 
 from tkinter import TclError
-import droulib
 sys.path.append(os.getcwd())
 from lib import audioplot, audiofile, audiogenerator  # noqa E402 
 from lib import audiodata, audiodsp, audiofiltering  # noqa E402
+from lib import audioplot_qt as qt_plot # noqa E402
+from modules import audiofiltering_rt as rt_filtering # noqa E402
+from modules import player as Player  # noqa E402
 from lib import tool, config  # noqa E402
 
 
-class Spectrum_vizualier():
-    def __init__(self, memory_size, buffer_size):
+LAB_DEFAULT_CONFIG_DICT = {
+    "MAX_INTEGER": 32768.0,
+    "BUFFER_SIZE": 1024,
+    "SAMPLING_RATE": 44100
+}
+
+
+class Spectrum_visualizer():
+    def __init__(self, buffer_size, memory_size):
         self.fig, (self.ax, self.ax2) = plt.subplots(2, figsize=(15, 8))
         self.memory_size = memory_size
         self.buffer_size = buffer_size
@@ -63,10 +72,4 @@ class Spectrum_vizualier():
             raise TclError
 
 
-class AudioRack():
 
-    def __init__(self):
-        pass
-
-    def add_new_rack_item(self, module, param):
-        self.rack_item_i = module.module(param)

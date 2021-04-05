@@ -7,7 +7,7 @@ from lib import audiofiltering  # noqa E402
 from lib import config  # noqa E402
 
 
-class Audio_filter_rt():
+class AudioFilter_rt():
     def __init__(self, fs: int = config.SAMPLING_FREQUENCY,
                  buffer_size: int = config.FRAMES_PER_BUFFER):
         self.fs = fs
@@ -24,6 +24,22 @@ class Audio_filter_rt():
         self.dsp_state = "Wait"
         if export_data:
             return self.buffer_data
+
+    def check_chunk_size_or_zeropad(self):
+        if len(self.buffer_data) != self.buffer_size:
+            # zero padding du pauvre
+            size_missing = int((self.buffer_size - len(self.buffer_data)) / 2)
+            self.buffer_data = numpy.pad(self.buffer_data, size_missing).tolist()
+        else:
+            pass
+
+    def check_memory_size_or_zeropad(self):
+        if len(self.memory_data) != self.buffer_size * self.memory_size:
+            # zero padding du pauvre
+            size_missing = int((self.buffer_size * self.memory_size - len(self.memory_data)) / 2)
+            self.memory_data = numpy.pad(self.memory_data, size_missing).tolist()
+        else:
+            pass
 
     def save_in_memory(self):
         self.memory_data = self.memory_data[self.buffer_size:] \

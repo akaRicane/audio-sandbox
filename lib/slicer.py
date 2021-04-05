@@ -73,7 +73,6 @@ class Slicer():
                 "_energy": audiodsp.getBandEnergy(_amp[boundMin:boundMax], _phase[boundMin:boundMax])
             }
         self.bands = copy.deepcopy(_bands)
-        del _bands, _freqs, _amp, _ampDb, _phase, refFreqList, idx, boundMax, boundMin
 
     def computeEnergyOfAreas(self, ids: list = None) -> list:
         # list allows to precise which bands to be computed
@@ -86,7 +85,6 @@ class Slicer():
         for index in areas:
             energy.append(audiodsp.getBandEnergy(self.bands[f"{index}"]["_amp"], self.bands[f"{index}"]["_phase"]))
         return energy
-        del energy, areas, index
 
     def plotSpectrumByAreas(self, ids: list = None, normFreqs: bool = False):
         if ids is None:
@@ -105,11 +103,9 @@ class Slicer():
             audioplot.shortPlot(
                 self.bands[f"{v}"][whichFreq], self.bands[f"{v}"][whichAmp],
                 space='spectral', scale=whichScale, isNormalizedAxis=normFreqs)
-        del areas, index, v
 
     def getAllBandsIdAvailable(self) -> list:
         areas = []
         for i, v in self.bands.items():
             areas.append(self.bands[f"{i}"]["_id"])
         return areas
-        del areas, i, v

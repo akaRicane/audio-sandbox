@@ -2,6 +2,8 @@ import os, sys, logging
 import numpy as np
 import scipy as sp
 from scipy.signal import get_window
+import struct
+from scipy.fftpack import fft
 
 sys.path.append(os.getcwd())
 from lib import config, tool
@@ -37,7 +39,10 @@ def getFft(tAmplitude, N=config.FFT_SIZE, fs=config.SAMPLING_FREQUENCY):  # noqa
     amplitude_db = tool.convertAmpToAmpDb(amplitude_lin)
     return retCleanFft(w), retCleanFft(freq), retCleanFft(amplitude_lin),\
         retCleanFft(amplitude_db), retCleanFft(phase)
-    del w, freq, amplitude_lin, amplitude_db, phase
+
+
+def chunk_fft(chunk, chunk_size):
+    return abs(fft(chunk)) * 2 / (128 * chunk_size)
 
 
 def retCleanFft(x: list) -> list:
@@ -113,13 +118,11 @@ def mergeFftVector(amplitude: list, phase: list) -> list:
     for index in range(len(amplitude)):
         array.append(np.complex(real=amplitude[index]*np.cos(phase[index]), imag=amplitude[index]*np.sin(phase[index])))
     return array
-    del array, index
 
 
 def applyWindowOnSignal(window: str, dataToFilter: list) -> list:
     window = get_window(window=window, Nx=len(dataToFilter), fftbins=False)
     return dataToFilter * window
-    del window
 
 
 def getBandEnergy(realPart: list, imagPart: list):
@@ -139,4 +142,3 @@ def getBandEnergy(realPart: list, imagPart: list):
     for i in range(len(realPart)):
         bandEnergy += realPart[i] ** 2 + imagPart[i] ** 2
     return bandEnergy / len(realPart)
-    del bandEnergy, i
