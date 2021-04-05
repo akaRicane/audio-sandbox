@@ -2,12 +2,12 @@ import os
 import sys
 import time
 
-import ricanelib
 
 sys.path.append(os.getcwd())
 from lib import audioplot_qt as qt_plot  # noqa E402
 from modules import audiofiltering_rt as rt_filtering # noqa E402
 from modules import player as Player  # noqa E402
+from modules import modulesrack as Rack  # noqa E402
 
 
 class AudioCore():
@@ -28,7 +28,7 @@ class AudioCore():
         self.config = self.load_lab_config()
         self.Player = Player.Player()
         self.Visualizer = None  # TODO move to gui handler
-        self.ModulesRack = ricanelib.ModulesRack()
+        self.ModulesRack = Rack.ModulesRack()
         self.session_is_active = True
         self.session_is_muted = True
         self.session_visualizer_is_active = False
