@@ -23,7 +23,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>Say hello</string>
    </property>
   </widget>
   <widget class="QTextEdit" name="input">
