@@ -42,6 +42,7 @@ class Ui_main(object):
         main.setStatusBar(self.statusbar)
 
         self.retranslateUi(main)
+        self.btn_run_analysis.clicked.connect(self.visualizer.update)
 
         QMetaObject.connectSlotsByName(main)
     # setupUi
