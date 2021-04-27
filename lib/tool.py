@@ -63,7 +63,7 @@ def convertAmpDbToAmp(ampDb: list) -> list:
 def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
                            duration=config.BASIC_DURATION) -> list:
     # linspace
-    vect = np.linspace(0, duration, int(duration * fs), endpoint=False) / fs
+    vect = np.linspace(0, duration, int(duration * fs), endpoint=False)
     return vect.tolist()
 
 
