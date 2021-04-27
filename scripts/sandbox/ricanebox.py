@@ -2,6 +2,8 @@ import os
 import sys
 import ricanelib
 import matplotlib.pyplot as plt
+import sounddevice as sd
+import soundfile as sf
 
 sys.path.append(os.getcwd())
 from lib import audiogenerator, audiodsp  # noqa E402 
@@ -54,15 +56,26 @@ def main1():  # plot chunk by chunk after process
 
 
 if __name__ == "__main__":
-    main1()
-    player = Player.Player()
-    player.config_stream_with_audio_array(sine, rate)
-    player.AudioStream.init_stream()
-    count = 0
-    while count <= 44:
-        # player.read_frames(bypass=True)
-        player.read_raw_frames()
-        count += 1
-    print("out bitch")
-    plt.plot(player.original)
-    plt.show()
+    audiofile = config.AUDIO_FILE_JOYCA
+    data, fs = sf.read(audiofile)
+    sd.play(data, fs)
+    sd.wait()
+
+    if args.samplerate is None:
+        device_info = sd.query_devices(args.device, 'input')
+        # soundfile expects an int, sounddevice provides a float:
+        args.samplerate = int(device_info['default_samplerate'])
+    if args.filename is None:
+        args.filename = tempfile.mktemp(prefix='delme_rec_unlimited_',
+                                        suffix='.wav', dir='')
+
+    # Make sure the file is opened before recording anything:
+    with sf.SoundFile(args.filename, mode='x', samplerate=args.samplerate,
+                      channels=args.channels, subtype=args.subtype) as file:
+        with sd.InputStream(samplerate=args.samplerate, device=args.device,
+                            channels=args.channels, callback=callback):
+            print('#' * 80)
+            print('press Ctrl+C to stop the recording')
+            print('#' * 80)
+            while True:
+                file.write(q.get())

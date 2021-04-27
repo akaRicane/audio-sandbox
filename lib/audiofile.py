@@ -1,14 +1,26 @@
 import logging
-from pydub import AudioSegment
+import numpy as np
+import sounddevice as sd
+import soundfile as sf
 import wave
 
 
-def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
-    # TODO to fix and complete
-    audioLength = round(arrayLength / rate * 1000, 2)
-    logging.warning(f"---- Audio file opened successfully ----\n"
-                    f"Codec: {codec}\nRate: {rate} Hz"
-                    f"Length: {audioLength} ms")
+def load_from_filepath(filepath: str) -> (np.array, int):
+    """[summary]
+
+    Args:
+        filepath (str): [audiofile filepath]
+
+    Returns:
+        audio_signal (np.array): [audio array * n_channels]
+        samplerate (int): samplerate
+    """
+
+    with open(filepath, 'rb') as f:
+        audio_signal, samplerate = sf.read(f)
+    return audio_signal, samplerate
+
+def write_in_audiofile
 
 
 def makeArrayMono(data):
@@ -45,7 +57,3 @@ def read(filePath, makeMono=False):
         infos["nChannels"] = 1
     return rate, data, infos
 
-
-def openWithFfmepg(filePath):
-    # TODO finish this shit
-    cmd = f'ffmpeg -i {filePath}'

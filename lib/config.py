@@ -15,6 +15,7 @@ BYTES_DEFAULT_FORMAT = pyaudio.paInt16
 # audiofile
 AUDIO_RESSOURCES = Path(AUDIO_REPOSITORY, "resources")
 AUDIO_FILE_JOYCA = Path(AUDIO_RESSOURCES, "joyca.wav")
+AUDIO_FILE_ACID = Path(AUDIO_RESSOURCES, "acid.wav")
 AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "gaussian_white_noise.wav")
 AUDIO_FILE_SWEEP = Path(AUDIO_RESSOURCES, "CSC_sweep_20-20k.wav")
 
