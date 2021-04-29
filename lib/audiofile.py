@@ -1,7 +1,10 @@
 import os
+import sys
 import numpy as np
 import soundfile as sf
 from pathlib import Path
+sys.path.append(os.getcwd())
+from lib import tool  # noqa E402
 
 
 def load_from_filepath(filepath: Path) -> (np.array, int):
@@ -15,10 +18,12 @@ def load_from_filepath(filepath: Path) -> (np.array, int):
         audio_signal (np.array): [frames * n_channels]
         rate (int): rate
     """
-
-    with open(filepath, 'rb') as f:
-        audio_signal, rate = sf.read(f)
-    return audio_signal, rate
+    if not tool.check_if_file_exist(filepath):
+        raise Exception("File not found")
+    else:
+        with open(filepath, 'rb') as f:
+            audio_signal, rate = sf.read(f)
+        return audio_signal, rate
 
 
 def write_in_audiofile(filepath: str, filename: str, format: str,
@@ -36,7 +41,8 @@ def write_in_audiofile(filepath: str, filename: str, format: str,
         audio_signal (np.array): [audio signal to write]
         rate (int): [samplerate]
         subtype (str, optional): [Specific subtype]. Defaults to None.
-        overwrite (bool, optional): [Overwrite existing file]. Defaults to True.
+        overwrite (bool, optional): [Overwrite existing file].
+            Defaults to True.
 
     Returns:
         bool: [True if success, False else]
@@ -51,14 +57,10 @@ def write_in_audiofile(filepath: str, filename: str, format: str,
     elif subtype is None:
         subtype = sf.default_subtype(format)
     # check if no similar file exist there or if permission and write
-    if not check_if_file_exist(full_path) or overwrite is True:
+    if not tool.check_if_file_exist(full_path) or overwrite is True:
         sf.write(full_path, audio_signal, rate, subtype)
         success = True
         print(f"{filename} has been created with {subtype} subtype")
     else:
         print("Cannot write audiofile")
     return success
-
-
-def check_if_file_exist(filepath: str) -> bool:
-    return os.path.isfile(filepath)
