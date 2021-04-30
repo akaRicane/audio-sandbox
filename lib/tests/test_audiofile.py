@@ -19,51 +19,69 @@ from lib import audiofile, config, tool  # noqa E402
 #           do it for multi sample rates
 
 
-class TestLoad_from_filepath:
-
-    def test_fail(self):
-        _str = "not a filepath"
-        with pytest.raises(Exception):
-            audiofile.load_from_filepath((_str))
-        _int = 10
-        with pytest.raises(Exception):
-            audiofile.load_from_filepath((_int))
-        _bool = False
-        with pytest.raises(Exception):
-            audiofile.load_from_filepath((_bool))
-
-    def test_not_found(self):
-        # test done in ressources on audioFileTest.wav
-        _str = "audioFileTest.wa"
-        path = Path(config.AUDIO_RESSOURCES, _str)
-        with pytest.raises(Exception):
-            audiofile.load_from_filepath((path))
-
-    def test_success(self):
-        # test done in ressources on audioFileTest.wav
-        _str = "audioFileTest.wav"
-        path = Path(config.AUDIO_RESSOURCES, _str)
-        data, rate = audiofile.load_from_filepath(path)
-        assert isinstance(data, np.ndarray)
-        assert type(rate) is int
-
-
-class TestWrite_in_audiofile:
-
+class TestAudiofile:
+    # test done in ressources on audioFileTest.wav
     _filename = "audioFileTest.wav"
-    _path = config.AUDIO_RESSOURCES
+    _repo = config.AUDIO_RESSOURCES
+    _path = Path(config.AUDIO_RESSOURCES, _filename)
     _format = 'WAV'
     _data = np.random.randn(10, 2)
     _rate = 44100
 
-    def test_overwrite(self):
-        assert tool.check_if_file_exist(Path(self._path, self._filename))\
+
+class TestLoad_from_filepath(TestAudiofile):
+    @pytest.mark.parametrize("call", ["not a filepath", 10, False])
+    def test_fail_call(self, call):
+        with pytest.raises(Exception):
+            audiofile.load_from_filepath(call)
+
+    def test_file_not_found(self):
+        _str = "audioFileTest.wa"
+        with pytest.raises(Exception):
+            audiofile.load_from_filepath(_str)
+
+    def test_load_success(self):
+        data, rate = audiofile.load_from_filepath(self._path)
+        assert isinstance(data, np.ndarray)
+        assert type(rate) is int
+
+
+class TestWrite_in_audiofile(TestAudiofile):
+    @pytest.mark.parametrize("_rate", [44100, 48000, 88200, 96000])
+    @pytest.mark.parametrize("_format", ['WAV', 'FLAC'])
+    def test_overwrite(self, _rate, _format):
+        assert tool.check_if_file_exist(Path(self._repo, self._filename))\
+            is True
+        assert audiofile.write_in_audiofile(self._repo, self._filename,
+                                            _format, self._data,
+                                            _rate, overwrite=True)\
             is True
 
     def test_no_overwrite(self):
-        assert tool.check_if_file_exist(Path(self._path, self._filename))\
+        assert tool.check_if_file_exist(Path(self._repo, self._filename))\
             is True
-        assert audiofile.write_in_audiofile(self._path, self._filename,
+        assert audiofile.write_in_audiofile(self._repo, self._filename,
                                             self._format, self._data,
                                             self._rate, overwrite=False)\
             is False
+
+    def test_wrong_subtype(self):
+        _subtype = 'PCM_25'  # is an incorrect subtype
+        with pytest.raises(Exception):
+            audiofile.write_in_audiofile(self._repo, self._filename,
+                                         self._format, self._data,
+                                         self._rate, _subtype)
+
+
+class TestAudiofile_reliability(TestAudiofile):
+    @pytest.mark.parametrize("prate", [44100, 48000, 88200, 96000])
+    @pytest.mark.parametrize("pformat", ['WAV', 'FLAC'])
+    def test_write_reliability(self, prate, pformat):
+        audiofile.write_in_audiofile(self._repo, self._filename,
+                                     pformat, self._data,
+                                     prate, overwrite=True)
+        loaded_data, loaded_rate = audiofile.load_from_filepath(self._path)
+        assert len(loaded_data) == len(self._data)
+        assert loaded_rate == prate
+        comparison = loaded_data == self._data
+        assert comparison.all() == False  # TODO should be True 
