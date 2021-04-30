@@ -11,7 +11,6 @@ from lib import audiofile, config, tool  # noqa E402
 #       check filepath is Path
 #       check if unexisting file is catched
 # -> write_in_audiofile
-#       check if existing, write, check if still there
 #       check if existing and overwrite to false
 #       incompatible given subtype
 #       create noisy signal
@@ -22,10 +21,10 @@ from lib import audiofile, config, tool  # noqa E402
 class TestAudiofile:
     # test done in ressources on audioFileTest.wav
     _filename = "audioFileTest.wav"
-    _repo = config.AUDIO_RESSOURCES
-    _path = Path(config.AUDIO_RESSOURCES, _filename)
+    _repo = config.AUDIO_BIN
+    _path = Path(config.AUDIO_BIN, _filename)
     _format = 'WAV'
-    _data = np.random.randn(10, 2)
+    _data = np.random.randn(1000, 2)
     _rate = 44100
 
 
@@ -38,7 +37,7 @@ class TestLoad_from_filepath(TestAudiofile):
     def test_file_not_found(self):
         _str = "audioFileTest.wa"
         with pytest.raises(Exception):
-            audiofile.load_from_filepath(_str)
+            audiofile.load_from_filepath(Path(config.AUDIO_BIN, _str))
 
     def test_load_success(self):
         data, rate = audiofile.load_from_filepath(self._path)
@@ -84,4 +83,4 @@ class TestAudiofile_reliability(TestAudiofile):
         assert len(loaded_data) == len(self._data)
         assert loaded_rate == prate
         comparison = loaded_data == self._data
-        assert comparison.all() == False  # TODO should be True 
+        assert comparison.all() == False  # TODO should be True
