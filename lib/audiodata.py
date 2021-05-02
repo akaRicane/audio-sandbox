@@ -55,12 +55,12 @@ class AudioData():
     def loadSinus(self, f=440, gain=0.7):
         self.setTemporalContent(*audiogenerator.generateSine(f0=f, gain=gain, fs=self.rate))
 
-    def loadAudioFile(self, filePath: str = None):
-        if filePath is None:
-            filePath = config.AUDIO_FILE_TEST
-        self.rate, self.tamp, self.infos = audiofile.read(
-            filePath, makeMono=True)
+    def load_audiofile_from_filepath(self, filepath: str = None):
+        if filepath is None:
+            filepath = config.AUDIO_FILE_TEST
+        self.tamp, self.rate = audiofile.load_from_filepath(filepath)
         self.t = audiodsp.getTemporalVector(self.tamp, fs=self.rate)
+        print(f"{filepath} has been loaded")
 
     def fft(self, iscomplex: bool = False):
         self.setSpectralContent(
@@ -84,7 +84,6 @@ class AudioData():
         self.fft(iscomplex=False)
         self.build_signal_visualizer()
 
-
     def plot(self, space="time", mode="short",
              normFreqs: bool = False, show: bool = False):
         # FIXME Are legendlist useful here ?
@@ -107,7 +106,6 @@ class AudioData():
             logging.error("Plot not possible")
         if show:
             audioplot.pshow(legend=legendList)
-        del legendList, mode
 
     def tplot(self, isNewFigure: bool = False):
         self.plot(space="time")

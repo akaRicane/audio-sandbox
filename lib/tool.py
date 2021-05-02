@@ -3,14 +3,17 @@ import sys
 import copy
 import wave
 import struct
-import logging
 import numpy as np
 sys.path.append(os.getcwd())
-from lib import config
+from lib import config  # noqa E402
 
 
 def return_copy(item):
     return copy.deepcopy(item)
+
+
+def check_if_file_exist(filepath: str) -> bool:
+    return os.path.isfile(filepath)
 
 
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
@@ -67,7 +70,8 @@ def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
     return vect.tolist()
 
 
-def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fonction is not necessary, np.add() does the same thing
+# TODO : Maybe this fonction is not necessary, np.add() does the same thing
+def returnSumOfSignals(data1: list, data2: list) -> list:
     result = []
     for idx in range(len(data1)):
         result.append(data1[idx] + data2[idx])
@@ -75,7 +79,8 @@ def returnSumOfSignals(data1: list, data2: list) -> list: #TODO : Maybe this fon
 
 
 def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
-    """ Convert synthetic signal x to bytes object readable by readframes function of wave module
+    """ Convert synthetic signal x to bytes object readable by readframes
+    function of wave module
     Args:
         [list]:     data,          signal data
         [int]:      rate,       sampling frequency of the signal
@@ -84,7 +89,7 @@ def convertMonoDatatoWaveObject(data, rate, filename, maximumInteger):
         [class: waveread object]:      bytesData
     """
     obj = wave.open(filename, 'w')
-    obj.setnchannels(1) # mono
+    obj.setnchannels(1)  # mono
     obj.setsampwidth(2)
     obj.setframerate(rate)
     for value in data:
@@ -111,7 +116,8 @@ def bufferBytesToData(bytesData, maximumInteger):
 
 
 def bufferDataToBytes(data, maximumInteger):
-    bytesData = np.array(np.round_(np.array(data)*maximumInteger), dtype=np.int16).tobytes()
+    bytesData = np.array(np.round_(np.array(data)*maximumInteger),
+                         dtype=np.int16).tobytes()
     return bytesData
 
 

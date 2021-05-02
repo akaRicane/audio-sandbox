@@ -1,51 +1,66 @@
-import logging
-from pydub import AudioSegment
-import wave
+import os
+import sys
+import numpy as np
+import soundfile as sf
+from pathlib import Path
+sys.path.append(os.getcwd())
+from lib import tool  # noqa E402
 
 
-def dispAudioFileInfos(rate: int, arrayLength: int, codec: str):
-    # TODO to fix and complete
-    audioLength = round(arrayLength / rate * 1000, 2)
-    logging.warning(f"---- Audio file opened successfully ----\n"
-                    f"Codec: {codec}\nRate: {rate} Hz"
-                    f"Length: {audioLength} ms")
+def load_from_filepath(filepath: Path) -> (np.array, int):
+    """Load audiofile from file with SoundDevice.
+    Returns (frames * n_channels, rate)
 
-
-def makeArrayMono(data):
-    mono = []
-    for idx, sample in enumerate(data):
-        mono.append(sample[0])
-    return mono
-
-
-def read(filePath, makeMono=False):
-    """ Read audio file from filepath
     Args:
-        filePath (WindowsPath): [description]
-        makeMono: if True, return only data monodimensional
+        filepath (str): [audiofile filepath]
+
     Returns:
-        [int]: rate
-        [numpy.array]: data
+        audio_signal (np.array): [frames * n_channels]
+        rate (int): rate
     """
-    if filePath.suffix == ".wav":
-        rate, data = wave.open(filePath, 'rb')
-    # TODO add other codecs
-    elif filePath.suffix == ".mp3":
-        song = AudioSegment.from_mp3(filePath)
+    if not tool.check_if_file_exist(filepath):
+        raise Exception("File not found")
     else:
-        logging.error("Audio codec unsupported !")
-    codec = 'WAV'
-    infos = {
-        "codec": codec,
-        "length": len(data) / rate,
-        "nChannels": 2
-    }
-    if makeMono:
-        data = makeArrayMono(data)
-        infos["nChannels"] = 1
-    return rate, data, infos
+        with open(filepath, 'rb') as f:
+            audio_signal, rate = sf.read(f)
+        return audio_signal, rate
 
 
-def openWithFfmepg(filePath):
-    # TODO finish this shit
-    cmd = f'ffmpeg -i {filePath}'
+def write_in_audiofile(filepath: str, filename: str, format: str,
+                       audio_signal: np.array, rate: int,
+                       subtype: str = None,
+                       overwrite: bool = True) -> bool:
+    """Write an audio_signal (frame * n_channels) to an audiofile
+    with a given format and compatible subtype. Overwrite existing
+    file if specified.
+
+    Args:
+        filepath (str): [Repository location]
+        filename (str): [Filename with its extension]
+        format (str): [Extension written under format "WAV", "FLAC", etc]
+        audio_signal (np.array): [audio signal to write]
+        rate (int): [samplerate]
+        subtype (str, optional): [Specific subtype]. Defaults to None.
+        overwrite (bool, optional): [Overwrite existing file].
+            Defaults to True.
+
+    Returns:
+        bool: [True if success, False else]
+    """
+    full_path = Path(filepath, filename)
+    success = False
+    # check if given subtype is format-compatible
+    if subtype is not None and\
+       not sf.check_format(format=format, subtype=subtype):
+        raise Exception(f"Given subtype ({subtype}) is not\
+                        compatible with format ({format})")
+    elif subtype is None:
+        subtype = sf.default_subtype(format)
+    # check if no similar file exist there or if permission and write
+    if not tool.check_if_file_exist(full_path) or overwrite is True:
+        sf.write(full_path, audio_signal, rate, subtype)
+        success = True
+        print(f"{filename} has been created with {subtype} subtype")
+    else:
+        print("Cannot write audiofile")
+    return success
