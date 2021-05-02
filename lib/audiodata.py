@@ -49,7 +49,7 @@ class AudioData():
 
     def load_audio_array(self, audio_array: list):
         duration = len(audio_array) / self.rate
-        time_vector = tool.create_time_linspace(fs=self.rate, duration=duration)
+        time_vector = tool.create_time_basis(fs=self.rate, duration=duration)
         self.setTemporalContent(time_vector, audio_array)
 
     def loadSinus(self, f=440, gain=0.7):

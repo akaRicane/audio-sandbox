@@ -24,7 +24,7 @@ AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "gaussian_white_noise.wav")
 AUDIO_FILE_SWEEP = Path(AUDIO_RESSOURCES, "CSC_sweep_20-20k.wav")
 
 # audiogenerator
-BASIC_DURATION = 1.0  # sec
+DEFAULT_DURATION = 1.0  # sec
 
 # audiofiltering
 BANDPASS_DEFAULT_ORDER = 5

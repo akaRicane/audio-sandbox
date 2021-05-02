@@ -1,7 +1,6 @@
 import os
 import sys
 import numpy as np
-import logging
 
 sys.path.append(os.getcwd())
 from lib import config, tool, errors  # noqa E402
@@ -14,31 +13,63 @@ class AudioSignal():
     -> add_signal
     """
 
-    def __init__(self):
-        self.rate = None
+    def __init__(self, value=None, format=None, rate=None):
+        self.rate = rate
         self.vect = []
-        self.signal = []
+        if value is not None and format is not None:
+            self.generate_vect(value, format, rate)
 
-    def generate_vect(self, value, format: str = 'max_size', rate: int = None):
+    def generate_vect(self, value,
+                      format: str = 'max_size',
+                      rate: int = None) -> np.array:
+        """Creates a vect usable as x-basis with two methods.
+        'max_size' return a value sized-vector.
+            Rate is optional
+        'duration' return a vector with a duration of rate*duration.
+            Rate is mandatory.
+
+        Consistency in formats:
+        call (rate*duration, 'max_size') == call (duration, 'duration', rate)
+
+        Args:
+            value ([type]): [desired lenght in respect of format]
+            format (str, optional): [max_size or duration].
+                Defaults to 'max_size'.
+            rate (int, optional): [sameple rate]. Defaults to None.
+
+        Returns:
+            np.array: [vector of desired lenght]
+        """
+        success = False
         if format == 'max_size':
-            self.vect = tool.create_linspace(value)
+            self.vect = tool.create_basis(value)
+            success = True
         elif format == 'duration':
+            if rate is None:
+                raise ValueError("Specify rate if duration")
             if rate not in config.VALID_SAMPLERATES:
                 raise errors.InvalidRate(
                     f"Must be in {config.VALID_SAMPLERATES}")
-            self.vect = tool.create_time_linspace(rate, value)
+            self.vect = tool.create_time_basis(rate, value)
+            success = True
         else:
             raise errors.InvalidFormat(
                 f"Format {format} incompatible.\n"
                 "Must be 'max_size' only or 'duration' + rate")
+        return success
 
-    def add_sine(self):
-        return True
+    def sine(self, f0: float, gain: float,
+             rate: int = None, anti_smearing: bool = False):
+        if np.size(self.vect) <= 1:
+            raise errors.MissingVect("Generate_vect first")
+        # angular frequency
+        w = 2 * np.pi * f0
+        self.signal = gain * np.sin(w*np.array(self.vect))
 
-    def add_sweep(self):
+    def sweep(self):
         pass
 
-    def add_noise(self):
+    def noise(self):
         pass
 
 
@@ -46,9 +77,10 @@ def generateSine(f0: float,
                  gain: float = 1.0,
                  t: list = None,
                  fs=config.SAMPLING_FREQUENCY,
-                 duration=config.BASIC_DURATION):
+                 duration=config.DEFAULT_DURATION):
     # init
-    w = 2 * np.pi * f0  # angular frequency
+    # angular frequency
+    w = 2 * np.pi * f0
     if t is None:
         t = tool.create_time_linspace(fs=fs, duration=duration)
     # sine
@@ -60,7 +92,7 @@ def generateMultiSine(f0List: list,
                       gainList: list = None,
                       t: list = None,
                       fs=config.SAMPLING_FREQUENCY,
-                      duration=config.BASIC_DURATION):
+                      duration=config.DEFAULT_DURATION):
     # init
     if t is None:
         t = tool.create_time_linspace(fs=fs, duration=duration)
@@ -79,7 +111,7 @@ def generateMultiSine(f0List: list,
 
 def generateNoisySignal(fs: int = config.SAMPLING_FREQUENCY,
                         t: list = None,
-                        duration: float = config.BASIC_DURATION,
+                        duration: float = config.DEFAULT_DURATION,
                         f0: float = 1000.0):
     if t is None:
         t = tool.create_time_linspace(fs=fs, duration=duration)
@@ -94,7 +126,7 @@ def generateSweptSine(amp: float = 0.8,
                       f0: float = 20,
                       f1: float = 20000,
                       t: list = None,
-                      duration: float = config.BASIC_DURATION,
+                      duration: float = config.DEFAULT_DURATION,
                       fs: int = config.SAMPLING_FREQUENCY,
                       fade: bool = True,
                       novak: bool = False):

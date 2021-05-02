@@ -13,13 +13,13 @@ from lib import config  # noqa E402
 ###
 
 
-def create_linspace(max_size: int = config.BASIC_DURATION) -> np.array:
+def create_basis(max_size: int = config.DEFAULT_DURATION) -> np.array:
     # numpy linspace
-    return np.linspace(0, max_size, 1, endpoint=False)
+    return np.arange(0, max_size, 1)
 
 
-def create_time_linspace(duration: config.BASIC_DURATION,
-                         rate: int = config.SAMPLING_FREQUENCY) -> np.array:
+def create_time_basis(duration: config.DEFAULT_DURATION,
+                      rate: int = config.SAMPLING_FREQUENCY) -> np.array:
     # numpy linspace
     return np.linspace(0, duration, int(duration * rate), endpoint=False)
 
