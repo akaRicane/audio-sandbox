@@ -6,6 +6,7 @@ sys.path.append(os.getcwd())
 from lib import config, tool  # noqa E402
 from lib import audiogenerator  # noqa E402
 from lib.audiogenerator import AudioSignal # noqa E402
+from lib import errors  # noqa E402
 
 ######################
 # We want to test audiogenerator.py
@@ -24,7 +25,7 @@ class TestGenerate_vect(TestAudioSignal):
 
     def test_format_error(self):
         _call = "unsupported"
-        with pytest.raises(ValueError):
+        with pytest.raises(errors.InvalidFormat):
             self._test_signal.generate_vect(self._data, _call)
 
     def test_duration_without_rate(self):

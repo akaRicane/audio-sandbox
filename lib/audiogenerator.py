@@ -24,11 +24,13 @@ class AudioSignal():
             self.vect = tool.create_linspace(value)
         elif format == 'duration':
             if rate not in config.VALID_SAMPLERATES:
-                raise ValueError(errors.INVALID_RATE)
+                raise errors.InvalidRate(
+                    f"Must be in {config.VALID_SAMPLERATES}")
             self.vect = tool.create_time_linspace(rate, value)
         else:
-            raise ValueError(f"Format {format} incompatible.\n"
-                             "Must be 'max_size' only or 'duration' + rate")
+            raise errors.InvalidFormat(
+                f"Format {format} incompatible.\n"
+                "Must be 'max_size' only or 'duration' + rate")
 
     def add_sine(self):
         return True
