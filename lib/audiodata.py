@@ -108,10 +108,10 @@ class AudioData():
             audioplot.pshow(legend=legendList)
 
     def tplot(self, isNewFigure: bool = False):
-        self.plot(space="time")
+        self.plot(space="time", show=True)
 
     def fplot(self, normFreqs: bool = False, isNewFigure: bool = False):
-        self.plot(space="spectral", normFreqs=normFreqs)
+        self.plot(space="spectral", normFreqs=normFreqs, show=True)
 
     def build_signal_visualizer(self):
         self.signal_visualizer = audioplot.SignalVisualizer(self.t, self.tamp,

@@ -5,7 +5,7 @@ import numpy as np
 sys.path.append(os.getcwd())
 from lib import config, tool  # noqa E402
 from lib import audiogenerator  # noqa E402
-from lib.audiogenerator import AudioSignal # noqa E402
+from lib.audiogenerator import AudioSignal, Sine # noqa E402
 from lib import errors  # noqa E402
 
 ######################
@@ -30,11 +30,11 @@ class TestGenerate_vect(TestAudioSignal):
         _test_init = AudioSignal(self._max_size, 'max_size', self._rate)
         assert _test_init.rate == self._rate
 
-    def test_format_error(self):
+    def test_format_fail(self):
         with pytest.raises(errors.InvalidFormat):
             self._test_signal.generate_vect(self._data, self._call)
 
-    def test_rate_error(self):
+    def test_rate_fail(self):
         with pytest.raises(errors.InvalidRate):
             self._test_signal.generate_vect(
                 self._data, 'duration', self._wrong_rate)
@@ -63,17 +63,3 @@ class TestGenerate_vect(TestAudioSignal):
         method2.generate_vect(self._duration, 'duration', self._rate)
         assert np.size(method1.vect) == np.size(method2.vect)
 
-
-class TestSine(TestAudioSignal):
-
-    _test_sine = AudioSignal()
-    _f0 = np.random.rand(1) * 1000
-    _gain = np.random.rand(1)
-
-    def test_missing_vect(self):
-        with pytest.raises(errors.MissingVect):
-            self._test_sine.sine(self._f0, self._gain)
-
-    def test_success(self):
-        self._test_sine.generate_vect(self._max_size, 'max_size')
-        self._test_sine.sine(self._f0, self._gain)

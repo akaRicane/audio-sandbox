@@ -6,7 +6,7 @@ sys.path.append(os.getcwd())
 from lib import config, tool, errors  # noqa E402
 
 
-class AudioSignal():
+class AudioSignal:
     """ AudioSignal is a (vect, signal) contener
     Usage:
     -> set vect size, rate
@@ -58,13 +58,27 @@ class AudioSignal():
                 "Must be 'max_size' only or 'duration' + rate")
         return success
 
-    def sine(self, f0: float, gain: float,
-             rate: int = None, anti_smearing: bool = False):
+    def check_vect_available(self):
+        # check if vect available
         if np.size(self.vect) <= 1:
             raise errors.MissingVect("Generate_vect first")
+
+    def check_rate_available(self):
+        # check if rate available
+        if self.rate is None:
+            raise errors.InvalidRate("Specify rate")
+
+
+class Sine(AudioSignal):
+    def __init__(self, f0: float, gain: float, rate: int = None,
+                 value=1024, format: str = 'max_size'):
+        super().__init__(value=value, format=format, rate=rate)
+        # need to convert vect in rad
+        self.vect = tool.convert_basis_to_rad(self.vect, self.rate)
         # angular frequency
-        w = 2 * np.pi * f0
-        self.signal = gain * np.sin(w*np.array(self.vect))
+        w = np.array(2 * np.pi * f0)
+        self.vect = w * self.vect
+        self.signal = np.multiply(np.sin(self.vect), gain)
 
     def sweep(self):
         pass

@@ -24,6 +24,10 @@ def create_time_basis(duration: config.DEFAULT_DURATION,
     return np.linspace(0, duration, int(duration * rate), endpoint=False)
 
 
+def convert_basis_to_rad(basis: np.array, rate: int):
+    return np.array(basis / rate)
+
+
 ###
 # OTHERS
 ###
