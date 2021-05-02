@@ -8,12 +8,38 @@ sys.path.append(os.getcwd())
 from lib import config  # noqa E402
 
 
+###
+# NUMPY COMPLIANT
+###
+
+
+def create_linspace(max_size: int = config.BASIC_DURATION) -> np.array:
+    # numpy linspace
+    return np.linspace(0, max_size, 1, endpoint=False)
+
+
+def create_time_linspace(duration: config.BASIC_DURATION,
+                         rate: int = config.SAMPLING_FREQUENCY) -> np.array:
+    # numpy linspace
+    return np.linspace(0, duration, int(duration * rate), endpoint=False)
+
+
+###
+# OTHERS
+###
+
+
 def return_copy(item):
     return copy.deepcopy(item)
 
 
 def check_if_file_exist(filepath: str) -> bool:
     return os.path.isfile(filepath)
+
+
+###
+# TODO Clean below
+###
 
 
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
@@ -61,13 +87,6 @@ def convertAmpToAmpDb(amp: list) -> list:
 
 def convertAmpDbToAmp(ampDb: list) -> list:
     return 10 ** (ampDb / 20)
-
-
-def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
-                           duration=config.BASIC_DURATION) -> list:
-    # linspace
-    vect = np.linspace(0, duration, int(duration * fs), endpoint=False)
-    return vect.tolist()
 
 
 # TODO : Maybe this fonction is not necessary, np.add() does the same thing

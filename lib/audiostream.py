@@ -6,8 +6,6 @@ import numpy
 sys.path.append(os.getcwd())
 from lib import tool, config  # noqa E402
 
-# -> en faire un QObject ?
-# https://doc.qt.io/qt-5/signalsandslots.html
 
 class AudioStream():
     """Audio Stream is an object handling i/o audio interface

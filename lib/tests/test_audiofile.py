@@ -25,7 +25,7 @@ class TestAudiofile:
     _path = Path(config.AUDIO_BIN, _filename)
     _format = 'WAV'
     _data = np.random.randn(1000, 2)
-    _rate = 44100
+    _rate = config.DEFAULT_SAMPLERATE
 
 
 class TestLoad_from_filepath(TestAudiofile):

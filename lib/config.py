@@ -6,6 +6,9 @@ from pathlib import Path
 AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
 
 # audio general
+VALID_SAMPLERATES = [44100, 48000, 88200, 96000]
+DEFAULT_SAMPLERATE = 44100  # Hz
+
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_SIZE = 1024  # points
 BANDS_SLICER_SIZE = 10  # bands

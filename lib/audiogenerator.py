@@ -1,10 +1,43 @@
 import os
 import sys
-import logging
 import numpy as np
+import logging
 
 sys.path.append(os.getcwd())
-from lib import config, tool  # noqa E402
+from lib import config, tool, errors  # noqa E402
+
+
+class AudioSignal():
+    """ AudioSignal is a (vect, signal) contener
+    Usage:
+    -> set vect size, rate
+    -> add_signal
+    """
+
+    def __init__(self):
+        self.rate = None
+        self.vect = []
+        self.signal = []
+
+    def generate_vect(self, value, format: str = 'max_size', rate: int = None):
+        if format == 'max_size':
+            self.vect = tool.create_linspace(value)
+        elif format == 'duration':
+            if rate not in config.VALID_SAMPLERATES:
+                raise ValueError(errors.INVALID_RATE)
+            self.vect = tool.create_time_linspace(rate, value)
+        else:
+            raise ValueError(f"Format {format} incompatible.\n"
+                             "Must be 'max_size' only or 'duration' + rate")
+
+    def add_sine(self):
+        return True
+
+    def add_sweep(self):
+        pass
+
+    def add_noise(self):
+        pass
 
 
 def generateSine(f0: float,
@@ -15,7 +48,7 @@ def generateSine(f0: float,
     # init
     w = 2 * np.pi * f0  # angular frequency
     if t is None:
-        t = tool.createTemporalLinspace(fs=fs, duration=duration)
+        t = tool.create_time_linspace(fs=fs, duration=duration)
     # sine
     sine = gain * np.sin(w*np.array(t))
     return t, sine.tolist()
@@ -28,7 +61,7 @@ def generateMultiSine(f0List: list,
                       duration=config.BASIC_DURATION):
     # init
     if t is None:
-        t = tool.createTemporalLinspace(fs=fs, duration=duration)
+        t = tool.create_time_linspace(fs=fs, duration=duration)
     if gainList is None:
         gainList = np.ones(len(f0List))
     # signal creation
@@ -47,7 +80,7 @@ def generateNoisySignal(fs: int = config.SAMPLING_FREQUENCY,
                         duration: float = config.BASIC_DURATION,
                         f0: float = 1000.0):
     if t is None:
-        t = tool.createTemporalLinspace(fs=fs, duration=duration)
+        t = tool.create_time_linspace(fs=fs, duration=duration)
     x = 0.1 * np.sin(2 * np.pi * 1.2 * np.sqrt(t))
     x += 0.01 * np.cos(2 * np.pi * 312 * t + 0.1)
     x += 0.02 * np.cos(2 * np.pi * f0 * t + .11)
@@ -82,13 +115,13 @@ def generateSweptSine(amp: float = 0.8,
     """
 
     if t is None:
-        t = tool.createTemporalLinspace(fs=fs, duration=duration)
+        t = tool.create_time_linspace(fs=fs, duration=duration)
 
     if novak is True:
         t = None
         L = np.floor( (f0*duration) / np.log(f1/f0) ) / f0
         newDuration = L * np.log(f1/f0)
-        t = tool.createTemporalLinspace(fs=fs, duration=newDuration)
+        t = tool.create_time_linspace(fs=fs, duration=newDuration)
     else:
         L = duration / np.log(f1 / f0)
 
@@ -106,6 +139,6 @@ def generateSweptSine(amp: float = 0.8,
     if len(t)/fs < duration:
         zeroPadding = np.zeros(int(duration*fs) - len(t))
         x = np.concatenate([x , zeroPadding])
-        t = tool.createTemporalLinspace(fs=fs, duration=duration)
+        t = tool.create_time_linspace(fs=fs, duration=duration)
 
     return t, x
