@@ -72,6 +72,21 @@ class AudioSignal:
 class Sine(AudioSignal):
     def __init__(self, f0: float, gain: float, rate: int = None,
                  value=1024, format: str = 'max_size'):
+        """Generate a f0 sine signal at a given rate.
+        Class contains the basis vector and the signal.
+
+        Args:
+            f0 (float): [fundamental frequency (Hz)]
+            gain (float): [sine amplitude]
+            rate (int, optional): [sample rate]. Defaults to None.
+            value (int, optional): [basis size]. Defaults to 1024.
+            format (str, optional): [format of basis generation].
+                Defaults to 'max_size'.
+
+        Created:
+            self.vect (np.array) : [time basis]
+            self.signal (np.array) : [sine]
+        """
         super().__init__(value=value, format=format, rate=rate)
         # need to convert vect in rad
         self.vect = tool.convert_basis_to_rad(self.vect, self.rate)
@@ -80,11 +95,17 @@ class Sine(AudioSignal):
         self.vect = w * self.vect
         self.signal = np.multiply(np.sin(self.vect), gain)
 
-    def sweep(self):
+
+class MultiSine(Sine):
+    def __init__(self, f_list, gain_listrate: int = None,
+                 value=1024, format: str = 'max_size'):
         pass
 
-    def noise(self):
-        pass
+
+def sweep(self):
+    pass
+def noise(self):
+    pass
 
 
 def generateSine(f0: float,
