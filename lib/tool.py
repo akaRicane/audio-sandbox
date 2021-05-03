@@ -28,18 +28,18 @@ def convert_basis_to_rad(basis: np.array, rate: int):
     return np.array(basis / rate)
 
 
-def sum_arrays(array1: np.array, array2: np.array,
-               pad: bool = False) -> np.array:
-    # TODO fix cause doesn't work
-    _array1 = return_copy(array1)
-    _array2 = return_copy(array2)
-    if np.size(_array1) < np.size(_array2):
-        lack = np.size(_array2) - np.size(_array1)
-        _array1 = np.append(_array1, np.zeros(lack))
-    elif np.size(_array1) > np.size(_array2):
-        lack = np.size(_array1) - np.size(_array2)
-        _array2 = np.append(_array2, np.zeros(lack))
-    return np.add(_array1, _array2)
+def sum_arrays(array1, array2) -> np.array:
+    if len(array1) < len(array2):
+        # array1 is smaller
+        array2, array1 = array1, array2
+    # actual sum
+    _sum = np.array(np.zeros(len(array1)))
+    for i in range(len(array2)):
+        _sum[i] = np.add(array1[i], array2[i])
+
+    for ii in range(len(array2), len(_sum)):
+        _sum[ii] = array1[ii]
+    return _sum
 
 
 ###
