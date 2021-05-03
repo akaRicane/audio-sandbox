@@ -82,5 +82,5 @@ class TestAudiofile_reliability(TestAudiofile):
         loaded_data, loaded_rate = audiofile.load_from_filepath(self._path)
         assert len(loaded_data) == len(self._data)
         assert loaded_rate == prate
-        comparison = loaded_data != self._data
-        assert comparison.all() == True
+        comparison = loaded_data == self._data
+        assert comparison.all() == True  # should be True !

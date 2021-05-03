@@ -28,6 +28,20 @@ def convert_basis_to_rad(basis: np.array, rate: int):
     return np.array(basis / rate)
 
 
+def sum_arrays(array1: np.array, array2: np.array,
+               pad: bool = False) -> np.array:
+    # TODO fix cause doesn't work
+    _array1 = return_copy(array1)
+    _array2 = return_copy(array2)
+    if np.size(_array1) < np.size(_array2):
+        lack = np.size(_array2) - np.size(_array1)
+        _array1 = np.append(_array1, np.zeros(lack))
+    elif np.size(_array1) > np.size(_array2):
+        lack = np.size(_array1) - np.size(_array2)
+        _array2 = np.append(_array2, np.zeros(lack))
+    return np.add(_array1, _array2)
+
+
 ###
 # OTHERS
 ###

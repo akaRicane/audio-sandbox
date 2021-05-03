@@ -70,15 +70,15 @@ class AudioSignal:
 
 
 class Sine(AudioSignal):
-    def __init__(self, f0: float, gain: float, rate: int = None,
-                 value=1024, format: str = 'max_size'):
+    def __init__(self, rate: int, f0: float, gain: float,
+                 value: int = 1024, format: str = 'max_size'):
         """Generate a f0 sine signal at a given rate.
         Class contains the basis vector and the signal.
 
         Args:
+            rate (int): [sample rate].                                                      
             f0 (float): [fundamental frequency (Hz)]
             gain (float): [sine amplitude]
-            rate (int, optional): [sample rate]. Defaults to None.
             value (int, optional): [basis size]. Defaults to 1024.
             format (str, optional): [format of basis generation].
                 Defaults to 'max_size'.
@@ -97,8 +97,18 @@ class Sine(AudioSignal):
 
 
 class MultiSine(Sine):
-    def __init__(self, f_list, gain_listrate: int = None,
-                 value=1024, format: str = 'max_size'):
+    def __init__(self, rate: int, f_list, gain_list: list = None,
+                 value: int = 1024, format: str = 'max_size'):
+        if gain_list is None:
+            gain_list = np.ones(len(f_list)).tolist()
+        elif len(f_list) != len(gain_list):
+            raise errors.InvalidFormat("f_list and gain_list must"
+                                       " have the same length")
+        # create first sine
+        super().__init__(rate=rate, f0=f_list[0],
+                         gain=gain_list[0], value=value,
+                         format=format)
+        # then, add others one by one
         pass
 
 

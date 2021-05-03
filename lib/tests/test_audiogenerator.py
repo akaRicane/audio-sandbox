@@ -5,7 +5,8 @@ import numpy as np
 sys.path.append(os.getcwd())
 from lib import config, tool  # noqa E402
 from lib import audiogenerator  # noqa E402
-from lib.audiogenerator import AudioSignal, Sine # noqa E402
+from lib.audiogenerator import AudioSignal  # noqa E402
+from lib.audiogenerator import Sine, MultiSine  # noqa E402
 from lib import errors  # noqa E402
 
 ######################
@@ -63,3 +64,22 @@ class TestGenerate_vect(TestAudioSignal):
         method2.generate_vect(self._duration, 'duration', self._rate)
         assert np.size(method1.vect) == np.size(method2.vect)
 
+
+class TestMultiSine(TestAudioSignal):
+
+    _f_list = [440, 842, 310]
+    _gain_list = [0.2, 0.8, 0.6]
+
+    def test_fail_call(self):
+        _missing_gain = self._gain_list[:-1]
+        with pytest.raises(errors.InvalidFormat):
+            MultiSine(self._rate, self._f_list, _missing_gain)
+
+    def test_gainlist_is_none(self):
+        _gain_list_ones = [1, 1, 1]
+        _test_none = MultiSine(
+            self._rate, self._f_list)
+        _test_ones = MultiSine(
+            self._rate, self._f_list, _gain_list_ones)
+        comparison = _test_none.signal == _test_ones.signal
+        assert comparison.all() == True
