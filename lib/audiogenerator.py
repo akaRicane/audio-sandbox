@@ -7,26 +7,22 @@ from lib import config, tool, errors  # noqa E402
 
 
 class AudioSignal:
-    """ AudioSignal is a (vect, signal) contener
-    Usage:
-    -> set vect size, rate
-    -> add_signal
+    """AudioSignal is a (vect, signal) contener
     """
 
-    def __init__(self, value=None, format=None, rate=None):
+    def __init__(self, rate: int, value, format='max_size'):
+        if rate not in config.VALID_SAMPLERATES:
+            raise errors.InvalidRate(
+                f"Must be in {config.VALID_SAMPLERATES}")
         self.rate = rate
+        self.format = format
         self.vect = []
-        if value is not None and format is not None:
-            self.generate_vect(value, format, rate)
+        self.generate_vect(value, self.format)
 
-    def generate_vect(self, value,
-                      format: str = 'max_size',
-                      rate: int = None) -> np.array:
+    def generate_vect(self, value, format: str = 'max_size'):
         """Creates a vect usable as x-basis with two methods.
         'max_size' return a value sized-vector.
-            Rate is optional
         'duration' return a vector with a duration of rate*duration.
-            Rate is mandatory.
 
         Consistency in formats:
         call (rate*duration, 'max_size') == call (duration, 'duration', rate)
@@ -34,29 +30,27 @@ class AudioSignal:
         Args:
             value ([type]): [desired lenght in respect of format]
             format (str, optional): [max_size or duration].
-                Defaults to 'max_size'.
-            rate (int, optional): [sameple rate]. Defaults to None.
+                Defaults to 'max_size'
 
         Returns:
-            np.array: [vector of desired lenght]
+            bool: [whether success]
         """
         success = False
-        if format == 'max_size':
+        self.format = format
+        if self.format == 'max_size':
             self.vect = tool.create_basis(value)
             success = True
-        elif format == 'duration':
-            if rate is None:
-                raise ValueError("Specify rate if duration")
-            if rate not in config.VALID_SAMPLERATES:
-                raise errors.InvalidRate(
-                    f"Must be in {config.VALID_SAMPLERATES}")
-            self.vect = tool.create_time_basis(rate, value)
+        elif self.format == 'duration':
+            self.vect = tool.create_time_basis(self.rate, value)
             success = True
         else:
             raise errors.InvalidFormat(
-                f"Format {format} incompatible.\n"
+                f"Format {self.format} incompatible.\n"
                 "Must be 'max_size' only or 'duration' + rate")
         return success
+
+    def add_signal(self):
+        pass
 
     def check_vect_available(self):
         # check if vect available
@@ -95,6 +89,12 @@ class Sine(AudioSignal):
         self.vect = w * self.vect
         self.signal = np.multiply(np.sin(self.vect), gain)
 
+    def add_signal(self, f0: float, gain: float):
+        new_sine = Sine(rate=self.rate, f0=f0, gain=gain,
+                        value=self.value, format=self.format)
+        # sum signal with current signal
+        # TODO use tools
+        
 
 class MultiSine(Sine):
     def __init__(self, rate: int, f_list, gain_list: list = None,
