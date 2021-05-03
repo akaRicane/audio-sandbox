@@ -8,6 +8,8 @@ from lib import config, tool, errors  # noqa E402
 
 class AudioSignal:
     """AudioSignal is a (vect, signal) contener
+    with fixed sample rate.
+    Basis is defined along with format
     """
 
     def __init__(self, rate: int, value, format='max_size'):
@@ -16,7 +18,6 @@ class AudioSignal:
                 f"Must be in {config.VALID_SAMPLERATES}")
         self.rate = rate
         self.format = format
-        self.vect = []
         self.generate_vect(value, self.format)
 
     def generate_vect(self, value, format: str = 'max_size'):
@@ -28,7 +29,7 @@ class AudioSignal:
         call (rate*duration, 'max_size') == call (duration, 'duration', rate)
 
         Args:
-            value ([type]): [desired lenght in respect of format]
+            value (int or float): [desired lenght in respect of format]
             format (str, optional): [max_size or duration].
                 Defaults to 'max_size'
 
@@ -36,6 +37,7 @@ class AudioSignal:
             bool: [whether success]
         """
         success = False
+        self.vect = []
         self.format = format
         if self.format == 'max_size':
             self.vect = tool.create_basis(value)
@@ -49,8 +51,9 @@ class AudioSignal:
                 "Must be 'max_size' only or 'duration' + rate")
         return success
 
-    def add_signal(self):
-        pass
+    def add_signal(self, new_vect, new_data):
+        self.signal = tool.sum_arrays(self.signal, new_data)
+        return True
 
     def check_vect_available(self):
         # check if vect available
@@ -70,7 +73,7 @@ class Sine(AudioSignal):
         Class contains the basis vector and the signal.
 
         Args:
-            rate (int): [sample rate].                                                      
+            rate (int): [sample rate]                                                    
             f0 (float): [fundamental frequency (Hz)]
             gain (float): [sine amplitude]
             value (int, optional): [basis size]. Defaults to 1024.
@@ -89,12 +92,6 @@ class Sine(AudioSignal):
         self.vect = w * self.vect
         self.signal = np.multiply(np.sin(self.vect), gain)
 
-    def add_signal(self, f0: float, gain: float):
-        new_sine = Sine(rate=self.rate, f0=f0, gain=gain,
-                        value=self.value, format=self.format)
-        # sum signal with current signal
-        # TODO use tools
-        
 
 class MultiSine(Sine):
     def __init__(self, rate: int, f_list, gain_list: list = None,
@@ -109,7 +106,12 @@ class MultiSine(Sine):
                          gain=gain_list[0], value=value,
                          format=format)
         # then, add others one by one
-        pass
+        for idx in range(1, len(f_list)):
+            sine_to_add = Sine(rate=self.rate, f0=f_list[idx],
+                               gain=gain_list[idx], value=value,
+                               format=self.format)
+            self.add_signal(sine_to_add.vect, sine_to_add.signal)
+
 
 
 def sweep(self):

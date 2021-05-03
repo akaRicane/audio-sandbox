@@ -22,6 +22,15 @@ class TestAudioSignal:
     _duration = config.DEFAULT_DURATION
     _data = np.random.randn(_max_size, 1)
     _test_signal = AudioSignal(_rate, _max_size, _format)
+    _test_sine = Sine(_rate, 440, 1.0, _max_size, _format)
+
+
+class TestAdd_signal(TestAudioSignal):
+
+    def test_same_format_succes(self):
+        self._test_signal.signal = self._data
+        assert self._test_signal.add_signal(
+            self._test_sine.vect, self._test_sine.signal) is True
 
 
 class TestGenerate_vect(TestAudioSignal):
@@ -35,8 +44,7 @@ class TestGenerate_vect(TestAudioSignal):
             self._test_signal.generate_vect(self._data, "unsupported")
 
     def test_max_size_succes(self):
-        assert self._test_signal.generate_vect(
-            self._max_size, self._format) is True
+        assert self._test_signal.generate_vect(self._max_size) is True
         assert np.size(self._test_signal.vect) == len(self._data)
 
     def test_duration_succes(self):
@@ -51,6 +59,11 @@ class TestGenerate_vect(TestAudioSignal):
         method1 = AudioSignal(self._rate, equivalent_len, self._format)
         method2 = AudioSignal(self._rate, self._duration, 'duration')
         assert np.size(method1.vect) == np.size(method2.vect)
+
+
+class TestSine(TestAudioSignal):
+
+    pass
 
 
 class TestMultiSine(TestAudioSignal):
