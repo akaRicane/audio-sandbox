@@ -1,7 +1,8 @@
-import os, sys
-from flask import Flask, render_template, jsonify
+import os
+import sys
+from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
-from lib import audio
+from lib import audiogenerator
 
 app = Flask(__name__)
 
@@ -13,14 +14,16 @@ def index():
 
 @app.route('/data', methods=['GET'])
 def getData():
-    signal = audio.AudioItem()
-    signal.addSinusAsNewChannel()
+    print("$$$", request)
+    time, value = audiogenerator.generateSine(
+        f0=float(request.args.get("f0"))
+    )
 
     data = []
-    for index in range(len(signal.data[0].t)):
+    for index in range(len(time)):
         data.append({
-            "label": signal.data[0].t[index],
-            "value": signal.data[0].tamp[index]
+            "label": time[index],
+            "value": value[index]
         })
 
     return jsonify(data)

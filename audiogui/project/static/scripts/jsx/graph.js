@@ -60,7 +60,7 @@ class Graph extends React.Component {
   }
 
   handleClick() {
-    axios.get('/data')
+    axios.get('/data', {params: {f0: 50}})
       .then(response => {
         this.setState({ data: response.data });
       })
@@ -78,7 +78,7 @@ class Graph extends React.Component {
           onClick={() => this.handleClick()}
         >
           Generate Graph
-          </button>
+        </button>
         <LineGraph
           data={this.state.data}
           title="label"
