@@ -55,12 +55,13 @@ class Graph extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: []
+      data: [],
+      f0_frequency: null
     };
   }
 
-  handleClick() {
-    axios.get('/data', {params: {f0: 50}})
+  generateGraph() {
+    axios.get('/data', {params: {f0: this.state.f0_frequency}})
       .then(response => {
         this.setState({ data: response.data });
       })
@@ -69,16 +70,28 @@ class Graph extends React.Component {
       });
   };
 
+  updateF0Value(newF0Value) {
+    this.setState({
+      f0_frequency: newF0Value
+    });
+  }
+
+  on_changeF0Input(evt) {
+    this.updateF0Value(evt.target.value);
+    this.generateGraph()
+  }
+
   render() {
     return (
       <div>
-        <button
-          type="button"
-          className="p-2 my-2 bg-gray-500 text-white rounded-md"
-          onClick={() => this.handleClick()}
-        >
-          Generate Graph
-        </button>
+        <div className="grid grid-cols-4">
+          <input
+            className="col-start-2 col-span-2"
+            type="range" min="1" max="500"
+            value={this.state.f0_frequency}
+            onChange={evt => this.on_changeF0Input(evt)}
+          />
+        </div>
         <LineGraph
           data={this.state.data}
           title="label"

@@ -14,7 +14,7 @@ def index():
 
 @app.route('/data', methods=['GET'])
 def getData():
-    print("$$$", request)
+    print("***", request)
     time, value = audiogenerator.generateSine(
         f0=float(request.args.get("f0"))
     )
