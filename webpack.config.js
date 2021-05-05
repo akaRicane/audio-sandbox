@@ -1,11 +1,11 @@
 var webpack = require('webpack');
 module.exports = {
   entry: {
-    main: "./audiogui/project/static/scripts/jsx/main.js",
+    main: "./audiogui/project/static/scripts/jsx/index.js",
   },
   output: {
     path: __dirname + "/audiogui/project/static/scripts/js",
-    filename: "main.js",
+    filename: "index.js",
   },
   module: {
     rules: [

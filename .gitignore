@@ -5,5 +5,5 @@
 node_modules/
 /venv/
 /resources/bin/
-audiogui/project/static/scripts/js/main.js
+audiogui/project/static/scripts/js/index.js
 package-lock.json

@@ -1,6 +1,7 @@
 import React from "react";
 import axios from 'axios';
 import Chart from 'chart.js';
+import { Link } from 'react-router-dom';
 
 class LineGraph extends React.Component {
   constructor(props) {
@@ -71,19 +72,21 @@ class Graph extends React.Component {
 
   render() {
     return (
-      <div>
-        <button
-          type="button"
-          className="p-2 my-2 bg-gray-500 text-white rounded-md"
-          onClick={() => this.handleClick()}
-        >
-          Generate Graph
-          </button>
-        <LineGraph
-          data={this.state.data}
-          title="label"
-        />
-      </div>
+      <Link to="/graph">
+        <div>
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.handleClick()}
+          >
+            Generate Graph
+            </button>
+          <LineGraph
+            data={this.state.data}
+            title="label"
+          />
+        </div>
+      </Link>
     )
   }
 };
