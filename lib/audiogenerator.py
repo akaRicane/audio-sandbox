@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 import numpy as np
 
 sys.path.append(os.getcwd())
@@ -113,11 +114,46 @@ class MultiSine(Sine):
             self.add_signal(sine_to_add.vect, sine_to_add.signal)
 
 
+class Noise(AudioSignal):
+    def __init__(self, rate: int, gain: float,
+                 value: int = 1024, format: str = 'max_size'):
+        # random.seed(None)
+        super().__init__(value=value, format=format, rate=rate)
+	    self.signal = random.uniform(-1.0, 1.0) * gain
 
-def sweep(self):
-    pass
-def noise(self):
-    pass
+
+class Sweep(AudioSignal):
+    def __init__(self, rate: int, f0: float, f1: float, gain: float,
+                 fade: bool = True, novak: bool = False,
+                 value: float = config.DEFAULT_DURATION,
+                 format: str = 'duration'):
+        super().__init__(value=value, format=format, rate=rate)
+        if novak is True:
+            L = np.floor((f0*duration) / np.log(f1/f0)) / f0
+            newDuration = L * np.log(f1/f0)
+            self.vect = tool.create_time_linspace(
+                rate=rate, duration=newDuration)
+        else:
+            L = duration / np.log(f1 / f0)
+
+        self.signal = amp * np.sin(2 * np.pi * f0 * L * (np.exp(t / L) - 1))
+
+        if fade is True:
+            fadeInLength = 0.25*rate
+            fadeIn = np.linspace(start=0,stop=1,num=int(fadeInLength))
+            fadeOut = np.linspace(start=1,stop=0,num=int(fadeInLength/5))
+            window = np.ones(len(self.signal))
+            window[0:len(fadeIn)] = fadeIn
+            window[len(window)-len(fadeOut):] = fadeOut
+            self.signal = self.signal * window
+
+        if len(self.vect)/rate < duration:
+            zeroPadding = np.zeros(int(duration*rate) - len(self.vect))
+            self.signal = np.concatenate([self.signal, zeroPadding])
+            self.vect = tool.create_time_linspace(rate=rate, duration=duration)
+
+
+
 
 
 def generateSine(f0: float,
