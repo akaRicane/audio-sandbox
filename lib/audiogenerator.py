@@ -117,26 +117,28 @@ class MultiSine(Sine):
 class Noise(AudioSignal):
     def __init__(self, rate: int, gain: float,
                  value: int = 1024, format: str = 'max_size'):
-        # random.seed(None)
-        super().__init__(value=value, format=format, rate=rate)
-	    self.signal = random.uniform(-1.0, 1.0) * gain
+        random.seed(None)
+        super().__init__(rate=rate, value=value, format=format)
+        self.signal = []
+        for i in self.vect:
+            self.signal.append(random.uniform(-gain, gain))
 
 
 class Sweep(AudioSignal):
     def __init__(self, rate: int, f0: float, f1: float, gain: float,
-                 fade: bool = True, novak: bool = False,
+                 fade: bool = False, novak: bool = False,
                  value: float = config.DEFAULT_DURATION,
                  format: str = 'duration'):
         super().__init__(value=value, format=format, rate=rate)
         if novak is True:
-            L = np.floor((f0*duration) / np.log(f1/f0)) / f0
+            L = np.floor((f0*value) / np.log(f1/f0)) / f0
             newDuration = L * np.log(f1/f0)
             self.vect = tool.create_time_linspace(
                 rate=rate, duration=newDuration)
         else:
-            L = duration / np.log(f1 / f0)
+            L = value / np.log(f1 / f0)
 
-        self.signal = amp * np.sin(2 * np.pi * f0 * L * (np.exp(t / L) - 1))
+        self.signal = gain * np.sin(2 * np.pi * f0 * L * (np.exp(self.vect / L) - 1))
 
         if fade is True:
             fadeInLength = 0.25*rate
@@ -147,13 +149,10 @@ class Sweep(AudioSignal):
             window[len(window)-len(fadeOut):] = fadeOut
             self.signal = self.signal * window
 
-        if len(self.vect)/rate < duration:
-            zeroPadding = np.zeros(int(duration*rate) - len(self.vect))
+        if len(self.vect)/rate < value:
+            zeroPadding = np.zeros(int(value*rate) - len(self.vect))
             self.signal = np.concatenate([self.signal, zeroPadding])
-            self.vect = tool.create_time_linspace(rate=rate, duration=duration)
-
-
-
+            self.vect = tool.create_time_linspace(rate=rate, duration=value)
 
 
 def generateSine(f0: float,
