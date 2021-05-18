@@ -21,7 +21,7 @@ def create_basis(max_size: int = config.DEFAULT_DURATION) -> np.array:
 def create_time_basis(duration: config.DEFAULT_DURATION,
                       rate: int = config.SAMPLING_FREQUENCY) -> np.array:
     # numpy linspace
-    return np.linspace(0, duration, int(duration * rate), endpoint=False)
+    return np.linspace(0, duration, int(duration * rate))
 
 
 def convert_basis_to_rad(basis: np.array, rate: int):

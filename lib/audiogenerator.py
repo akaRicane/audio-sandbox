@@ -120,7 +120,7 @@ class Noise(AudioSignal):
         random.seed(None)
         super().__init__(rate=rate, value=value, format=format)
         self.signal = []
-        for i in self.vect:
+        for idx in self.vect:
             self.signal.append(random.uniform(-gain, gain))
 
 
