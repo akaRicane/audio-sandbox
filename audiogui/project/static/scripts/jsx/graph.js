@@ -60,8 +60,8 @@ class Graph extends React.Component {
     };
   }
 
-  handleClick() {
-    axios.get('/data')
+  generateSine() {
+    axios.get('/sine')
       .then(response => {
         this.setState({ data: response.data });
       })
@@ -70,6 +70,16 @@ class Graph extends React.Component {
       });
   };
 
+  generateNoise(){
+    axios.get('/noise')
+      .then(response => {
+        this.setState({ data: response.data });
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
   render() {
     return (
       <Link to="/graph">
@@ -77,14 +87,21 @@ class Graph extends React.Component {
           <button
             type="button"
             className="p-2 my-2 bg-gray-500 text-white rounded-md"
-            onClick={() => this.handleClick()}
+            onClick={() => this.generateSine()}
           >
-            Generate Graph
+            Generate 440 Hz sine
             </button>
           <LineGraph
             data={this.state.data}
             title="label"
           />
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.generateNoise()}
+          >
+            Generate noise
+          </button>
         </div>
       </Link>
     )
