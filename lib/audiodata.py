@@ -49,7 +49,7 @@ class AudioData():
 
     def load_audio_array(self, audio_array: list):
         duration = len(audio_array) / self.rate
-        time_vector = tool.createTemporalLinspace(fs=self.rate, duration=duration)
+        time_vector = tool.create_time_basis(fs=self.rate, duration=duration)
         self.setTemporalContent(time_vector, audio_array)
 
     def loadSinus(self, f=440, gain=0.7):
@@ -108,10 +108,10 @@ class AudioData():
             audioplot.pshow(legend=legendList)
 
     def tplot(self, isNewFigure: bool = False):
-        self.plot(space="time")
+        self.plot(space="time", show=True)
 
     def fplot(self, normFreqs: bool = False, isNewFigure: bool = False):
-        self.plot(space="spectral", normFreqs=normFreqs)
+        self.plot(space="spectral", normFreqs=normFreqs, show=True)
 
     def build_signal_visualizer(self):
         self.signal_visualizer = audioplot.SignalVisualizer(self.t, self.tamp,

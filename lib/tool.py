@@ -8,12 +8,56 @@ sys.path.append(os.getcwd())
 from lib import config  # noqa E402
 
 
+###
+# NUMPY COMPLIANT
+###
+
+
+def create_basis(max_size: int = config.DEFAULT_DURATION) -> np.array:
+    # numpy linspace
+    return np.arange(0, max_size, 1)
+
+
+def create_time_basis(duration: config.DEFAULT_DURATION,
+                      rate: int = config.SAMPLING_FREQUENCY) -> np.array:
+    # numpy linspace
+    return np.linspace(0, duration, int(duration * rate))
+
+
+def convert_basis_to_rad(basis: np.array, rate: int):
+    return np.array(basis / rate)
+
+
+def sum_arrays(array1, array2) -> np.array:
+    if len(array1) < len(array2):
+        # array1 is smaller
+        array2, array1 = array1, array2
+    # actual sum
+    _sum = np.array(np.zeros(len(array1)))
+    for i in range(len(array2)):
+        _sum[i] = np.add(array1[i], array2[i])
+
+    for ii in range(len(array2), len(_sum)):
+        _sum[ii] = array1[ii]
+    return _sum
+
+
+###
+# OTHERS
+###
+
+
 def return_copy(item):
     return copy.deepcopy(item)
 
 
 def check_if_file_exist(filepath: str) -> bool:
     return os.path.isfile(filepath)
+
+
+###
+# TODO Clean below
+###
 
 
 def getClosestIndexToTargetInArray(vect: list, target: float) -> list:
@@ -61,13 +105,6 @@ def convertAmpToAmpDb(amp: list) -> list:
 
 def convertAmpDbToAmp(ampDb: list) -> list:
     return 10 ** (ampDb / 20)
-
-
-def createTemporalLinspace(fs: int = config.SAMPLING_FREQUENCY,
-                           duration=config.BASIC_DURATION) -> list:
-    # linspace
-    vect = np.linspace(0, duration, int(duration * fs), endpoint=False)
-    return vect.tolist()
 
 
 # TODO : Maybe this fonction is not necessary, np.add() does the same thing

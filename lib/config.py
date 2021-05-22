@@ -6,6 +6,9 @@ from pathlib import Path
 AUDIO_REPOSITORY = os.getcwd()  # GIT root of repo
 
 # audio general
+VALID_SAMPLERATES = [44100, 48000, 88200, 96000]
+DEFAULT_SAMPLERATE = 44100  # Hz
+
 SAMPLING_FREQUENCY = 44100  # Hz
 FFT_SIZE = 1024  # points
 BANDS_SLICER_SIZE = 10  # bands
@@ -21,7 +24,7 @@ AUDIO_FILE_TEST = Path(AUDIO_RESSOURCES, "gaussian_white_noise.wav")
 AUDIO_FILE_SWEEP = Path(AUDIO_RESSOURCES, "CSC_sweep_20-20k.wav")
 
 # audiogenerator
-BASIC_DURATION = 1.0  # sec
+DEFAULT_DURATION = 1.0  # sec
 
 # audiofiltering
 BANDPASS_DEFAULT_ORDER = 5
