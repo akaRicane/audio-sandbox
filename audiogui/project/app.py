@@ -25,9 +25,13 @@ def generateSine():
 
 @app.route('/multisine', methods=['GET'])
 def generateMultiSine():
+    print("***", request)
+    f_list = request.args.get("f_list")
+    print(f_list)
+    if f_list is None:
+        f_list = [440, 650, 1111]
     msine = generator.MultiSine(
-        rate=RATE, f_list=[100, 440, 1000],
-        gain_list=[0.2, 0.8, 0.35], )
+        rate=RATE, f_list=f_list, gain_list=[1, 1, 1])
     return data_formatting(msine)
 
 
