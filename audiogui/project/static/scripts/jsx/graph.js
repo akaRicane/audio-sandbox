@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from 'axios';
 import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
@@ -56,14 +56,28 @@ class Graph extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: []
+      data: [],
+      rate: 44100,
+      f0: 440,
+      type: null
     };
+    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   generateSine() {
-    axios.get('/sine')
+    axios.get('/sine', {params: {f0: this.state.f0}})
       .then(response => {
-        this.setState({ data: response.data });
+        this.setState({ data: response.data, type: 'Sine' });
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  };
+
+  generateMultiSine() {
+    axios.get('/multisine')
+      .then(response => {
+        this.setState({ data: response.data, type: 'MultiSine' });
       })
       .catch(error => {
         console.log(error)
@@ -80,6 +94,11 @@ class Graph extends React.Component {
       });
   }
 
+  handleInputChange(event) {
+    const value = event.target.value;
+    this.setState({ f0: value });
+  }
+
   render() {
     return (
       <Link to="/graph">
@@ -89,19 +108,44 @@ class Graph extends React.Component {
             className="p-2 my-2 bg-gray-500 text-white rounded-md"
             onClick={() => this.generateSine()}
           >
-            Generate 440 Hz sine
+            Generate sine
             </button>
-          <LineGraph
-            data={this.state.data}
-            title="label"
-          />
+          <br />
+          <div className="grid grid-cols-4">
+            <input
+              className="col-start-2 col-span-2"
+              type="range" min="20" max="20000" step="10"
+              value={this.state.f0}
+              onChange={evt => this.handleInputChange(evt)}
+            />
+          </div>
+          <label>
+            Frequency f0 :
+            <input
+              name="f0_frequency"
+              value={this.state.f0}
+              onChange={evt => this.handleInputChange(evt)}/>
+            (Hz)
+          </label>
+          <br />
           <button
             type="button"
             className="p-2 my-2 bg-gray-500 text-white rounded-md"
-            onClick={() => this.generateNoise()}
+            onClick={() => this.generateMultiSine()}
+          >
+            Generate multisine
+            </button>
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.handleInputChange()}
           >
             Generate noise
           </button>
+          <LineGraph
+            data={this.state.data}
+            title={this.state.type}
+          />
         </div>
       </Link>
     )
