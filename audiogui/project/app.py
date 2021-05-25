@@ -44,6 +44,7 @@ def generateNoise():
 
 @app.route('/writeFile', methods=['GET'])
 def writeFile():
+    print("\n*** Writting audio file\n")
     filepath = request.args.get("fullpath")
     data = request.args.get("data")
     rate = request.args.get("rate")
@@ -56,9 +57,10 @@ def writeFile():
         filename="test_save.wav",
         format="WAV",
         audio_signal=data,
-        rate=rate)
+        rate=44100)
     msg = []
     msg.success = success
+    print("\nBYE FLASK\n")
     return jsonify(msg)
 
 
@@ -71,7 +73,7 @@ def data_formatting(signal):
     print("\n\n FORMATTING DATA BEFORE SEND REACT\n\n")
     for index in range(len(signal.vect)):
         if index % 8 == 0:
-            print(f"{signal.vect[index]} : {signal.signal[index]}")
+            # print(f"{signal.vect[index]} : {signal.signal[index]}")
             data.append({
                 "label": float(signal.vect[index]),
                 "value": signal.signal[index]
