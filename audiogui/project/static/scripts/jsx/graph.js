@@ -17,8 +17,8 @@ class LineGraph extends React.Component {
 
   componentDidMount() {
     const ctx = document.getElementById("myChart");
-    ctx.height = 500;
-    ctx.width = 2500;
+    ctx.height = 200;
+    ctx.width = 500;
 
     this.lineChart = new Chart(ctx, {
       type: "line",
@@ -60,9 +60,12 @@ class Graph extends React.Component {
       f0: 440,
       f_list: [440, 650, 1111],
       rate: 44100,
-      type: null
+      type: null,
+      success: null,
+      directory: "\\C:\\Users\\phili\\Downloads\\",
+      filename: "test_save.wav",
+      fullpath: null
     };
-    this.handleInputChange = this.handleInputChange.bind(this);
   }
 
   generateSine() {
@@ -95,15 +98,44 @@ class Graph extends React.Component {
       });
   }
 
-  handleInputChange(event, idx) {
+  handleFListChange(event, idx) {
     const value = event.target.value;
-    const temp_list = this.state.f_list
-    temp_list[idx] = value
+    const temp_list = this.state.f_list;
+    temp_list[idx] = value;
     this.setState({ f_list: temp_list });
     if (idx == 0){
       this.setState({ f0: value });
       this.generateSine()
     }
+  }
+
+  handleWriteDirectoryChange(event) {
+    const directory = event.target.value;
+    this.setState({directory: directory});
+    this.concatenateFullpath()
+  }
+  
+  handleWriteFileNameChange(event) {
+    const filename = event.target.value;
+    this.setState({filename: filename});
+    this.concatenateFullpath()
+  }
+
+  concatenateFullpath() {
+    if (this.state.filename != null && this.state.directory != null)
+      char = '{this.state.directory}${this.state.filename}'
+      this.setState({ fullpath: char})
+  }
+
+  writeFile(){
+    axios.get('/writeFile')
+      .then(response => {
+        this.setState({ success: response.success });
+        alert("Successfully saved")
+      })
+      .catch(error => {
+        console.log(error)
+      });
   }
 
   render() {
@@ -130,7 +162,7 @@ class Graph extends React.Component {
               className="col-start-1 col-span-1"
               type="range" min="20" max="20000" step="10"
               value={this.state.f0}
-              onChange={evt => this.handleInputChange(evt, 0)}
+              onChange={evt => this.handleFListChange(evt, 0)}
             />
           </div>
           <div>
@@ -138,16 +170,16 @@ class Graph extends React.Component {
             <input
               name="f0_frequency"
               value={this.state.f_list[0]}
-              onChange={evt => this.handleInputChange(evt, 0)}/>
+              onChange={evt => this.handleFListChange(evt, 0)}/>
             {/* <br /> */}
             <input 
               placeholder="f1"
               value={this.state.f_list[1]}
-              onChange={evt => this.handleInputChange(evt, 1)}/>
+              onChange={evt => this.handleFListChange(evt, 1)}/>
             <input
               placeholder="f2"
               value={this.state.f_list[2]}
-              onChange={evt => this.handleInputChange(evt, 2)}/>
+              onChange={evt => this.handleFListChange(evt, 2)}/>
             (Hz)
           </div>
           <br />
@@ -158,11 +190,38 @@ class Graph extends React.Component {
           >
             Generate noise
           </button>
+          <br />
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.writeFile()}
+          >
+            Save current audio in wav file
+          </button>
+          <input
+            placeholder="directory"
+            value={this.state.directory}
+            onChange={evt => this.handleWriteDirectoryChange(evt)}/>
+          <input
+            placeholder="filename + extension"
+            value={this.state.filename}
+            onchange={evt => this.handleWriteFileNameChange(evt)}/>
           <LineGraph
             data={this.state.data}
             title={this.state.type}
           />
         </div>
+        <br />
+        <label>
+          f0 = {this.state.f0} Hz <br/>
+          f_list = {this.state.f_list[0]},
+          {this.state.f_list[1]}, {this.state.f_list[2]} <br/>
+          rate = {this.state.rate} Hz <br/>
+          success = {this.state.success} <br/>
+          type = {this.state.type} <br/>
+          fullpath = {this.state.fullpath}
+        </label>      
+      
       </Link>
     )
   }
