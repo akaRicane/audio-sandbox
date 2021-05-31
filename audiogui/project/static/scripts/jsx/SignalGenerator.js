@@ -2,12 +2,15 @@ import React, { Component, useState } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
-import SineGenerator from './SineGenerator'
+import SineGenerator from './components/SineGenerator'
+import NoiseGenerator from './components/NoiseGenerator'
 import '../../css/style.css';
 
 function UniqueParameters(props){
     if (props.type == 'Sine')
         return <SineGenerator />
+    if (props.type == 'Noise')
+        return <NoiseGenerator/>
     if (props.type == null)
         return <label>Type is null</label>
     else

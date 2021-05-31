@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import '../../css/style.css';
+
 
 class SineGenerator extends Component {
     constructor(props) {
