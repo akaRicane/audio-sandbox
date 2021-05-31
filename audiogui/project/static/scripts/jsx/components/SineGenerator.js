@@ -54,39 +54,40 @@ class SineGenerator extends Component {
 
     render() {
         return (
-            <label>
-                <br />
-                Sine Generator Motherfucker !<br />
-                <ul>
-                    {this.state.param.map(sine => 
-                        <li>
+            <div class="bg-blue-500 bg-opacity-100">
+                <label>
+                    Sine Generator Motherfucker !<br />
+                    <ul>
+                        {this.state.param.map(sine => 
+                            <li>
+                                <button
+                                type="button"
+                                className="p-2 my-2 bg-gray-500 text-white rounded-md"
+                                onClick={() => this.handleDelete(sine.id)}
+                                >X</button>
+                                id: {sine.id}{"   |   "}
+                                freq: {sine.freq}{"   Hz|   "}
+                                gain: {sine.gain}{"     |   "}
+                            </li>
+                        )}
+                        <form>
                             <button
-                              type="button"
-                              className="p-2 my-2 bg-gray-500 text-white rounded-md"
-                              onClick={() => this.handleDelete(sine.id)}
-                              >X</button>
-                            id: {sine.id}{"   |   "}
-                            freq: {sine.freq}{"   Hz|   "}
-                            gain: {sine.gain}{"     |   "}
-                        </li>
-                    )}
-                    <form>
-                        <button
-                          type="button"
-                          className="p-2 my-2 bg-gray-500 text-white rounded-md"
-                          onClick={() => this.handleAddSine()}
-                          >add</button>{"   "}
-                        freq:
-                        <input 
-                            value={this.state.pending_freq}
-                            onChange={evt => this.state.handleChangeNewFreq(evt)}/>{"Hz|   "}
-                        gain: 
-                        <input 
-                            value={this.state.pending_gain}
-                            onChange={evt => this.handleChangeNewGain(evt)}/>{"|   "}    
-                    </form>
-                </ul>
-            </label>
+                            type="button"
+                            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+                            onClick={() => this.handleAddSine()}
+                            >add</button>{"   "}
+                            freq:
+                            <input 
+                                value={this.state.pending_freq}
+                                onChange={evt => this.state.handleChangeNewFreq(evt)}/>{"Hz|   "}
+                            gain: 
+                            <input 
+                                value={this.state.pending_gain}
+                                onChange={evt => this.handleChangeNewGain(evt)}/>{"|   "}    
+                        </form>
+                    </ul>
+                </label>
+            </div>
     )}
 };
 

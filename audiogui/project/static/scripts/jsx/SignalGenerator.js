@@ -4,6 +4,7 @@ import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
 import SineGenerator from './components/SineGenerator'
 import NoiseGenerator from './components/NoiseGenerator'
+import SweepGenerator from './components/SweepGenerator'
 import '../../css/style.css';
 
 function UniqueParameters(props){
@@ -11,6 +12,8 @@ function UniqueParameters(props){
         return <SineGenerator />
     if (props.type == 'Noise')
         return <NoiseGenerator/>
+    if (props.type == 'Sweep')
+        return <SweepGenerator/>
     if (props.type == null)
         return <label>Type is null</label>
     else
@@ -73,7 +76,8 @@ class SignalGenerator extends Component {
     
     render() {
         return (
-            <div>
+            <div
+                class="bg-blue-300 bg-opacity-100">
                 <h1>Signal Generator</h1>
                 <button
                     type="button"
@@ -121,7 +125,7 @@ class SignalGenerator extends Component {
                         <br />
                         Type: {this.state.commonProps.type}
                     </label>
-                    <br />
+                    <br /><br />
                     <UniqueParameters type={this.state.commonProps.type}/>
                 </form>
             </div>
