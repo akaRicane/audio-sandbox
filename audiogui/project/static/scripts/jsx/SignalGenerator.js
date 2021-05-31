@@ -2,8 +2,17 @@ import React, { Component, useState } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
+import SineGenerator from './SineGenerator'
 import '../../css/style.css';
 
+function UniqueParameters(props){
+    if (props.type == 'Sine')
+        return <SineGenerator />
+    if (props.type == null)
+        return <label>Type is null</label>
+    else
+        return <label>Ca pue</label>
+}
 
 class SignalGenerator extends Component {
     constructor(props) {
@@ -14,13 +23,15 @@ class SignalGenerator extends Component {
                 format: "max_size",
                 size: 1024,
                 type: null
-            }
+            },
+            uniqueProps: null
         };
     }
 
     sineWidget() {
     
         this.setState({ commonProps: {type: "Sine"}});
+
     }
     
     sweepWidget() {
@@ -49,6 +60,7 @@ class SignalGenerator extends Component {
             this.setState({ commonProps: {format, size: 1024}})
 
     }
+
 
     handleChangeSize(event) {   
         const size = event.target.value;
@@ -106,6 +118,8 @@ class SignalGenerator extends Component {
                         <br />
                         Type: {this.state.commonProps.type}
                     </label>
+                    <br />
+                    <UniqueParameters type={this.state.commonProps.type}/>
                 </form>
             </div>
         )

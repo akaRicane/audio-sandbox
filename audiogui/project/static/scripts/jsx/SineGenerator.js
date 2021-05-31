@@ -14,6 +14,7 @@ class SineGenerator extends Component {
     render() {
         return (
             <label>
+                <br />
                 Sine Generator Motherfucker !<br />
                 
             </label>
