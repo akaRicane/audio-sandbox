@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from 'axios';
 import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
+import SignalGenerator from "./SignalGenerator";
 
 class LineGraph extends React.Component {
   constructor(props) {
@@ -222,6 +223,16 @@ class Graph extends React.Component {
   render() {
     return (
       <Link to="/graph">
+        <SignalGenerator/>
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
+        <br />
         <div>
           <button
             type="button"
@@ -246,8 +257,26 @@ class Graph extends React.Component {
               onChange={evt => this.handleFListChange(evt, 0)}
             />
           </div>
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.generateMultiSine()}
+          >
+            Generate multisine
+            </button>
+          <br />
           <div>
-            f_list:
+            <button
+              type="button"
+              className="p-2 my-2 bg-gray-500 text-white rounded-md"
+              onClick={() => this.addFreq()}>
+              Add freq
+            </button>
+            <input
+              placeholder="new freq (Hz)"
+              value={this.state.pending_frequency}
+              />
+              f_list:
             <input
               name="f0_frequency"
               value={this.state.f_list[0]}
@@ -312,13 +341,25 @@ class Graph extends React.Component {
         <br />
         <label>
           f0 = {this.state.f0} Hz <br/>
-          f_list = {this.state.f_list[0]},
-          {this.state.f_list[1]}, {this.state.f_list[2]} <br/>
+          <div>
+            Automatic f_list:
+            <ul>
+              {this.state.f_list.map(freq => 
+                <li>
+                  {freq}
+                </li>
+              )}
+            </ul>
+          </div>
           rate = {this.state.rate} Hz <br/>
           success = {this.state.success} <br/>
           type = {this.state.type} <br/>
           fullpath = {this.state.fullpath}
         </label>      
+        <LineGraph
+          data={this.state.data}
+          title={this.state.type}
+        />
       
       </Link>
     )
