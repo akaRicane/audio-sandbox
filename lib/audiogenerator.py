@@ -87,11 +87,11 @@ class Sine(AudioSignal):
         """
         super().__init__(value=value, format=format, rate=rate)
         # need to convert vect in rad
-        self.vect = tool.convert_basis_to_rad(self.vect, self.rate)
+        rad_basis = tool.convert_basis_to_rad(self.vect, self.rate)
         # angular frequency
         w = np.array(2 * np.pi * f0)
-        self.vect = w * self.vect
-        self.signal = np.multiply(np.sin(self.vect), gain)
+        rad_basis = w * rad_basis
+        self.signal = np.multiply(np.sin(rad_basis), gain)
 
 
 class MultiSine(Sine):
@@ -119,9 +119,7 @@ class Noise(AudioSignal):
                  value: int = 1024, format: str = 'max_size'):
         random.seed(None)
         super().__init__(rate=rate, value=value, format=format)
-        self.signal = []
-        for idx in self.vect:
-            self.signal.append(random.uniform(-gain, gain))
+        self.signal = np.random.uniform(-gain, gain, size=value)
 
 
 class Sweep(AudioSignal):

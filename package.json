@@ -2,7 +2,7 @@
   "name": "audiogui",
   "version": "1.0.0",
   "description": "",
-  "main": "./audiogui/project/static/scripts/js/main.js",
+  "main": "./audiogui/project/static/scripts/js/index.js",
   "scripts": {
     "dev": "webpack --mode development --watch",
     "start": "webpack serve"

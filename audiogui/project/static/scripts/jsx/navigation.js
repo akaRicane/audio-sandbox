@@ -1,4 +1,5 @@
 import React from "react";
+import { NavLink } from 'react-router-dom';
 
 class Navigation extends React.Component {
   render() {
@@ -13,15 +14,8 @@ class Navigation extends React.Component {
               <div class="hidden md:block">
                 <div class="ml-10 flex items-baseline space-x-4">
                   {/* <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" --> */}
-                  <a href="/home" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Generate Sinus</a>
-
-                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">TODO</a>
-
-                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">TODO</a>
-
-                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">TODO</a>
-
-                  <a href="#" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">TODO</a>
+                  <NavLink to="/graph" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Graph</NavLink>
+                  <NavLink to="/wiki" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Wiki</NavLink>
                 </div>
               </div>
             </div>
