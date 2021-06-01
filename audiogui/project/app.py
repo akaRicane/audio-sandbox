@@ -1,5 +1,6 @@
 import os
 import sys
+from flask.helpers import make_response
 import sounddevice as sd
 import numpy as np
 from flask import Flask, render_template, jsonify, request
@@ -19,21 +20,24 @@ def index():
 
 @app.route('/sine', methods=['GET'])
 def generateSine():
-    print("\n*** Generate sine", request)
+    print("\n*** Generate sine ***")
     f0 = request.args.get("f0")
+    print(f"f0: {f0}")
     sine = generator.Sine(rate=RATE, f0=float(f0), gain=0.8)
     return data_formatting_signals(sine)
 
 
-@app.route('/multisine', methods=['GET'])
+@app.route('/multisine', methods=['POST'])
 def generateMultiSine():
-    print("\n*** Generate multisine", request)
-    f_list = request.args.get("f_list")
-    print(f_list)
-    if f_list is None:
-        f_list = [440, 650, 1111]
-    msine = generator.MultiSine(
-        rate=RATE, f_list=f_list, gain_list=[1, 1, 1])
+    print("\n*** Generate multisine ***")
+    args_dict = request.get_json()
+
+    f_list = args_dict["param"]["args"]["f_list"]
+    gain_list = args_dict["param"]["args"]["gain_list"]
+    print(f"F_LIST: {np.array(f_list, dtype=np.float32)}  "
+          f"|  GAINS : {np.array(gain_list, dtype=np.float32)}")
+
+    msine = generator.MultiSine(rate=RATE, f_list=f_list, gain_list=gain_list)
     return data_formatting_signals(msine)
 
 

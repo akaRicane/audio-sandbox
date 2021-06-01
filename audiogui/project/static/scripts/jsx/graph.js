@@ -9,7 +9,7 @@ class LineGraph extends React.Component {
   }
 
   componentDidUpdate() {
-    console.log(this.props.data);
+    // console.log(this.props.data);
     this.lineChart.data.labels = this.props.labels;
     this.lineChart.data.datasets[0].data = this.props.data;
     this.lineChart.update();
@@ -70,7 +70,8 @@ class Graph extends React.Component {
   }
 
   generateSine() {
-    axios.get('/sine', {params: {f0: this.state.f0}})
+    console.log("Generating sine")
+    axios.get('/sine', { params: {f0: this.state.f0}})
       .then(response => {
         const labels = response.data.map(d => d.label);
         const data = response.data.map(d => d.value);
@@ -82,9 +83,19 @@ class Graph extends React.Component {
   };
 
   generateMultiSine() {
-    axios.get('/multisine', {params: {f_list: this.state.f_list}})
+    console.log("Generating multi sine")
+    
+    const args = {
+      f_list: this.state.f_list,
+      gain_list: [10, 10, 10]
+    }
+    console.log(args);
+
+    axios.post('/multisine', { param: {args}})
       .then(response => {
-        this.setState({ data: response.data, type: 'MultiSine' });
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ labels: labels, data: data, type: 'MultiSine' });
       })
       .catch(error => {
         console.log(error)
@@ -92,6 +103,7 @@ class Graph extends React.Component {
   };
 
   generateNoise(){
+    console.log("Generating noise")
     axios.get('/noise')
       .then(response => {
         this.setState({ data: response.data });
