@@ -3,7 +3,7 @@ import sys
 from flask.helpers import make_response
 import sounddevice as sd
 import numpy as np
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, json, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
 from lib import audiofile, config, tool  # noqa E402
@@ -23,11 +23,14 @@ def generateSine():
     print("\n*** Generate sine ***")
     args_dict = request.get_json()
 
+    rate = np.float32(args_dict["rate"])
     f0 = np.float32(args_dict["f0"])
-    print(f"f0: {f0}")
+    gain = np.float32(args_dict["gain"])
+    print(f"rate: {rate} | f0: {f0} | gain: {gain}")
 
-    sine = generator.Sine(rate=RATE, f0=f0, gain=0.8)
-    return data_formatting_signals(sine)
+    sine = generator.Sine(rate=rate, f0=f0, gain=gain)
+    return jsonify(
+        {'data': sine.signal.tolist(), 'labels': sine.vect.tolist()})
 
 
 @app.route('/multisine', methods=['POST'])
@@ -40,7 +43,6 @@ def generateMultiSine():
     print(f"F_LIST: {f_list}  "
           f"|  GAINS : {gain_list}")
 
-    print(f"\ntype f : {type(f_list[0])}\n")
     msine = generator.MultiSine(rate=RATE, f_list=f_list, gain_list=gain_list)
     return data_formatting_signals(msine)
 

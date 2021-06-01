@@ -73,14 +73,16 @@ class Graph extends React.Component {
     console.log("Generating sine")
 
     const args = {
-      f0: this.state.f0
+      rate: 44100,
+      f0: this.state.f0,
+      gain: 0.98
     }
     console.log(args);
 
     axios.post('/sine', args)
       .then(response => {
-        const labels = response.data.map(d => d.label);
-        const data = response.data.map(d => d.value);
+        const labels = response.data.labels;
+        const data = response.data.data;
         this.setState({ labels: labels, data: data, type: 'Sine' });
       })
       .catch(error => {
