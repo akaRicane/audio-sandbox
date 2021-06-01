@@ -64,7 +64,7 @@ class Graph extends React.Component {
       success: null,
       directory: "\\C:\\Users\\phili\\Downloads\\",
       filename: "test_save.wav",
-      fullpath: null
+      fullpath: "this is a test"
     };
   }
 
@@ -127,8 +127,26 @@ class Graph extends React.Component {
       this.setState({ fullpath: char})
   }
 
+  loadFile() {
+    axios.get('/loadFile', { params: {filepath: this.state.fullpath}})
+      .then(response => {
+        this.setState({ data: response.data });
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
+
   writeFile(){
-    axios.get('/writeFile')
+    const dataToSend = this.state.data.map(elem => elem.value);
+    console.log({dataToSend});
+
+    axios.get('/writeFile', {params: {
+      data: dataToSend,
+      rate: this.state.rate, 
+      fullpath: this.state.fullpath}
+    })
       .then(response => {
         this.setState({ success: response.success });
         alert("Successfully saved")
@@ -206,6 +224,14 @@ class Graph extends React.Component {
             placeholder="filename + extension"
             value={this.state.filename}
             onchange={evt => this.handleWriteFileNameChange(evt)}/>
+          <br />
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.loadFile()}
+          >
+            Load audio file
+          </button>
           <LineGraph
             data={this.state.data}
             title={this.state.type}

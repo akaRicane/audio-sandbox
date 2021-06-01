@@ -3,7 +3,7 @@ import sys
 from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
-from lib import audiofile  # noqa E402
+from lib import audiofile, config  # noqa E402
 
 app = Flask(__name__)
 
@@ -20,7 +20,7 @@ def generateSine():
     print("\n*** Generate sine", request)
     f0 = request.args.get("f0")
     sine = generator.Sine(rate=RATE, f0=float(f0), gain=0.8)
-    return data_formatting(sine)
+    return data_formatting_signals(sine)
 
 
 @app.route('/multisine', methods=['GET'])
@@ -32,14 +32,21 @@ def generateMultiSine():
         f_list = [440, 650, 1111]
     msine = generator.MultiSine(
         rate=RATE, f_list=f_list, gain_list=[1, 1, 1])
-    return data_formatting(msine)
+    return data_formatting_signals(msine)
 
 
 @app.route('/noise', methods=['GET'])
 def generateNoise():
     print("\n*** Generate noise\n")
     noise = generator.Noise(rate=RATE, gain=0.5)
-    return data_formatting(noise)
+    return data_formatting_signals(noise)
+
+
+@app.route('/loadFile', methods=['GET'])
+def loadFile():
+    print("\n*** Loading file\n")
+    data, rate = audiofile.load_from_filepath(config.AUDIO_FILE_JOYCA)
+    return data_formatting_file(data)
 
 
 @app.route('/writeFile', methods=['GET'])
@@ -48,19 +55,13 @@ def writeFile():
     filepath = request.args.get("fullpath")
     data = request.args.get("data")
     rate = request.args.get("rate")
-    print(data is not None)
     print(rate)
     print(filepath)
-    data = [data, data]
-    success = audiofile.write_in_audiofile(
-        filepath="\\C:\\Users\\phili\\Downloads",
-        filename="test_save.wav",
-        format="WAV",
-        audio_signal=data,
-        rate=44100)
-    msg = []
-    msg.success = success
-    print("\nBYE FLASK\n")
+    print(data)
+    data = audiofile.load_from_filepath(config.AUDIO_FILE_ACID)
+    success = True
+    msg = {success: success}
+    print("\nNIKE TA DARONE\n")
     return jsonify(msg)
 
 
@@ -68,7 +69,7 @@ def return_success_formatting(success):
     pass
 
 
-def data_formatting(signal):
+def data_formatting_signals(signal):
     data = []
     print("\n\n FORMATTING DATA BEFORE SEND REACT\n\n")
     for index in range(len(signal.vect)):
@@ -83,6 +84,16 @@ def data_formatting(signal):
                 "label": "",
                 "value": signal.signal[index]
             })
+    print("\nBYE FLASK\n")
+    return jsonify(data)
+
+
+def data_formatting_file(signal):
+    data = []
+    print("\n\n FORMATTING FILE DATA BEFORE SEND REACT\n\n")
+    for index in range(len(signal)):
+        print(f'signal val: {signal[index][0]}')
+        data.append({"value": signal[index][0]})
     print("\nBYE FLASK\n")
     return jsonify(data)
 
