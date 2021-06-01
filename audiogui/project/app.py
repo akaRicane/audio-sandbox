@@ -92,8 +92,17 @@ def data_formatting_file(signal):
     data = []
     print("\n\n FORMATTING FILE DATA BEFORE SEND REACT\n\n")
     for index in range(len(signal)):
-        print(f'signal val: {signal[index][0]}')
-        data.append({"value": signal[index][0]})
+        if index % 30 == 0:
+            # print(f"{signal.vect[index]} : {signal.signal[index]}")
+            data.append({
+                "label": float(index),
+                "value": signal[index][0]
+            })
+        else:
+            data.append({
+                "label": "",
+                "value": signal[index][0]
+            })
     print("\nBYE FLASK\n")
     return jsonify(data)
 
