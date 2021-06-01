@@ -10,8 +10,8 @@ class LineGraph extends React.Component {
 
   componentDidUpdate() {
     console.log(this.props.data);
-    this.lineChart.data.labels = this.props.data.map(d => d.label);
-    this.lineChart.data.datasets[0].data = this.props.data.map(d => d.value);
+    this.lineChart.data.labels = this.props.labels;
+    this.lineChart.data.datasets[0].data = this.props.data;
     this.lineChart.update();
   }
 
@@ -24,11 +24,11 @@ class LineGraph extends React.Component {
       type: "line",
       data: {
         //Bring in data
-        labels: this.props.data.map(d => d.label),
+        labels: this.props.labels,
         datasets: [
           {
             label: this.props.title,
-            data: this.props.data.map(d => d.value),
+            data: this.props.data,
           }
         ]
       },
@@ -57,6 +57,7 @@ class Graph extends React.Component {
     super(props);
     this.state = {
       data: [],
+      labels: [],
       f0: 440,
       f_list: [440, 650, 1111],
       rate: 44100,
@@ -71,7 +72,9 @@ class Graph extends React.Component {
   generateSine() {
     axios.get('/sine', {params: {f0: this.state.f0}})
       .then(response => {
-        this.setState({ data: response.data, type: 'Sine' });
+        const labels = response.data.map(d => d.label);
+        const data = response.data.map(d => d.value);
+        this.setState({ labels: labels, data: data, type: 'Sine' });
       })
       .catch(error => {
         console.log(error)
@@ -258,6 +261,7 @@ class Graph extends React.Component {
           <div>
             <LineGraph
               data={this.state.data}
+              labels={this.state.labels}
               title={this.state.type}
           /></div>
         </div>

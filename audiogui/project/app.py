@@ -5,7 +5,7 @@ import numpy as np
 from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
-from lib import audiofile, config  # noqa E402
+from lib import audiofile, config, tool  # noqa E402
 
 app = Flask(__name__)
 
