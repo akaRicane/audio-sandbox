@@ -2,6 +2,7 @@ import os
 import sys
 import copy
 import wave
+import tempfile
 import struct
 import numpy as np
 sys.path.append(os.getcwd())
@@ -41,6 +42,32 @@ def sum_arrays(array1, array2) -> np.array:
         _sum[ii] = array1[ii]
     return _sum
 
+###
+# TEMPORARY FILES
+###
+
+
+def save_array_in_temp(array: np.array):
+    fd, temp_path = tempfile.mkstemp()
+    file = open(temp_path, 'wb')
+    file.write(array)
+    file.close()
+    return fd, temp_path
+
+
+def load_array_from_temp(temp_path):
+    file = open(temp_path, 'rb')
+    data = np.frombuffer(file.read(), dtype=np.float64)
+    file.close()
+    return np.array(data)
+
+
+def close_tempfile(fd, temp_path):
+    file = open(temp_path, 'r')
+    file.close()
+    os.close(fd)
+    os.remove(temp_path)
+    return True
 
 ###
 # OTHERS
