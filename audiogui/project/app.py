@@ -1,5 +1,7 @@
 import os
 import sys
+import sounddevice as sd
+import numpy as np
 from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
@@ -59,6 +61,20 @@ def writeFile():
     print(filepath)
     print(data)
     data = audiofile.load_from_filepath(config.AUDIO_FILE_ACID)
+    success = True
+    msg = {success: success}
+    print("\nNIKE TA DARONE\n")
+    return jsonify(msg)
+
+
+@app.route('/playAudio', methods=['GET'])
+def playAudio():
+    print("\n*** Playing audio from web\n")
+    data = request.args.get("data")
+    # data, rate = audiofile.load_from_filepath(config.AUDIO_FILE_JOYCA)
+    print(f'signal data {data}')
+    sd.play(np.array(data), 44100)
+    # sd.wait()
     success = True
     msg = {success: success}
     print("\nNIKE TA DARONE\n")

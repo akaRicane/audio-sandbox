@@ -156,6 +156,22 @@ class Graph extends React.Component {
       });
   }
 
+
+  playAudio() {
+    const dataToSend = this.state.data.map(elem => elem.value);
+    
+    var myParam = {
+      data: dataToSend
+    }
+    
+    console.log({myParam});
+    axios.get('/playAudio', myParam)
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
+
   render() {
     return (
       <Link to="/graph">
@@ -232,10 +248,18 @@ class Graph extends React.Component {
           >
             Load audio file
           </button>
-          <LineGraph
-            data={this.state.data}
-            title={this.state.type}
-          />
+          <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.playAudio()}
+          >
+            Play audio
+          </button>
+          <div>
+            <LineGraph
+              data={this.state.data}
+              title={this.state.type}
+          /></div>
         </div>
         <br />
         <label>
