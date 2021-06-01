@@ -18,12 +18,15 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/sine', methods=['GET'])
+@app.route('/sine', methods=['POST'])
 def generateSine():
     print("\n*** Generate sine ***")
-    f0 = request.args.get("f0")
+    args_dict = request.get_json()
+
+    f0 = np.float32(args_dict["f0"])
     print(f"f0: {f0}")
-    sine = generator.Sine(rate=RATE, f0=float(f0), gain=0.8)
+
+    sine = generator.Sine(rate=RATE, f0=f0, gain=0.8)
     return data_formatting_signals(sine)
 
 
@@ -32,11 +35,12 @@ def generateMultiSine():
     print("\n*** Generate multisine ***")
     args_dict = request.get_json()
 
-    f_list = args_dict["param"]["args"]["f_list"]
-    gain_list = args_dict["param"]["args"]["gain_list"]
-    print(f"F_LIST: {np.array(f_list, dtype=np.float32)}  "
-          f"|  GAINS : {np.array(gain_list, dtype=np.float32)}")
+    f_list = np.array(args_dict["f_list"], dtype=np.float32)
+    gain_list = np.array(args_dict["gain_list"], dtype=np.float32)
+    print(f"F_LIST: {f_list}  "
+          f"|  GAINS : {gain_list}")
 
+    print(f"\ntype f : {type(f_list[0])}\n")
     msine = generator.MultiSine(rate=RATE, f_list=f_list, gain_list=gain_list)
     return data_formatting_signals(msine)
 

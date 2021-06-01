@@ -58,9 +58,9 @@ class Graph extends React.Component {
     this.state = {
       data: [],
       labels: [],
-      f0: 440,
-      f_list: [440, 650, 1111],
-      rate: 44100,
+      f0: "440",
+      f_list: ["440", "650", "1111"],
+      rate: "44100",
       type: null,
       success: null,
       directory: "\\C:\\Users\\phili\\Downloads\\",
@@ -71,7 +71,13 @@ class Graph extends React.Component {
 
   generateSine() {
     console.log("Generating sine")
-    axios.get('/sine', { params: {f0: this.state.f0}})
+
+    const args = {
+      f0: this.state.f0
+    }
+    console.log(args);
+
+    axios.post('/sine', args)
       .then(response => {
         const labels = response.data.map(d => d.label);
         const data = response.data.map(d => d.value);
@@ -91,10 +97,10 @@ class Graph extends React.Component {
     }
     console.log(args);
 
-    axios.post('/multisine', { param: {args}})
+    axios.post('/multisine', args)
       .then(response => {
-        const labels = response.data.labels;
-        const data = response.data.data;
+        const labels = response.data.map(d => d.label);
+        const data = response.data.map(d => d.value);
         this.setState({ labels: labels, data: data, type: 'MultiSine' });
       })
       .catch(error => {
