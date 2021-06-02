@@ -11,6 +11,7 @@ class LineGraph extends React.Component {
   componentDidUpdate() {
     console.log(this.props.data);
     this.lineChart.data.labels = this.props.labels;
+    this.lineChart.data.datasets[0].label = this.props.title;
     this.lineChart.data.datasets[0].data = this.props.data;
     this.lineChart.update();
   }
@@ -132,7 +133,6 @@ class Graph extends React.Component {
   }
 
 
-  
   loadFile() {
     console.log("Loading file")
     
@@ -277,7 +277,7 @@ class Graph extends React.Component {
             className="p-2 my-2 bg-gray-500 text-white rounded-md"
             onClick={() => this.writeFile()}
           >
-            Save current audio in wav file
+            Save audio
           </button>
           <input
             placeholder="directory"

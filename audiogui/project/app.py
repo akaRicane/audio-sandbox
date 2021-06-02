@@ -71,7 +71,7 @@ def loadFile():
     filepath = args_dict["filepath"]
     print(f"filepath: {filepath}")
 
-    data, rate = audiofile.load_from_filepath(config.AUDIO_FILE_JOYCA)
+    data, rate = audiofile.load_from_filepath(filepath)
 
     labels = []
     mono_data = []
