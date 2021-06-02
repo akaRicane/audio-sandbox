@@ -10,8 +10,6 @@ from lib import audiofile, config, tool  # noqa E402
 
 app = Flask(__name__)
 
-RATE = 44100
-
 
 @app.route('/')
 def index():

@@ -1,57 +1,8 @@
 import React, { useState } from "react";
 import axios from 'axios';
-import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
-import SignalGenerator from "./SignalGenerator";
-
-class LineGraph extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  componentDidUpdate() {
-    console.log(this.props.data);
-    this.lineChart.data.labels = this.props.labels;
-    this.lineChart.data.datasets[0].label = this.props.title;
-    this.lineChart.data.datasets[0].data = this.props.data;
-    this.lineChart.update();
-  }
-
-  componentDidMount() {
-    const ctx = document.getElementById("myChart");
-    ctx.height = 200;
-    ctx.width = 500;
-
-    this.lineChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        //Bring in data
-        labels: this.props.labels,
-        datasets: [
-          {
-            label: this.props.title,
-            data: this.props.data,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true
-            }
-          }]
-        }
-      }
-    });
-  }
-
-  render() {
-    return <canvas id="myChart" width={8000} />;
-  }
-}
+import SignalGenerator from "./components/SignalGenerator";
+import LineGraph from "./components/LineGraph.js";
 
 
 class Graph extends React.Component {
@@ -225,14 +176,6 @@ class Graph extends React.Component {
       <Link to="/graph">
         <SignalGenerator/>
         <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
         <div>
           <button
             type="button"
@@ -257,13 +200,6 @@ class Graph extends React.Component {
               onChange={evt => this.handleFListChange(evt, 0)}
             />
           </div>
-          <button
-            type="button"
-            className="p-2 my-2 bg-gray-500 text-white rounded-md"
-            onClick={() => this.generateMultiSine()}
-          >
-            Generate multisine
-            </button>
           <br />
           <div>
             <button

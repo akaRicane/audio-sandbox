@@ -2,10 +2,10 @@ import React, { Component, useState } from 'react';
 import axios from 'axios';
 import Chart from 'chart.js';
 import { Link } from 'react-router-dom';
-import SineGenerator from './components/SineGenerator'
-import NoiseGenerator from './components/NoiseGenerator'
-import SweepGenerator from './components/SweepGenerator'
-import '../../css/style.css';
+import SineGenerator from './SineGenerator'
+import NoiseGenerator from './NoiseGenerator'
+import SweepGenerator from './SweepGenerator'
+import LineGraph from "./LineGraph.js";
 
 function UniqueParameters(props){
     if (props.type == 'Sine')
@@ -125,7 +125,11 @@ class SignalGenerator extends Component {
                         <br />
                         Type: {this.state.commonProps.type}
                     </label>
-                    <br /><br />
+                    <br />
+                    <LineGraph
+                      data={this.state.data}
+                      title={this.state.type}
+                    /><br />
                     <UniqueParameters type={this.state.commonProps.type}/>
                 </form>
             </div>
