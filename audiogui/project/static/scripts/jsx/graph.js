@@ -10,8 +10,9 @@ class LineGraph extends React.Component {
 
   componentDidUpdate() {
     console.log(this.props.data);
-    this.lineChart.data.labels = this.props.data.map(d => d.label);
-    this.lineChart.data.datasets[0].data = this.props.data.map(d => d.value);
+    this.lineChart.data.labels = this.props.labels;
+    this.lineChart.data.datasets[0].label = this.props.title;
+    this.lineChart.data.datasets[0].data = this.props.data;
     this.lineChart.update();
   }
 
@@ -24,11 +25,11 @@ class LineGraph extends React.Component {
       type: "line",
       data: {
         //Bring in data
-        labels: this.props.data.map(d => d.label),
+        labels: this.props.labels,
         datasets: [
           {
             label: this.props.title,
-            data: this.props.data.map(d => d.value),
+            data: this.props.data,
           }
         ]
       },
@@ -57,21 +58,31 @@ class Graph extends React.Component {
     super(props);
     this.state = {
       data: [],
-      f0: 440,
-      f_list: [440, 650, 1111],
-      rate: 44100,
+      labels: [],
+      f_list: ["440", "650", "1111"],
+      rate: "44100",
       type: null,
-      success: null,
-      directory: "\\C:\\Users\\phili\\Downloads\\",
+      directory: "C:\\Users\\phili\\audio\\audio\\resources\\bin\\",
       filename: "test_save.wav",
-      fullpath: "this is a test"
+      fullpath: "C:\\Users\\phili\\audio\\audio\\resources\\bin\\test_save.wav"
     };
   }
 
   generateSine() {
-    axios.get('/sine', {params: {f0: this.state.f0}})
+    console.log("Generating sine")
+
+    const args = {
+      rate: 44100,
+      f0: this.state.f_list[0],
+      gain: 0.98
+    }
+    console.log(args);
+
+    axios.post('/sine', args)
       .then(response => {
-        this.setState({ data: response.data, type: 'Sine' });
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ labels: labels, data: data, type: 'Sine' });
       })
       .catch(error => {
         console.log(error)
@@ -79,9 +90,20 @@ class Graph extends React.Component {
   };
 
   generateMultiSine() {
-    axios.get('/multisine', {params: {f_list: this.state.f_list}})
+    console.log("Generating multi sine")
+    
+    const args = {
+      rate: this.state.rate,
+      f_list: this.state.f_list,
+      gain_list: [0.3, 0.3, 0.3]
+    }
+    console.log(args);
+
+    axios.post('/multisine', args)
       .then(response => {
-        this.setState({ data: response.data, type: 'MultiSine' });
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ labels: labels, data: data, type: 'MultiSine' });
       })
       .catch(error => {
         console.log(error)
@@ -89,14 +111,83 @@ class Graph extends React.Component {
   };
 
   generateNoise(){
-    axios.get('/noise')
+    console.log("Generating noise")
+    
+    const args = {
+      rate: this.state.rate,
+      gain: 0.95
+    }
+    console.log(args);
+
+    axios.post('/noise', args)
       .then(response => {
-        this.setState({ data: response.data });
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ labels: labels, data: data, type: 'Noise' });
       })
       .catch(error => {
         console.log(error)
       });
   }
+
+
+  loadFile() {
+    console.log("Loading file")
+    
+    const args = {
+      filepath: this.state.fullpath
+    }
+    console.log(args);
+
+    axios.post('/loadFile', args)
+      .then(response => {
+        const rate = response.data.rate;
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ rate: rate, labels:labels, data: data, type: 'File' });
+      })
+    .catch(error => {
+      console.log(error)
+    });
+  }
+
+
+  writeFile(){
+    console.log("Loading file")
+    
+    const args = {
+      rate: this.state.rate,
+      data: this.state.data,
+      directory: this.state.directory,
+      filename: this.state.filename,
+    }
+    console.log(args);
+
+    axios.post('/writeFile', args)
+      .then(response => {
+        alert("Successfully saved")
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
+
+  playAudio() {
+    console.log("Playing file")
+    
+    const args = {
+      rate: this.state.rate,
+      data: this.state.data,
+      }
+    console.log(args);
+    
+    axios.post('/playAudio', args)
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
 
   handleFListChange(event, idx) {
     const value = event.target.value;
@@ -125,50 +216,6 @@ class Graph extends React.Component {
     if (this.state.filename != null && this.state.directory != null)
       char = '{this.state.directory}${this.state.filename}'
       this.setState({ fullpath: char})
-  }
-
-  loadFile() {
-    axios.get('/loadFile', { params: {filepath: this.state.fullpath}})
-      .then(response => {
-        this.setState({ data: response.data });
-      })
-      .catch(error => {
-        console.log(error)
-      });
-  }
-
-
-  writeFile(){
-    const dataToSend = this.state.data.map(elem => elem.value);
-    console.log({dataToSend});
-
-    axios.get('/writeFile', {params: {
-      data: dataToSend,
-      rate: this.state.rate, 
-      fullpath: this.state.fullpath}
-    })
-      .then(response => {
-        this.setState({ success: response.success });
-        alert("Successfully saved")
-      })
-      .catch(error => {
-        console.log(error)
-      });
-  }
-
-
-  playAudio() {
-    const dataToSend = this.state.data.map(elem => elem.value);
-    
-    var myParam = {
-      data: dataToSend
-    }
-    
-    console.log({myParam});
-    axios.get('/playAudio', myParam)
-      .catch(error => {
-        console.log(error)
-      });
   }
 
 
@@ -230,7 +277,7 @@ class Graph extends React.Component {
             className="p-2 my-2 bg-gray-500 text-white rounded-md"
             onClick={() => this.writeFile()}
           >
-            Save current audio in wav file
+            Save audio
           </button>
           <input
             placeholder="directory"
@@ -258,6 +305,7 @@ class Graph extends React.Component {
           <div>
             <LineGraph
               data={this.state.data}
+              labels={this.state.labels}
               title={this.state.type}
           /></div>
         </div>
