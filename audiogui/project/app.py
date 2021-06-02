@@ -77,7 +77,11 @@ def loadFile():
     mono_data = []
     for idx in range(len(data)):
         labels.append(idx)
-        mono_data.append(data[idx][0])
+        if isinstance(data[idx], np.float64):
+            # it is a mono file
+            mono_data.append(data[idx])
+        else:
+            mono_data.append(data[idx][0])
 
     return jsonify(
         {'data': mono_data, 'labels': labels, 'rate': rate})
@@ -99,18 +103,17 @@ def writeFile():
     return jsonify(msg)
 
 
-@app.route('/playAudio', methods=['GET'])
+@app.route('/playAudio', methods=['POST'])
 def playAudio():
     print("\n*** Playing audio from web\n")
-    data = request.args.get("data")
-    # data, rate = audiofile.load_from_filepath(config.AUDIO_FILE_JOYCA)
-    print(f'signal data {data}')
-    sd.play(np.array(data), 44100)
-    # sd.wait()
-    success = True
-    msg = {success: success}
-    print("\nNIKE TA DARONE\n")
-    return jsonify(msg)
+    args_dict = request.get_json()
+
+    rate = args_dict["rate"]
+    data = np.array(args_dict["data"], dtype=np.float64)
+
+    sd.play(data, rate)
+    sd.wait()
+    return jsonify({'success': True})
 
 
 def data_formatting_file(signal):

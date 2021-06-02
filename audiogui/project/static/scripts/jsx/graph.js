@@ -174,14 +174,15 @@ class Graph extends React.Component {
 
 
   playAudio() {
-    const dataToSend = this.state.data.map(elem => elem.value);
+    console.log("Playing file")
     
-    var myParam = {
-      data: dataToSend
-    }
+    const args = {
+      rate: this.state.rate,
+      data: this.state.data,
+      }
+    console.log(args);
     
-    console.log({myParam});
-    axios.get('/playAudio', myParam)
+    axios.post('/playAudio', args)
       .catch(error => {
         console.log(error)
       });
