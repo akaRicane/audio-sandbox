@@ -23,7 +23,7 @@ def generateSine():
     print("\n*** Generate sine ***")
     args_dict = request.get_json()
 
-    rate = np.float64(args_dict["rate"])
+    rate = np.int64(args_dict["rate"])
     f0 = np.float64(args_dict["f0"])
     gain = np.float64(args_dict["gain"])
     print(f"rate: {rate} | f0: {f0} | gain: {gain}")
@@ -38,7 +38,7 @@ def generateMultiSine():
     print("\n*** Generate multisine ***")
     args_dict = request.get_json()
 
-    rate = np.float64(args_dict["rate"])
+    rate = np.int64(args_dict["rate"])
     f_list = np.array(args_dict["f_list"], dtype=np.float64)
     gain_list = np.array(args_dict["gain_list"], dtype=np.float64)
     print(f"rate: {rate} | F_LIST: {f_list}  "
@@ -54,7 +54,7 @@ def generateNoise():
     print("\n*** Generate noise ***")
     args_dict = request.get_json()
 
-    rate = np.float64(args_dict["rate"])
+    rate = np.int64(args_dict["rate"])
     gain = np.float64(args_dict["gain"])
     print(f"rate: {rate} | gain: {gain}")
 
@@ -87,20 +87,23 @@ def loadFile():
         {'data': mono_data, 'labels': labels, 'rate': rate})
 
 
-@app.route('/writeFile', methods=['GET'])
+@app.route('/writeFile', methods=['POST'])
 def writeFile():
     print("\n*** Writting audio file\n")
-    filepath = request.args.get("fullpath")
-    data = request.args.get("data")
-    rate = request.args.get("rate")
-    print(rate)
-    print(filepath)
-    print(data)
-    data = audiofile.load_from_filepath(config.AUDIO_FILE_ACID)
-    success = True
-    msg = {success: success}
-    print("\nNIKE TA DARONE\n")
-    return jsonify(msg)
+    args_dict = request.get_json()
+
+    rate = np.int64(args_dict["rate"])
+    data = np.array(args_dict["data"], dtype=np.float64)
+    directory = args_dict["directory"]
+    filename = args_dict["filename"]
+
+    print(f"rate: {rate} | filename: {filename}")
+
+    success = audiofile.write_in_audiofile(
+        filepath=directory, filename=filename,
+        format='WAV', audio_signal=data, rate=rate)
+
+    return jsonify({"success": success})
 
 
 @app.route('/playAudio', methods=['POST'])
@@ -108,31 +111,12 @@ def playAudio():
     print("\n*** Playing audio from web\n")
     args_dict = request.get_json()
 
-    rate = args_dict["rate"]
+    rate = np.int64(args_dict["rate"])
     data = np.array(args_dict["data"], dtype=np.float64)
 
     sd.play(data, rate)
     sd.wait()
     return jsonify({'success': True})
-
-
-def data_formatting_file(signal):
-    data = []
-    print("\n\n FORMATTING FILE DATA BEFORE SEND REACT\n\n")
-    for index in range(len(signal)):
-        if index % 30 == 0:
-            # print(f"{signal.vect[index]} : {signal.signal[index]}")
-            data.append({
-                "label": float(index),
-                "value": signal[index][0]
-            })
-        else:
-            data.append({
-                "label": "",
-                "value": signal[index][0]
-            })
-    print("\nBYE FLASK\n")
-    return jsonify(data)
 
 
 if __name__ == '__main__':

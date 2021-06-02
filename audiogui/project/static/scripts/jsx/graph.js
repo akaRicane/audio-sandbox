@@ -59,14 +59,12 @@ class Graph extends React.Component {
     this.state = {
       data: [],
       labels: [],
-      f0: "440",
       f_list: ["440", "650", "1111"],
       rate: "44100",
       type: null,
-      success: null,
-      directory: "\\C:\\Users\\phili\\Downloads\\",
+      directory: "C:\\Users\\phili\\audio\\audio\\resources\\bin\\",
       filename: "test_save.wav",
-      fullpath: "C:\\Users\\phili\\audio\\audio\\resources\\joyca.wav"
+      fullpath: "C:\\Users\\phili\\audio\\audio\\resources\\bin\\test_save.wav"
     };
   }
 
@@ -75,7 +73,7 @@ class Graph extends React.Component {
 
     const args = {
       rate: 44100,
-      f0: this.state.f0,
+      f0: this.state.f_list[0],
       gain: 0.98
     }
     console.log(args);
@@ -97,7 +95,7 @@ class Graph extends React.Component {
     const args = {
       rate: this.state.rate,
       f_list: this.state.f_list,
-      gain_list: [10, 10, 10]
+      gain_list: [0.3, 0.3, 0.3]
     }
     console.log(args);
 
@@ -136,35 +134,37 @@ class Graph extends React.Component {
   loadFile() {
     console.log("Loading file")
     
-      const args = {
-        filepath: this.state.fullpath
-      }
-      console.log(args);
-  
-      axios.post('/loadFile', args)
-        .then(response => {
-          const rate = response.data.rate;
-          const labels = response.data.labels;
-          const data = response.data.data;
-          this.setState({ rate: rate, labels:labels, data: data, type: 'File' });
-        })
-      .catch(error => {
-        console.log(error)
-      });
+    const args = {
+      filepath: this.state.fullpath
+    }
+    console.log(args);
+
+    axios.post('/loadFile', args)
+      .then(response => {
+        const rate = response.data.rate;
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ rate: rate, labels:labels, data: data, type: 'File' });
+      })
+    .catch(error => {
+      console.log(error)
+    });
   }
 
 
   writeFile(){
-    const dataToSend = this.state.data.map(elem => elem.value);
-    console.log({dataToSend});
+    console.log("Loading file")
+    
+    const args = {
+      rate: this.state.rate,
+      data: this.state.data,
+      directory: this.state.directory,
+      filename: this.state.filename,
+    }
+    console.log(args);
 
-    axios.get('/writeFile', {params: {
-      data: dataToSend,
-      rate: this.state.rate, 
-      fullpath: this.state.fullpath}
-    })
+    axios.post('/writeFile', args)
       .then(response => {
-        this.setState({ success: response.success });
         alert("Successfully saved")
       })
       .catch(error => {
