@@ -23,9 +23,9 @@ def generateSine():
     print("\n*** Generate sine ***")
     args_dict = request.get_json()
 
-    rate = np.float32(args_dict["rate"])
-    f0 = np.float32(args_dict["f0"])
-    gain = np.float32(args_dict["gain"])
+    rate = np.float64(args_dict["rate"])
+    f0 = np.float64(args_dict["f0"])
+    gain = np.float64(args_dict["gain"])
     print(f"rate: {rate} | f0: {f0} | gain: {gain}")
 
     sine = generator.Sine(rate=rate, f0=f0, gain=gain)
@@ -38,27 +38,49 @@ def generateMultiSine():
     print("\n*** Generate multisine ***")
     args_dict = request.get_json()
 
-    f_list = np.array(args_dict["f_list"], dtype=np.float32)
-    gain_list = np.array(args_dict["gain_list"], dtype=np.float32)
-    print(f"F_LIST: {f_list}  "
+    rate = np.float64(args_dict["rate"])
+    f_list = np.array(args_dict["f_list"], dtype=np.float64)
+    gain_list = np.array(args_dict["gain_list"], dtype=np.float64)
+    print(f"rate: {rate} | F_LIST: {f_list}  "
           f"|  GAINS : {gain_list}")
 
-    msine = generator.MultiSine(rate=RATE, f_list=f_list, gain_list=gain_list)
-    return data_formatting_signals(msine)
+    msine = generator.MultiSine(rate=rate, f_list=f_list, gain_list=gain_list)
+    return jsonify(
+        {'data': msine.signal.tolist(), 'labels': msine.vect.tolist()})
 
 
-@app.route('/noise', methods=['GET'])
+@app.route('/noise', methods=['POST'])
 def generateNoise():
-    print("\n*** Generate noise\n")
-    noise = generator.Noise(rate=RATE, gain=0.5)
-    return data_formatting_signals(noise)
+    print("\n*** Generate noise ***")
+    args_dict = request.get_json()
+
+    rate = np.float64(args_dict["rate"])
+    gain = np.float64(args_dict["gain"])
+    print(f"rate: {rate} | gain: {gain}")
+
+    noise = generator.Noise(rate=rate, gain=gain)
+    return jsonify(
+        {'data': noise.signal.tolist(), 'labels': noise.vect.tolist()})
 
 
-@app.route('/loadFile', methods=['GET'])
+@app.route('/loadFile', methods=['POST'])
 def loadFile():
-    print("\n*** Loading file\n")
+    print("\n*** Loading file")
+    args_dict = request.get_json()
+
+    filepath = args_dict["filepath"]
+    print(f"filepath: {filepath}")
+
     data, rate = audiofile.load_from_filepath(config.AUDIO_FILE_JOYCA)
-    return data_formatting_file(data)
+
+    labels = []
+    mono_data = []
+    for idx in range(len(data)):
+        labels.append(idx)
+        mono_data.append(data[idx][0])
+
+    return jsonify(
+        {'data': mono_data, 'labels': labels, 'rate': rate})
 
 
 @app.route('/writeFile', methods=['GET'])
@@ -89,29 +111,6 @@ def playAudio():
     msg = {success: success}
     print("\nNIKE TA DARONE\n")
     return jsonify(msg)
-
-
-def return_success_formatting(success):
-    pass
-
-
-def data_formatting_signals(signal):
-    data = []
-    print("\n\n FORMATTING DATA BEFORE SEND REACT\n\n")
-    for index in range(len(signal.vect)):
-        if index % 8 == 0:
-            # print(f"{signal.vect[index]} : {signal.signal[index]}")
-            data.append({
-                "label": float(signal.vect[index]),
-                "value": signal.signal[index]
-            })
-        else:
-            data.append({
-                "label": "",
-                "value": signal.signal[index]
-            })
-    print("\nBYE FLASK\n")
-    return jsonify(data)
 
 
 def data_formatting_file(signal):

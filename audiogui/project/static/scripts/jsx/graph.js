@@ -9,7 +9,7 @@ class LineGraph extends React.Component {
   }
 
   componentDidUpdate() {
-    // console.log(this.props.data);
+    console.log(this.props.data);
     this.lineChart.data.labels = this.props.labels;
     this.lineChart.data.datasets[0].data = this.props.data;
     this.lineChart.update();
@@ -65,7 +65,7 @@ class Graph extends React.Component {
       success: null,
       directory: "\\C:\\Users\\phili\\Downloads\\",
       filename: "test_save.wav",
-      fullpath: "this is a test"
+      fullpath: "C:\\Users\\phili\\audio\\audio\\resources\\joyca.wav"
     };
   }
 
@@ -94,6 +94,7 @@ class Graph extends React.Component {
     console.log("Generating multi sine")
     
     const args = {
+      rate: this.state.rate,
       f_list: this.state.f_list,
       gain_list: [10, 10, 10]
     }
@@ -101,8 +102,8 @@ class Graph extends React.Component {
 
     axios.post('/multisine', args)
       .then(response => {
-        const labels = response.data.map(d => d.label);
-        const data = response.data.map(d => d.value);
+        const labels = response.data.labels;
+        const data = response.data.data;
         this.setState({ labels: labels, data: data, type: 'MultiSine' });
       })
       .catch(error => {
@@ -112,49 +113,41 @@ class Graph extends React.Component {
 
   generateNoise(){
     console.log("Generating noise")
-    axios.get('/noise')
+    
+    const args = {
+      rate: this.state.rate,
+      gain: 0.95
+    }
+    console.log(args);
+
+    axios.post('/noise', args)
       .then(response => {
-        this.setState({ data: response.data });
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ labels: labels, data: data, type: 'Noise' });
       })
       .catch(error => {
         console.log(error)
       });
   }
 
-  handleFListChange(event, idx) {
-    const value = event.target.value;
-    const temp_list = this.state.f_list;
-    temp_list[idx] = value;
-    this.setState({ f_list: temp_list });
-    if (idx == 0){
-      this.setState({ f0: value });
-      this.generateSine()
-    }
-  }
 
-  handleWriteDirectoryChange(event) {
-    const directory = event.target.value;
-    this.setState({directory: directory});
-    this.concatenateFullpath()
-  }
   
-  handleWriteFileNameChange(event) {
-    const filename = event.target.value;
-    this.setState({filename: filename});
-    this.concatenateFullpath()
-  }
-
-  concatenateFullpath() {
-    if (this.state.filename != null && this.state.directory != null)
-      char = '{this.state.directory}${this.state.filename}'
-      this.setState({ fullpath: char})
-  }
-
   loadFile() {
-    axios.get('/loadFile', { params: {filepath: this.state.fullpath}})
-      .then(response => {
-        this.setState({ data: response.data });
-      })
+    console.log("Loading file")
+    
+      const args = {
+        filepath: this.state.fullpath
+      }
+      console.log(args);
+  
+      axios.post('/loadFile', args)
+        .then(response => {
+          const rate = response.data.rate;
+          const labels = response.data.labels;
+          const data = response.data.data;
+          this.setState({ rate: rate, labels:labels, data: data, type: 'File' });
+        })
       .catch(error => {
         console.log(error)
       });
@@ -192,6 +185,36 @@ class Graph extends React.Component {
       .catch(error => {
         console.log(error)
       });
+  }
+
+
+  handleFListChange(event, idx) {
+    const value = event.target.value;
+    const temp_list = this.state.f_list;
+    temp_list[idx] = value;
+    this.setState({ f_list: temp_list });
+    if (idx == 0){
+      this.setState({ f0: value });
+      this.generateSine()
+    }
+  }
+
+  handleWriteDirectoryChange(event) {
+    const directory = event.target.value;
+    this.setState({directory: directory});
+    this.concatenateFullpath()
+  }
+  
+  handleWriteFileNameChange(event) {
+    const filename = event.target.value;
+    this.setState({filename: filename});
+    this.concatenateFullpath()
+  }
+
+  concatenateFullpath() {
+    if (this.state.filename != null && this.state.directory != null)
+      char = '{this.state.directory}${this.state.filename}'
+      this.setState({ fullpath: char})
   }
 
 
