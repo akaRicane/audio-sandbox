@@ -70,8 +70,11 @@ def loadFile():
     filepath = args_dict["filepath"]
     print(f"filepath: {filepath}")
 
-    data, rate = audiofile.load_from_filepath(filepath)
+    precision = np.int64(args_dict["precision"])
+    print(f"precision: {precision}")
 
+    data, rate = audiofile.load_from_filepath(filepath)
+    
     labels = []
     mono_data = []
     for idx in range(len(data)):
@@ -81,6 +84,9 @@ def loadFile():
             mono_data.append(data[idx])
         else:
             mono_data.append(data[idx][0])
+
+    plotData, plotLabels = formatPlotData(mono_data, labels, precision)
+    print(f"Plot DATA length = {len(plotData)}")
 
     return jsonify(
         {'data': mono_data, 'labels': labels, 'rate': rate})
@@ -116,6 +122,16 @@ def playAudio():
     sd.play(data, rate)
     sd.wait()
     return jsonify({'success': True})
+
+
+def formatPlotData(data, labels, precision):
+    plotData = []
+    plotLabels = []
+    for idx in range(len(data)):
+        if (idx % int(len(data)/precision)) == 0:
+            plotData.append(data[idx])
+            plotLabels.append(labels[idx])
+    return plotData, plotLabels
 
 
 if __name__ == '__main__':
