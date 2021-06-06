@@ -87,7 +87,6 @@ def loadFile():
 
     plotData, plotLabels = formatPlotData(mono_data, labels, precision)
     print(f"Plot DATA length = {len(plotData)}")
-
     return jsonify(
         {'data': mono_data, 'labels': labels, 'rate': rate})
 
@@ -122,6 +121,28 @@ def playAudio():
     sd.play(data, rate)
     sd.wait()
     return jsonify({'success': True})
+
+
+@app.route('/recAudio', methods=['POST'])
+def recAudio():
+    print("\n*** Recording audio from microphone\n")
+    args_dict = request.get_json()
+
+    rate = np.int64(args_dict["rate"])
+    duration = np.float64(args_dict["duration"])
+    print(duration)
+    dataRec = sd.rec(int(duration * rate), channels=1, dtype='float64')
+    sd.wait()
+    labels = []
+    mono_data = []
+    for idx in range(len(dataRec)):
+        labels.append(idx)
+        if isinstance(dataRec[idx], np.float64):
+            # it is a mono file
+            mono_data.append(dataRec[idx])
+        else:
+            mono_data.append(dataRec[idx][0])
+    return jsonify({'data': mono_data, 'labels':  labels, 'rate': float(rate)})
 
 
 def formatPlotData(data, labels, precision):
