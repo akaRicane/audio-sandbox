@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import AudioSettings from "./components/AudioSettings.js";
+import SignalGenerator from "./components/SignalGenerator.js";
 
 
 function Sandbox() {
@@ -25,7 +26,13 @@ function Sandbox() {
         currentRate={settings.rate}
         currentBuffer={settings.buffer}
         callback={updateSettings}/>
+      <br />
+      <SignalGenerator 
+        rate={settings.rate}
+      />
       <div>
+        <br /><br />
+        <p>State visualizer</p>
         <p>Rate: {"rate" in settings ? settings["rate"] : "No rate"}</p>
         <p>Buffer: {"buffer" in settings ? settings["buffer"] : "No buffer"}</p>
       </div>

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 
 const AudioSettings = props => {
@@ -37,6 +37,6 @@ const AudioSettings = props => {
             <br />
         </div>
     );
-}
+};
 
 export default AudioSettings;
