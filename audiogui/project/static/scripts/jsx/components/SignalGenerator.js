@@ -1,11 +1,17 @@
 import React, { Component, useState } from 'react';
+import SineGenerator from './SineGenerator'
+import NoiseGenerator from './NoiseGenerator'
+import SweepGenerator from './SweepGenerator'
 
-function DynamicSignalTypePanel() {
-    return (
-        <div>
-            Plop
-        </div>
-    )
+const DynamicSignalTypePanel = props => {
+    console.log("Dynamic Signal Panel");
+    console.log(props);
+    if (props.signalType == 'sine')
+        return <SineGenerator />
+    if (props.signalType == 'noise')
+        return <NoiseGenerator/>
+    if (props.signalType == 'sweep')
+        return <SweepGenerator/>
 };
 
 const SignalGenerator = props => {
@@ -29,7 +35,6 @@ const SignalGenerator = props => {
     const handleChangeSignalType = newSignalType => {
         setSignalType(newSignalType);
     };
-
 
     return(
         <div>
@@ -63,7 +68,9 @@ const SignalGenerator = props => {
                 <br />
             </form>
             <br />
-            <DynamicSignalTypePanel />
+            <DynamicSignalTypePanel 
+                signalType={signalType}
+            />
         </div>
     );
 };

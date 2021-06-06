@@ -7,7 +7,7 @@ const AudioSettings = props => {
     const [buffer, setBuffer] = useState(props.currentBuffer);
 
     const updateSettings = () => {
-        props.callback({ rate: rate, buffer: buffer})
+        props.settingsCallback({ rate: rate, buffer: buffer})
     }
 
     return (
