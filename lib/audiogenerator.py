@@ -119,7 +119,7 @@ class Noise(AudioSignal):
                  value: int = 1024, format: str = 'max_size'):
         random.seed(None)
         super().__init__(rate=rate, value=value, format=format)
-        self.signal = np.random.uniform(-gain, gain, size=value)
+        self.signal = np.random.uniform(-gain, gain, size=np.size(self.vect))
 
 
 class Sweep(AudioSignal):

@@ -1,38 +1,43 @@
-import React, { Component } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import RequestSignal from './RequestSignal.js'
 
+const NoiseGenerator = props => {
 
-class NoiseGenerator extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [],
-            shape: 'uniform'
-        }
-    }
-    
-    handleChangeShape(event) {   
-        const shape = event.target.value;
-        this.setState({ shape: shape});
-    }
+    const labelsCallback = props.labelsCallback;
+    const dataCallback = props.dataCallback;
 
-    render() {
-        return(
-            <div class="bg-blue-500 bg-opacity-100">
-                <label>
-                    Noise Generator biatche !
-                    <br />
-                    Noise shape  :
-                    <select 
-                        value={this.state.shape}
-                        onChange={evt => this.handleChangeShape(evt)}>
-                        <option selected value='uniform'>uniform noise</option>
-                        <option value='white'>white noise</option>
-                        <option value='pink'>pink noise</option>
-                    </select>
-                </label>
-            </div>
-    )}
+    const [shape, setShape] = useState('uniform');
+
+    const [noiseDict, setNoiseDict] = useState({
+        gain: 0.5
+    });
+
+    return(
+        <div class="bg-blue-500 bg-opacity-100">
+            <label>
+                Noise Generator biatche !
+                <br />
+                Noise shape  :
+                <select 
+                    value={shape}
+                    onChange={evt => setShape(evt.target.value)}>
+                    <option selected value='uniform'>uniform noise</option>
+                    <option value='white'>white noise</option>
+                    <option value='pink'>pink noise</option>
+                </select>
+            </label>
+            <br />
+            <RequestSignal
+                format={props.format}
+                size={props.size}
+                signalType={props.signalType}
+                rate={props.rate}
+                labelsCallback={labelsCallback}
+                dataCallback={dataCallback}
+                signalDict={noiseDict}
+            />
+        </div>
+    )
 };
 
 export default NoiseGenerator

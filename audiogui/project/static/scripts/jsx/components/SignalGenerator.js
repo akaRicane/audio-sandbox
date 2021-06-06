@@ -59,6 +59,8 @@ const SignalGenerator = props => {
             </form>
             <br />
             <DynamicSignalTypePanel 
+                format={format}
+                size={size}
                 signalType={signalType}
                 rate={props.rate}
                 labelsCallback={labelsCallback}

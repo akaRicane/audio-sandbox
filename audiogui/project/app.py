@@ -16,27 +16,49 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/sine', methods=['POST'])
-def generateSine():
-    print("\n*** Generate sine ***")
+@app.route('/generateSignal', methods=['POST'])
+def generateSignal():
+    print("\n*** Generate signal ***")
     args_dict = request.get_json()
 
+    format = args_dict["format"]
+    value = np.float64(args_dict["size"])
+    signalType = args_dict["signalType"]
     rate = np.int64(args_dict["rate"])
-    sine_dict = args_dict["signalDict"]
+    signal_dict = args_dict["signalDict"]
 
-    freq_list = []
-    gain_list = []
+    if signalType == 'sine':
+        print("\n*** Generate sine ***")
+        freq_list = []
+        gain_list = []
 
-    for item in sine_dict:
-        freq_list.append(item["freq"])
-        gain_list.append(item["gain"])
+        for item in signal_dict:
+            freq_list.append(item["freq"])
+            gain_list.append(item["gain"])
 
-    print(f"rate: {rate} | F_LIST: {freq_list}  "
-          f"|  GAINS : {gain_list}")
+        print(f"rate: {rate} | F_LIST: {freq_list}  "
+              f"|  GAINS : {gain_list}")
 
-    signal = generator.MultiSine(rate=rate,
-                                 f_list=freq_list,
-                                 gain_list=gain_list)
+        signal = generator.MultiSine(rate=rate,
+                                     f_list=freq_list,
+                                     gain_list=gain_list,
+                                     format=format,
+                                     value=value)
+
+    elif signalType == 'noise':
+        print("\n*** Generate noise ***")
+        gain = np.float64(signal_dict["gain"])
+
+        print(f"rate: {rate} | gain: {gain}")
+
+        signal = generator.Noise(rate=rate,
+                                 gain=gain,
+                                 format=format,
+                                 value=value)
+
+    else:
+        print("\n*** Generate nothing sorry ***")
+
     return jsonify(
         {'data': signal.signal.tolist(), 'labels': signal.vect.tolist()})
 

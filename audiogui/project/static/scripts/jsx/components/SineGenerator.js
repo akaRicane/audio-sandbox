@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import RequestSignal from './MakeRequest.js'
+import RequestSignal from './RequestSignal.js'
 
 const SineGenerator = props => {
     
@@ -9,6 +9,7 @@ const SineGenerator = props => {
     const [pendingFreq, setPendingFreq] = useState(1234);
     const [pendingGain, setPendingGain] = useState(0.98);
     const [count, setCount] = useState(1);
+
     const [sineDict, setSineDict] = useState([
         {id: count, freq: 440, gain: 1.0}
     ]);
@@ -61,6 +62,9 @@ const SineGenerator = props => {
             </label>
             <br />
             <RequestSignal
+                format={props.format}
+                size={props.size}
+                signalType={props.signalType}
                 rate={props.rate}
                 labelsCallback={labelsCallback}
                 dataCallback={dataCallback}
