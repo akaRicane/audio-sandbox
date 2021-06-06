@@ -1,94 +1,96 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import axios from 'axios';
 
 
-class SineGenerator extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            data: [],
-            param: [
-                {id: 0, freq: 440, gain: 1.0},
-                {id: 1, freq: 1000, gain: 0.8},
-            ],
-            nSines: 2,
-            pending_freq: 1492,
-            pending_gain: 0.123
+const SineGenerator = props => {
+    
+    const [pendingFreq, setPendingFreq] = useState(1234);
+    const [pendingGain, setPendingGain] = useState(0.98);
+
+    const [freqTree, setFreqTree] = useState([
+        {id: 0, freq: 440, gain: 1.0},
+        {id: 1, freq: 1000, gain: 0.8}
+    ]);
+
+    const makeRequest = () => {
+        console.log("Generating sine")
+    
+        const args = {
+          rate: props.rate,
+          freqTree: freqTree,
         };
+        console.log(args);
+    
+        axios.post('/sine', args)
+          .then(response => {
+            const newLabels = response.data.labels;
+            const newData = response.data.data;
+            console.log("Data received");
+            props.labelsCallback(newLabels);
+            props.dataCallback(newData);
+          })
+          .catch(error => {
+            console.log(error)
+          });
+      };
+
+    const handleDelete = id => {
+        const newTree = freqTree.slice();
+        newTree.splice(id, 1);
+        setFreqTree(newTree)
     }
 
-    handleDelete(id) {
-        const param = this.state.param.slice();
-        const newNumber = this.state.nSines - 1;
-        param.splice(id, 1);
-
-        this.setState({ param: param, nSines: newNumber});
-        this.cleanSinesIds()
+    const handleAddSine = () => {
+        const newTree = freqTree.slice();
+        newTree.push({ id: newTree.length, freq: pendingFreq, gain: pendingGain})
+        setFreqTree(newTree)
     }
 
-    handleChangeNewGain(event){
-        const gain = event.target.value;
-        this.setState({ pending_gain: gain})
-    }
-
-    handleChangeNewFreq(event){
-        const freq = event.target.value;
-        this.setState({ pending_freq: freq})
-    }
-
-    handleAddSine() {
-        const param = this.state.param.slice();
-        const newId = this.state.nSines;
-        param.push({ id: newId, freq: this.state.pending_freq, gain: this.state.pending_gain})
-        const newNumber = this.state.nSines + 1;
-        this.setState({ param: param, nSines: newNumber});
-        this.cleanSinesIds();
-    }
-
-    cleanSinesIds() {
+    const cleanSinesIds = () => {
         const id = 0;
         const param = this.state.param.slice();
         param.map(sine => {sine.pos = id; id++;})
         this.setState({ param: param})
     }
 
-    render() {
-        return (
-            <div class="bg-blue-500 bg-opacity-100">
-                <label>
-                    Sine Generator Motherfucker !<br />
-                    <ul>
-                        {this.state.param.map(sine => 
-                            <li>
-                                <button
-                                type="button"
-                                className="p-2 my-2 bg-gray-500 text-white rounded-md"
-                                onClick={() => this.handleDelete(sine.id)}
-                                >X</button>
-                                id: {sine.id}{"   |   "}
-                                freq: {sine.freq}{"   Hz|   "}
-                                gain: {sine.gain}{"     |   "}
-                            </li>
-                        )}
-                        <form>
+    return (
+        <div class="bg-blue-500 bg-opacity-100">
+            <label>
+                Sine Generator Motherfucker !<br />
+                <ul>
+                    {freqTree.map(freq => 
+                        <li>
                             <button
                             type="button"
                             className="p-2 my-2 bg-gray-500 text-white rounded-md"
-                            onClick={() => this.handleAddSine()}
-                            >add</button>{"   "}
-                            freq:
-                            <input 
-                                value={this.state.pending_freq}
-                                onChange={evt => this.state.handleChangeNewFreq(evt)}/>{"Hz|   "}
-                            gain: 
-                            <input 
-                                value={this.state.pending_gain}
-                                onChange={evt => this.handleChangeNewGain(evt)}/>{"|   "}    
-                        </form>
-                    </ul>
-                </label>
-            </div>
-    )}
+                            onClick={() => handleDelete(freq.id)}
+                            >X</button>
+                            id: {freq.id}{"   |   "}
+                            freq: {freq.freq}{"   Hz|   "}
+                            gain: {freq.gain}{"     |   "}
+                        </li>
+                    )}
+                    <form>
+                        <button
+                        type="button"
+                        className="p-2 my-2 bg-gray-500 text-white rounded-md"
+                        onClick={() => handleAddSine()}
+                        >add</button>{"   "}
+                        freq:
+                        <input 
+                            value={pendingFreq}
+                            onChange={evt => setPendingFreq(evt.target.value)}/>{"Hz|   "}
+                        gain: 
+                        <input 
+                            value={pendingGain}
+                            onChange={evt => setPendingGain(evt.target.value)}/>{"|   "}    
+                    </form>
+                </ul>
+            </label>
+            <br />
+            <button onClick={makeRequest}>Generate</button>
+        </div>
+    );
 };
 
 export default SineGenerator
