@@ -22,29 +22,23 @@ def generateSine():
     args_dict = request.get_json()
 
     rate = np.int64(args_dict["rate"])
-    f0 = np.float64(args_dict["f0"])
-    gain = np.float64(args_dict["gain"])
-    print(f"rate: {rate} | f0: {f0} | gain: {gain}")
+    sine_dict = args_dict["signalDict"]
 
-    sine = generator.Sine(rate=rate, f0=f0, gain=gain)
-    return jsonify(
-        {'data': sine.signal.tolist(), 'labels': sine.vect.tolist()})
+    freq_list = []
+    gain_list = []
 
+    for item in sine_dict:
+        freq_list.append(item["freq"])
+        gain_list.append(item["gain"])
 
-@app.route('/multisine', methods=['POST'])
-def generateMultiSine():
-    print("\n*** Generate multisine ***")
-    args_dict = request.get_json()
-
-    rate = np.int64(args_dict["rate"])
-    f_list = np.array(args_dict["f_list"], dtype=np.float64)
-    gain_list = np.array(args_dict["gain_list"], dtype=np.float64)
-    print(f"rate: {rate} | F_LIST: {f_list}  "
+    print(f"rate: {rate} | F_LIST: {freq_list}  "
           f"|  GAINS : {gain_list}")
 
-    msine = generator.MultiSine(rate=rate, f_list=f_list, gain_list=gain_list)
+    signal = generator.MultiSine(rate=rate,
+                                 f_list=freq_list,
+                                 gain_list=gain_list)
     return jsonify(
-        {'data': msine.signal.tolist(), 'labels': msine.vect.tolist()})
+        {'data': signal.signal.tolist(), 'labels': signal.vect.tolist()})
 
 
 @app.route('/noise', methods=['POST'])

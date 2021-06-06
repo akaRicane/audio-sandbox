@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import AudioSettings from "./components/AudioSettings.js";
+import LineGraph from "./components/LineGraph.js";
 import SignalGenerator from "./components/SignalGenerator.js";
 
 
-function Sandbox() {
+const Sandbox = () => {
   
   const [settings, setSettings] = useState(
     {
@@ -16,7 +17,6 @@ function Sandbox() {
   const [labels, setLabels] = useState({});
   const [data, setData] = useState({});
 
-
   const updateSettings = (newSettings) => {
     console.log("New audio settings " + newSettings);
     setSettings(newSettings)
@@ -24,7 +24,7 @@ function Sandbox() {
   }
 
   const updateLabels = (newLabels) => {
-    setData(newLabels)
+    setLabels(newLabels)
     console.log("Labels updated")
   }
 
@@ -47,6 +47,13 @@ function Sandbox() {
         labelsCallback={updateLabels}
         dataCallback={updateData}
         />
+      <br />
+      {/* <LineGraph 
+        labels={labels}
+        data={data}
+        title={'RICANE'}
+        /> */}
+      <br />
       <div>
         <br /><br />
         <p>State visualizer</p>

@@ -5,13 +5,20 @@ import SweepGenerator from './SweepGenerator'
 
 const DynamicSignalTypePanel = props => {
     console.log("Dynamic Signal Panel");
-    console.log(props);
+    const labelsCallback = props.labelsCallback;
+    const dataCallback = props.dataCallback;
+
     if (props.signalType == 'sine')
-        return <SineGenerator />
+        return <SineGenerator
+            rate={props.rate}
+            labelsCallback={labelsCallback}
+            dataCallback={dataCallback}
+        />
     if (props.signalType == 'noise')
         return <NoiseGenerator/>
     if (props.signalType == 'sweep')
         return <SweepGenerator/>
+    else return (<p>choose signal type</p>);
 };
 
 const SignalGenerator = props => {
@@ -19,6 +26,9 @@ const SignalGenerator = props => {
     const [format, setFormat] = useState('max_size');
     const [size, setSize] = useState(1024);
     const [signalType, setSignalType] = useState('sine');
+
+    const labelsCallback = props.labelsCallback;
+    const dataCallback = props.dataCallback;
 
     const handleChangeFormat = newFormat => {
         setFormat(newFormat);
@@ -70,6 +80,9 @@ const SignalGenerator = props => {
             <br />
             <DynamicSignalTypePanel 
                 signalType={signalType}
+                rate={props.rate}
+                labelsCallback={labelsCallback}
+                dataCallback={dataCallback}
             />
         </div>
     );
