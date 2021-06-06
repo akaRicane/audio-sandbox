@@ -1,12 +1,9 @@
 import React, { useState } from "react";
-import axios from 'axios';
 import { Link } from 'react-router-dom';
-import SignalGenerator from "./components/SignalGenerator.js";
-import LineGraph from "./components/LineGraph.js";
 import AudioSettings from "./components/AudioSettings.js";
 
 
-function Graph() {
+function Sandbox() {
   
   const [settings, setSettings] = useState(
     {
@@ -37,4 +34,4 @@ function Graph() {
   )
 };
 
-export default Graph
+export default Sandbox
