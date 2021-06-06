@@ -28,8 +28,7 @@ function Sandbox() {
         callback={updateSettings}/>
       <br />
       <SignalGenerator 
-        rate={settings.rate}
-      />
+        rate={settings.rate}/>
       <div>
         <br /><br />
         <p>State visualizer</p>

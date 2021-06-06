@@ -1,5 +1,13 @@
 import React, { Component, useState } from 'react';
 
+function DynamicSignalTypePanel() {
+    return (
+        <div>
+            Plop
+        </div>
+    )
+};
+
 const SignalGenerator = props => {
 
     const [format, setFormat] = useState('max_size');
@@ -16,8 +24,12 @@ const SignalGenerator = props => {
             // max size default is 1024 points
             setSize(1024);
         };
+    };
 
-    }
+    const handleChangeSignalType = newSignalType => {
+        setSignalType(newSignalType);
+    };
+
 
     return(
         <div>
@@ -43,13 +55,15 @@ const SignalGenerator = props => {
                     Signal type  :
                     <select 
                         value={signalType}
-                        onChange={evt => setSignalType(evt.target.value)}>
+                        onChange={evt => handleChangeSignalType(evt.target.value)}>
                         <option selected value="sine">Sine</option>
                         <option value="noise">Noise</option>
                     </select>
                 </label>
                 <br />
             </form>
+            <br />
+            <DynamicSignalTypePanel />
         </div>
     );
 };
