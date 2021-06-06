@@ -26,11 +26,6 @@ const SineGenerator = props => {
         setSineDict(newTree);
     }
 
-    const handleRequestSignal = (newLabels, newData) => {
-        console.log("RequestSignal done")
-    }
-
-
     return (
         <div class="bg-blue-500 bg-opacity-100">
             <label>
@@ -75,4 +70,4 @@ const SineGenerator = props => {
     );
 };
 
-export default SineGenerator
+export default SineGenerator;
