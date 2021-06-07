@@ -1,24 +1,32 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
+
+const IconManager = props => {
+    if (props.call == 'stop')    
+        return(<PlayCircleOutlined />);
+    if (props.call == 'play')
+        return(<PauseCircleOutlined />);
+};
 
 const PlayerAudio = props => {
 
     const [activity, setActivity] = useState('stop');
-    const [icon, setIcon] = useState(0)
 
     const args = {
         rate: props.rate,
         data: props.data
     };
     
-    const handleClick = () => {
+    const handleActivity = () => {
         if (activity == 'stop') {
-            setActivity('play')
+            setActivity('play');
             handleRequest();
         }
 
-        if (activity == 'play') 
-            setActivity('stop')
+        if (activity == 'play') {
+            setActivity('stop');
+        }
     };
 
     const handleRequest = () => {
@@ -37,8 +45,8 @@ const PlayerAudio = props => {
             <button
                 type="button"
                 className="p-2 my-2 bg-gray-500 text-white rounded-md"
-                onClick={handleClick}>
-                Play
+                onClick={handleActivity}>
+                <IconManager call={activity}/>
                 </button>
         </div>
     );

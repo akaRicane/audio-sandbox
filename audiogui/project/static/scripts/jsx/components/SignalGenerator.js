@@ -3,8 +3,8 @@ import DynamicSignalTypePanel from './DynamicSignalTypePanel.js'
 
 const SignalGenerator = props => {
 
-    const [format, setFormat] = useState('max_size');
-    const [size, setSize] = useState(1024);
+    const [format, setFormat] = useState('duration');
+    const [size, setSize] = useState(1.0);
     const [signalType, setSignalType] = useState('sine');
 
     const labelsCallback = props.labelsCallback;
@@ -12,13 +12,13 @@ const SignalGenerator = props => {
 
     const handleChangeFormat = newFormat => {
         setFormat(newFormat);
-        if (newFormat == 'duration') {    
+        if (newFormat == 'max_size') {    
             // duration default is 1.5 sec
-            setSize(1.5);
+            setSize(1024);
         }
         else {
             // max size default is 1024 points
-            setSize(1024);
+            setSize(1.0);
         };
     };
 
@@ -36,13 +36,13 @@ const SignalGenerator = props => {
                     <select 
                         value={format}
                         onChange={evt => handleChangeFormat(evt.target.value)}>
-                        <option selected value="max_size">max_size</option>
-                        <option value="duration">duration</option>
+                        <option value="max_size">max_size</option>
+                        <option selected value="duration">duration</option>
                     </select>
                     <br />
                     Size  :
                     <input
-                        placeholder="1024 points"
+                        placeholder="1.0 seconds"
                         value={size}
                         onChange={evt => setSize(evt.target.value)}/>
                     (nb points or seconds)

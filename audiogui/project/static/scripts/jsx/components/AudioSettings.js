@@ -14,6 +14,7 @@ const AudioSettings = props => {
             <label>
                 <h1>Audio Settings</h1>
                 buffer: {buffer}
+                <br />
                 rate  :
                 <select 
                     value={rate}

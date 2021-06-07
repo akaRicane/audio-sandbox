@@ -94,8 +94,8 @@ def saveFile():
     rate = np.int64(args_dict["rate"])
     data = np.array(args_dict["data"], dtype=np.float64)
     filepath = args_dict["filepath"] + "\\"
-    filename = args_dict["filename"]
     format = args_dict["format"]
+    filename = args_dict["filename"] + '.' + format
     print(f"rate: {rate} | filename: {filename}")
 
     success = audiofile.write_in_audiofile(

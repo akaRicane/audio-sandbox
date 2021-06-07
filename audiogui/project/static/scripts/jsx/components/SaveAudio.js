@@ -4,7 +4,7 @@ import axios from 'axios';
 const SaveAudio = props => {
 
     const [filepath, setFilepath] = useState("");
-    const [filename, setFilename] = useState("test.wav");
+    const [filename, setFilename] = useState("test");
     const [extension, setExtension] = useState("WAV");
 
     const args = {
@@ -17,7 +17,7 @@ const SaveAudio = props => {
 
     const handleRequest = () => {
         axios.post('/saveFile', args)
-            .then(alert("Successfully saved: " + filepath + '\\' + filename))
+            .then(alert("Successfully saved: " + filepath + '\\' + filename + '.' + extension))
             .catch(error => {
             console.log(error)
             });
