@@ -4,6 +4,7 @@ import AudioSettings from "./components/AudioSettings.js";
 import LineGraph from "./components/LineGraph.js";
 import SignalGenerator from "./components/SignalGenerator.js";
 import LoadAudioFile from './components/LoadAudioFile';
+import SaveAudio from './components/SaveAudio.js'
 
 
 const Sandbox = () => {
@@ -57,7 +58,12 @@ const Sandbox = () => {
         rateCallback={updateRate}
         labelsCallback={updateLabels}
         dataCallback={updateData}
-      />
+        />
+      <br />
+      <SaveAudio 
+        rate={settings.rate}
+        data={data}
+        />
       <br />
       <div>
         <br /><br />

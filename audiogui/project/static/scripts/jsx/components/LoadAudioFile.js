@@ -8,7 +8,7 @@ const LoadAudioFile = props => {
     const labelsCallback = props.labelsCallback;
     const dataCallback = props.dataCallback;
 
-    const [filepath, setFilepath] = useState("")
+    const [filepath, setFilepath] = useState("");
 
     const args = {
         rate: props.rate,
@@ -26,7 +26,7 @@ const LoadAudioFile = props => {
             .catch(error => {
             console.log(error)
             });
-    }
+    };
 
     return(
         <div>
@@ -37,6 +37,11 @@ const LoadAudioFile = props => {
                 onClick={handleRequest}>
                 Load
             </button>
+            <select 
+                onChange={evt => setFilepath(evt.target.value)}>
+                <option value="to fill">Drou</option>
+                <option value="C:\Users\phili\audio\audio\resources\bin\test.wav">Ricane</option>
+            </select>
             <input
                 placeholder="file path"
                 value={filepath}

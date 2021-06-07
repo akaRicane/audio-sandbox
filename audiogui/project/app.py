@@ -88,21 +88,21 @@ def loadFile():
         {'data': mono_data, 'labels': labels, 'rate': rate})
 
 
-@app.route('/writeFile', methods=['POST'])
-def writeFile():
-    print("\n*** Writting audio file\n")
+@app.route('/saveFile', methods=['POST'])
+def saveFile():
+    print("\n*** save audio file file\n")
     args_dict = request.get_json()
 
     rate = np.int64(args_dict["rate"])
     data = np.array(args_dict["data"], dtype=np.float64)
-    directory = args_dict["directory"]
+    filepath = args_dict["filepath"] + "\\"
     filename = args_dict["filename"]
-
+    format = args_dict["format"]
     print(f"rate: {rate} | filename: {filename}")
 
     success = audiofile.write_in_audiofile(
-        filepath=directory, filename=filename,
-        format='WAV', audio_signal=data, rate=rate)
+        filepath=filepath, filename=filename,
+        format=format, audio_signal=data, rate=rate)
 
     return jsonify({"success": success})
 
