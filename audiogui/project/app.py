@@ -1,9 +1,8 @@
 import os
 import sys
-from flask.helpers import make_response
 import sounddevice as sd
 import numpy as np
-from flask import Flask, json, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
 from lib import audiofile, config, tool  # noqa E402
@@ -61,7 +60,6 @@ def generateSignal():
 
     return jsonify(
         {'data': signal.signal.tolist(), 'labels': signal.vect.tolist()})
-
 
 
 @app.route('/loadFile', methods=['POST'])

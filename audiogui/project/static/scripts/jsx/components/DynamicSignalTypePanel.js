@@ -4,7 +4,7 @@ import NoiseGenerator from './NoiseGenerator'
 import SweepGenerator from './SweepGenerator'
 
 const DynamicSignalTypePanel = props => {
-    console.log("Dynamic Signal Panel");
+
     const labelsCallback = props.labelsCallback;
     const dataCallback = props.dataCallback;
 

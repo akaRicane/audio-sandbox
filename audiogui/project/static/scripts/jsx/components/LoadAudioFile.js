@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-
 const LoadAudioFile = props => {
 
     const rateCallback = props.rateCallback;
@@ -16,7 +15,6 @@ const LoadAudioFile = props => {
     };
 
     const handleRequest = () => {
-        console.log("Loading file ...");
         axios.post('/loadFile', args)
             .then(response => {
                 rateCallback(response.data.rate);
@@ -24,7 +22,7 @@ const LoadAudioFile = props => {
                 dataCallback(response.data.data);
             })
             .catch(error => {
-            console.log(error)
+                console.log(error)
             });
     };
 

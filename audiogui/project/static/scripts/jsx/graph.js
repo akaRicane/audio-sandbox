@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Link } from 'react-router-dom';
 import AudioSettings from "./components/AudioSettings.js";
 import LineGraph from "./components/LineGraph.js";
-import SignalGenerator from "./components/SignalGenerator.js";
 import LoadAudioFile from './components/LoadAudioFile';
+import PlayerAudio from "./components/PlayerAudio.js";
 import SaveAudio from './components/SaveAudio.js'
-
+import SignalGenerator from "./components/SignalGenerator.js";
 
 const Sandbox = () => {
   
@@ -22,22 +22,22 @@ const Sandbox = () => {
   const updateRate = (newRate) => {
     setSettings({ rate: newRate})
     console.log("Rate updated")
-  }
+  };
 
   const updateSettings = (newSettings) => {
     setSettings(newSettings)
     console.log(settings)
-  }
+  };
 
   const updateLabels = (newLabels) => {
     setLabels(newLabels)
     console.log("Labels updated")
-  }
+  };
 
   const updateData = (newData) => {
     setData(newData)
     console.log("Data updated")
-  }
+  };
 
   return (
     <Link to="/">
@@ -65,6 +65,10 @@ const Sandbox = () => {
         data={data}
         />
       <br />
+      <PlayerAudio 
+        rate={settings.rate}
+        data={data}
+        />
       <div>
         <br /><br />
         <p>State visualizer</p>
@@ -74,7 +78,7 @@ const Sandbox = () => {
       </div>
     
     </Link>
-  )
+  );
 };
 
-export default Sandbox
+export default Sandbox;

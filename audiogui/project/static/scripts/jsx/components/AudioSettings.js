@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-
 const AudioSettings = props => {
 
     const [rate, setRate] = useState(props.currentRate);
@@ -14,15 +13,8 @@ const AudioSettings = props => {
         <div>
             <label>
                 <h1>Audio Settings</h1>
-                <ul>
-                    <li>
-                      rate: {rate}
-                    </li>
-                    <li>
-                      buffer: {buffer}
-                    </li>
-                </ul>
-                Rate  :
+                buffer: {buffer}
+                rate  :
                 <select 
                     value={rate}
                     onChange={evt => setRate(evt.target.value)}>

@@ -15,7 +15,7 @@ const NoiseGenerator = props => {
     return(
         <div class="bg-blue-500 bg-opacity-100">
             <label>
-                Noise Generator biatche !
+                Noise Generator !
                 <br />
                 Noise shape  :
                 <select 
@@ -37,7 +37,7 @@ const NoiseGenerator = props => {
                 signalDict={noiseDict}
             />
         </div>
-    )
+    );
 };
 
-export default NoiseGenerator
+export default NoiseGenerator;

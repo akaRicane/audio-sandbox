@@ -17,7 +17,7 @@ const SaveAudio = props => {
 
     const handleRequest = () => {
         axios.post('/saveFile', args)
-            .then(alert("Successfully saved: " + filepath))
+            .then(alert("Successfully saved: " + filepath + '\\' + filename))
             .catch(error => {
             console.log(error)
             });
