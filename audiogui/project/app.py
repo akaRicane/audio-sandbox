@@ -63,19 +63,6 @@ def generateSignal():
         {'data': signal.signal.tolist(), 'labels': signal.vect.tolist()})
 
 
-@app.route('/noise', methods=['POST'])
-def generateNoise():
-    print("\n*** Generate noise ***")
-    args_dict = request.get_json()
-
-    rate = np.int64(args_dict["rate"])
-    gain = np.float64(args_dict["gain"])
-    print(f"rate: {rate} | gain: {gain}")
-
-    noise = generator.Noise(rate=rate, gain=gain)
-    return jsonify(
-        {'data': noise.signal.tolist(), 'labels': noise.vect.tolist()})
-
 
 @app.route('/loadFile', methods=['POST'])
 def loadFile():

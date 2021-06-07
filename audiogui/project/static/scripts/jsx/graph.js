@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AudioSettings from "./components/AudioSettings.js";
 import LineGraph from "./components/LineGraph.js";
 import SignalGenerator from "./components/SignalGenerator.js";
+import LoadAudioFile from './components/LoadAudioFile';
 
 
 const Sandbox = () => {
@@ -17,8 +18,12 @@ const Sandbox = () => {
   const [labels, setLabels] = useState({});
   const [data, setData] = useState({});
 
+  const updateRate = (newRate) => {
+    setSettings({ rate: newRate})
+    console.log("Rate updated")
+  }
+
   const updateSettings = (newSettings) => {
-    console.log("New audio settings " + newSettings);
     setSettings(newSettings)
     console.log(settings)
   }
@@ -48,11 +53,11 @@ const Sandbox = () => {
         dataCallback={updateData}
         />
       <br />
-      {/* <LineGraph 
-        labels={labels}
-        data={data}
-        title={'RICANE'}
-        /> */}
+      <LoadAudioFile 
+        rateCallback={updateRate}
+        labelsCallback={updateLabels}
+        dataCallback={updateData}
+      />
       <br />
       <div>
         <br /><br />
