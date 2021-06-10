@@ -1,16 +1,13 @@
 import os
 import sys
-from flask.helpers import make_response
 import sounddevice as sd
 import numpy as np
-from flask import Flask, json, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request
 sys.path.append(os.getcwd())
 from lib import audiogenerator as generator  # noqa E402
 from lib import audiofile, config, tool  # noqa E402
 
 app = Flask(__name__)
-
-RATE = 44100
 
 
 @app.route('/')
@@ -18,49 +15,51 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/sine', methods=['POST'])
-def generateSine():
-    print("\n*** Generate sine ***")
+@app.route('/generateSignal', methods=['POST'])
+def generateSignal():
+    print("\n*** Generate signal ***")
     args_dict = request.get_json()
 
+    format = args_dict["format"]
+    value = np.float64(args_dict["size"])
+    signalType = args_dict["signalType"]
     rate = np.int64(args_dict["rate"])
-    f0 = np.float64(args_dict["f0"])
-    gain = np.float64(args_dict["gain"])
-    print(f"rate: {rate} | f0: {f0} | gain: {gain}")
+    signal_dict = args_dict["signalDict"]
 
-    sine = generator.Sine(rate=rate, f0=f0, gain=gain)
+    if signalType == 'sine':
+        print("\n*** Generate sine ***")
+        freq_list = []
+        gain_list = []
+
+        for item in signal_dict:
+            freq_list.append(item["freq"])
+            gain_list.append(item["gain"])
+
+        print(f"rate: {rate} | F_LIST: {freq_list}  "
+              f"|  GAINS : {gain_list}")
+
+        signal = generator.MultiSine(rate=rate,
+                                     f_list=freq_list,
+                                     gain_list=gain_list,
+                                     format=format,
+                                     value=value)
+
+    elif signalType == 'noise':
+        print("\n*** Generate noise ***")
+        gain = np.float64(signal_dict["gain"])
+
+        print(f"rate: {rate} | gain: {gain}")
+
+        signal = generator.Noise(rate=rate,
+                                 gain=gain,
+                                 format=format,
+                                 value=value)
+
+    else:
+        print("\n*** Generate nothing sorry ***")
+
     return jsonify(
-        {'data': sine.signal.tolist(), 'labels': sine.vect.tolist()})
-
-
-@app.route('/multisine', methods=['POST'])
-def generateMultiSine():
-    print("\n*** Generate multisine ***")
-    args_dict = request.get_json()
-
-    rate = np.int64(args_dict["rate"])
-    f_list = np.array(args_dict["f_list"], dtype=np.float64)
-    gain_list = np.array(args_dict["gain_list"], dtype=np.float64)
-    print(f"rate: {rate} | F_LIST: {f_list}  "
-          f"|  GAINS : {gain_list}")
-
-    msine = generator.MultiSine(rate=rate, f_list=f_list, gain_list=gain_list)
-    return jsonify(
-        {'data': msine.signal.tolist(), 'labels': msine.vect.tolist()})
-
-
-@app.route('/noise', methods=['POST'])
-def generateNoise():
-    print("\n*** Generate noise ***")
-    args_dict = request.get_json()
-
-    rate = np.int64(args_dict["rate"])
-    gain = np.float64(args_dict["gain"])
-    print(f"rate: {rate} | gain: {gain}")
-
-    noise = generator.Noise(rate=rate, gain=gain)
-    return jsonify(
-        {'data': noise.signal.tolist(), 'labels': noise.vect.tolist()})
+        {'data': signal.signal.tolist(), 'labels': signal.vect.tolist()})
 
 
 @app.route('/loadFile', methods=['POST'])
@@ -87,21 +86,21 @@ def loadFile():
         {'data': mono_data, 'labels': labels, 'rate': rate})
 
 
-@app.route('/writeFile', methods=['POST'])
-def writeFile():
-    print("\n*** Writting audio file\n")
+@app.route('/saveFile', methods=['POST'])
+def saveFile():
+    print("\n*** save audio file file\n")
     args_dict = request.get_json()
 
     rate = np.int64(args_dict["rate"])
     data = np.array(args_dict["data"], dtype=np.float64)
-    directory = args_dict["directory"]
-    filename = args_dict["filename"]
-
+    filepath = args_dict["filepath"] + "\\"
+    format = args_dict["format"]
+    filename = args_dict["filename"] + '.' + format
     print(f"rate: {rate} | filename: {filename}")
 
     success = audiofile.write_in_audiofile(
-        filepath=directory, filename=filename,
-        format='WAV', audio_signal=data, rate=rate)
+        filepath=filepath, filename=filename,
+        format=format, audio_signal=data, rate=rate)
 
     return jsonify({"success": success})
 
