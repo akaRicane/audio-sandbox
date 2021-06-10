@@ -1,0 +1,183 @@
+class LineGraph extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  componentDidUpdate() {
+    console.log("updating graph")
+    const precision = this.props.precision;
+    const modulo = parseInt(this.props.data.length / precision);
+    const plotData = [];
+    const plotLabels = [];
+    for (var idx = 0; idx <= this.props.data.length; idx++) {
+      console.log((idx % modulo) == 0);
+      if ((idx % modulo) == 0) {
+        console.log(plotData);
+        plotData.push(this.props.data[idx]);
+        plotLabels.push(this.props.labels[idx]);
+      }
+    }
+
+    this.lineChart.data.labels = plotLabels;
+    this.lineChart.data.datasets[0].label = this.props.title;
+    this.lineChart.data.datasets[0].data = plotData;
+    this.lineChart.update();
+  }
+
+  componentDidMount() {
+    const ctx = document.getElementById("myChart");
+    const alpha_line = "1)";
+    const alpha_fill = "0.2)";
+    const colors = {
+      cyan: 'rgba(8, 247, 254, ' + alpha_line,
+      cyan_fill: 'rgba(8, 247, 254, ' + alpha_fill,
+      pink: 'rgba(254, 83, 187, ' + alpha_line,
+      pink_fill: 'rgba(254, 83, 187, ' + alpha_fill,
+      yellow: 'rgba(245, 211, 0, ' + alpha_line,
+      yellow_fill: 'rgba(245, 211, 0, ' + alpha_fill,
+      green: 'rgba(0, 255, 65, ' + alpha_line,
+      green_fill: 'rgba(0, 255, 65, ' + alpha_fill
+    };
+    const colorLine = colors.pink;
+    const colorFill = colors.pink_fill
+    ctx.width = 1000;
+    ctx.height = 400;
+    ctx.style.backgroundColor = '#212946';
+    Chart.defaults.global.defaultFontColor = '#b1b1c9';
+
+    this.lineChart = new Chart(ctx, {
+      type: "line",
+      showPoints: false,
+      data: {
+        //Bring in data
+        labels: this.props.labels,
+        datasets: [
+          {
+            label: this.props.title,
+            data: this.props.data,
+            fill: true,
+            borderColor: colorLine,
+            backgroundColor: colorFill
+          }
+        ]
+      },
+      options: {
+        animation: false,
+        responsive: false,
+        maintainAspectRatio: true,
+        elements: {
+          point: {
+            radius: 0
+          }
+        },
+        scales: {
+          xAxes: [{
+            gridLines: {
+              display: true,
+              color: '#2A3459'
+            }
+          }],
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            },
+            gridLines: {
+              display: true,
+              color: '#2A3459'
+            }
+          }]
+        }
+      }
+    });
+  }
+
+  render() {
+    return <canvas id="myChart" width={8000} />;
+  }
+}
+
+
+####################################################
+####################################################
+####################################################
+####################################################
+####################################################
+
+
+class Graph extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      data: [],
+      plotData: [],
+      labels: [],
+      plotLabels: [],
+      precision: 512,
+      duration: 1,
+      f_list: ["440", "650", "1111"],
+      rate: "44100",
+      type: null,
+      directory: "C:\\Users\\drew\\Documents\\audio\\resources\\bin",
+      filename: "test_save.wav",
+      fullpath: "C:\\Users\\drew\\Documents\\audio\\resources\\bin\\test_save.wav",
+      loadpath: "C:\\Users\\drew\\Documents\\audio\\resources\\bin\\test_save.wav"
+    };
+  }
+
+
+  recAudio() {
+    console.log("Recording audio")
+
+    const args = {
+      rate: this.state.rate,
+      duration: this.state.duration
+    }
+    console.log(args);
+
+    axios.post('/recAudio', args)
+      .then(response => {
+        const rate = response.data.rate;
+        const labels = response.data.labels;
+        const data = response.data.data;
+        this.setState({ rate: rate, labels: labels, data: data, type: 'Rec' });
+      })
+      .catch(error => {
+        console.log(error)
+      });
+  }
+
+
+
+    handlePrecisionChange(event) {
+    const precision = event.target.value;
+    this.setState({ precision });
+  }
+
+
+  <button
+            type="button"
+            className="p-2 my-2 bg-gray-500 text-white rounded-md"
+            onClick={() => this.recAudio()}
+          >
+            Rec audio
+          </button>
+                    <input
+            placeholder="duration"
+            value={this.state.duration}
+            onChange={evt => this.handleDurationChange(evt)} />
+          <br />
+              <div>
+            <LineGraph
+              precision={this.state.precision}
+              data={this.state.data}
+              labels={this.state.labels}
+              title={this.state.type}
+            />
+            <input
+              type="range" min="128" max="1024" step="1"
+              placeholder="precision"
+              value={this.state.precision}
+              onChange={evt => this.handlePrecisionChange(evt)} />
+            <label>
+              Number of graph points: {this.state.precision}
+            </label>
