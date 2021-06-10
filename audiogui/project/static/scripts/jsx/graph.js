@@ -4,11 +4,12 @@ import AudioSettings from "./components/AudioSettings.js";
 import LineGraph from "./components/LineGraph.js";
 import LoadAudioFile from './components/LoadAudioFile';
 import PlayerAudio from "./components/PlayerAudio.js";
+import RecorderAudio from "./components/RecorderAudio.js";
 import SaveAudio from './components/SaveAudio.js'
 import SignalGenerator from "./components/SignalGenerator.js";
 
 const Sandbox = () => {
-  
+
   const [settings, setSettings] = useState(
     {
       rate: "44100",
@@ -20,7 +21,7 @@ const Sandbox = () => {
   const [data, setData] = useState({});
 
   const updateRate = (newRate) => {
-    setSettings({ rate: newRate})
+    setSettings({ rate: newRate })
     console.log("Rate updated")
   };
 
@@ -44,31 +45,38 @@ const Sandbox = () => {
       <AudioSettings
         currentRate={settings.rate}
         currentBuffer={settings.buffer}
-        settingsCallback={updateSettings}/>
+        settingsCallback={updateSettings} />
       <br />
-      <SignalGenerator 
+      <SignalGenerator
         rate={settings.rate}
         labels={labels}
         data={data}
         labelsCallback={updateLabels}
         dataCallback={updateData}
-        />
+      />
       <br />
-      <LoadAudioFile 
+      <LoadAudioFile
         rateCallback={updateRate}
         labelsCallback={updateLabels}
         dataCallback={updateData}
-        />
+      />
       <br />
-      <SaveAudio 
+      <SaveAudio
         rate={settings.rate}
         data={data}
-        />
+      />
       <br />
-      <PlayerAudio 
+      <PlayerAudio
         rate={settings.rate}
         data={data}
-        />
+      />
+      <br />
+      <RecorderAudio
+        rateCallback={updateRate}
+        labelsCallback={updateLabels}
+        dataCallback={updateData}
+        rate={settings.rate}
+      />
       <div>
         <br /><br />
         <p>State visualizer</p>
@@ -76,7 +84,7 @@ const Sandbox = () => {
         <p>Buffer: {"buffer" in settings ? settings["buffer"] : "No buffer"}</p>
         <p>Data length: {data.length}</p>
       </div>
-    
+
     </Link>
   );
 };
