@@ -70,13 +70,13 @@ const Sandbox = () => {
         rate={settings.rate}
         data={data}
       />
-      <br />
       <RecorderAudio
         rateCallback={updateRate}
         labelsCallback={updateLabels}
         dataCallback={updateData}
         rate={settings.rate}
       />
+      <br />
       <div>
         <br /><br />
         <p>State visualizer</p>
