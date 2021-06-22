@@ -1,5 +1,5 @@
 import os
-import pyaudio
+# import pyaudio
 from pathlib import Path
 
 # general settings
@@ -13,7 +13,7 @@ SAMPLING_FREQUENCY = 44100  # Hz
 FFT_SIZE = 1024  # points
 BANDS_SLICER_SIZE = 10  # bands
 FRAMES_PER_BUFFER = 1024  # frames per buffer
-BYTES_DEFAULT_FORMAT = pyaudio.paInt16
+# BYTES_DEFAULT_FORMAT = pyaudio.paInt16
 
 # audiofile
 AUDIO_RESSOURCES = Path(AUDIO_REPOSITORY, "resources")
