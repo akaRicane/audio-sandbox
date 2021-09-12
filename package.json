@@ -31,6 +31,7 @@
     "react-router-dom": "^5.2.0",
     "style-loader": "^2.0.0",
     "tailwindcss": "^2.0.3",
+    "typescript": "^4.4.3",
     "vinyl-source-stream": "^2.0.0",
     "webpack": "^5.39.1",
     "webpack-cli": "^4.4.0",
@@ -43,6 +44,8 @@
     "cra": "^0.0.0",
     "craco": "^0.0.3",
     "node": "^16.3.0",
-    "o": "^2.3.2"
+    "o": "^2.3.2",
+    "p5": "^1.4.0",
+    "react-p5-wrapper": "^3.0.0"
   }
 }
